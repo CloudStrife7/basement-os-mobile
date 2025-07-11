@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basement Activity Ping</title>
+</head>
+<body>
+    <h1>Basement Activity Detected</h1>
+    <p>VRChat world pinged at: <span id="timestamp"></span></p>
+    <script>
+        document.getElementById('timestamp').textContent = new Date().toISOString();
+        console.log('VRChat basement activity detected:', new Date());
+    </script>
+</body>
+</html>
