@@ -1,14 +1,167 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Basement Activity Ping</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lower Level 2.0 - Basement Activity Monitor</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f172a 100%);
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .terminal {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #00ff00;
+            padding-bottom: 10px;
+        }
+        
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0, 255, 0, 0.1);
+            border-left: 3px solid #00ff00;
+        }
+        
+        .timestamp {
+            color: #ffff00;
+            font-weight: bold;
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .log {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #333;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            margin: 2px 0;
+            opacity: 0.8;
+        }
+    </style>
 </head>
 <body>
-    <h1>Basement Activity Detected</h1>
-    <p>VRChat world pinged at: <span id="timestamp"></span></p>
+    <div class="terminal">
+        <div class="header">
+            <h1>🏠 LOWER LEVEL 2.0 BASEMENT MONITOR</h1>
+            <p>VRChat Activity Webhook Endpoint</p>
+        </div>
+        
+        <div class="status">
+            <strong>📡 STATUS:</strong> <span class="blink">ONLINE</span>
+        </div>
+        
+        <div class="status">
+            <strong>🕐 LAST PING:</strong> <span id="timestamp" class="timestamp">Initializing...</span>
+        </div>
+        
+        <div class="status">
+            <strong>🎮 BASEMENT ID:</strong> lowerlevel2_main
+        </div>
+        
+        <div class="status">
+            <strong>📊 TOTAL PINGS:</strong> <span id="pingCount">0</span>
+        </div>
+        
+        <div class="status">
+            <strong>🌐 ENDPOINT:</strong> https://CloudStrife7.github.io/basement-os-mobile/ping.html
+        </div>
+        
+        <div class="log">
+            <div style="color: #00ff00; font-weight: bold;">ACTIVITY LOG:</div>
+            <div id="activityLog">
+                <div class="log-entry">[SYSTEM] Webhook endpoint initialized</div>
+                <div class="log-entry">[READY] Waiting for VRChat basement activity...</div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        document.getElementById('timestamp').textContent = new Date().toISOString();
-        console.log('VRChat basement activity detected:', new Date());
+        let pingCount = parseInt(localStorage.getItem('basementPingCount') || '0');
+        
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById('timestamp').textContent = now.toLocaleString();
+            
+            // Increment ping count (this happens every time the page is accessed)
+            pingCount++;
+            document.getElementById('pingCount').textContent = pingCount;
+            localStorage.setItem('basementPingCount', pingCount.toString());
+            
+            // Add to activity log
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.textContent = `[${now.toLocaleTimeString()}] VRChat basement activity detected`;
+            
+            const activityLog = document.getElementById('activityLog');
+            activityLog.appendChild(logEntry);
+            
+            // Keep only last 10 entries
+            while (activityLog.children.length > 12) { // 2 initial + 10 activity entries
+                activityLog.removeChild(activityLog.children[2]); // Skip the first 2 system messages
+            }
+            
+            // Scroll to bottom
+            activityLog.scrollTop = activityLog.scrollHeight;
+            
+            // Console logging for debugging
+            console.log('🏠 Lower Level 2.0 basement activity detected!');
+            console.log('Timestamp:', now.toISOString());
+            console.log('Ping count:', pingCount);
+            console.log('User Agent:', navigator.userAgent);
+            
+            // Try to detect if this is from VRChat
+            if (navigator.userAgent.includes('VRChat') || 
+                navigator.userAgent.includes('Unity') || 
+                document.referrer.includes('vrchat')) {
+                console.log('🎮 Request appears to be from VRChat!');
+                logEntry.style.color = '#ffff00';
+                logEntry.textContent += ' (VRChat detected!)';
+            }
+        }
+        
+        // Update immediately when page loads
+        updateTimestamp();
+        
+        // Display current ping count
+        document.getElementById('pingCount').textContent = pingCount;
+        
+        // Auto-refresh every 30 seconds to show it's alive
+        setInterval(() => {
+            document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        }, 30000);
     </script>
 </body>
 </html>
