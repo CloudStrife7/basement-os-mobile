@@ -1,7 +1,7 @@
 {
-  "name": "Lower Level 2.0 - Basement Monitor",
-  "short_name": "Basement Monitor",
-  "description": "Monitor your VRChat basement activity in real-time with friend and visitor tracking",
+  "name": "BASEMENT CONSOLE v2.0",
+  "short_name": "BSMT_CON",
+  "description": "Command line interface for basement terminal interface",
   "version": "1.0.0",
   "manifest_version": 2,
   
