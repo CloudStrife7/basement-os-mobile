@@ -1,0 +1,141 @@
+using UdonSharp;
+using UnityEngine;
+using VRC.SDKBase;
+using VRC.SDK3.StringLoading;
+using VRC.Udon;
+
+public class BasementSocialNotifier : UdonSharpBehaviour
+{
+    [Header("External Notification Settings")]
+    [Tooltip("Set this VRCUrl in the inspector to your webhook endpoint (GitHub Pages recommended)")]
+    public VRCUrl webhookVRCUrl;
+
+    [Tooltip("Unique identifier for this basement instance")]
+    public string basementID = "lowerlevel2_main";
+
+    [Header("Friend Detection")]
+    [Tooltip("Add your VRChat friends' display names here (case sensitive)")]
+    public string[] friendsList = {
+        "GameFuel",
+        "∗Lexx∗",
+        "Onawarren",
+        "M0J170",
+        "Joe․xino b349",
+        "p_dreikosen 437e"
+    };
+
+    private int currentPlayerCount = 0;
+    private int friendCount = 0;
+    private int visitorCount = 0;
+    private UdonBehaviour thisUdon;
+
+    void Start()
+    {
+        // Cache a reference to the attached UdonBehaviour (for safe callbacks)
+        thisUdon = (UdonBehaviour)GetComponent(typeof(UdonBehaviour));
+
+        if (webhookVRCUrl == null || string.IsNullOrEmpty(webhookVRCUrl.Get()))
+        {
+            Debug.LogError("[Basement] ERROR: webhookVRCUrl not set in inspector! External notifications disabled.");
+            return;
+        }
+
+        currentPlayerCount = VRCPlayerApi.GetPlayerCount();
+        AnalyzeBasementSocial();
+        SendActivityUpdate();
+
+        Debug.Log($"[Basement] Initialized - Friends: {friendCount}, Visitors: {visitorCount}");
+    }
+
+    public override void OnPlayerJoined(VRCPlayerApi player)
+    {
+        if (player == null || !player.IsValid()) return;
+
+        currentPlayerCount = VRCPlayerApi.GetPlayerCount();
+        AnalyzeBasementSocial();
+        SendActivityUpdate();
+
+        string playerType = IsPlayerFriend(player.displayName) ? "friend" : "visitor";
+        Debug.Log($"[Basement] {playerType} joined: {player.displayName} | Friends: {friendCount}, Visitors: {visitorCount}");
+    }
+
+    public override void OnPlayerLeft(VRCPlayerApi player)
+    {
+        if (player == null || !player.IsValid()) return;
+
+        currentPlayerCount = VRCPlayerApi.GetPlayerCount();
+        AnalyzeBasementSocial();
+        SendActivityUpdate();
+
+        string playerType = IsPlayerFriend(player.displayName) ? "friend" : "visitor";
+        Debug.Log($"[Basement] {playerType} left: {player.displayName} | Friends: {friendCount}, Visitors: {visitorCount}");
+    }
+
+    private void AnalyzeBasementSocial()
+    {
+        friendCount = 0;
+        visitorCount = 0;
+
+        VRCPlayerApi[] players = new VRCPlayerApi[VRCPlayerApi.GetPlayerCount()];
+        VRCPlayerApi.GetPlayers(players);
+
+        foreach (var p in players)
+        {
+            if (p != null && p.IsValid())
+            {
+                if (IsPlayerFriend(p.displayName))
+                    friendCount++;
+                else
+                    visitorCount++;
+            }
+        }
+    }
+
+    private bool IsPlayerFriend(string playerName)
+    {
+        if (string.IsNullOrEmpty(playerName)) return false;
+
+        foreach (string friend in friendsList)
+        {
+            if (friend == playerName)
+                return true;
+        }
+        return false;
+    }
+
+    private void SendActivityUpdate()
+    {
+        if (webhookVRCUrl == null || string.IsNullOrEmpty(webhookVRCUrl.Get()))
+        {
+            Debug.LogError("[Basement] Cannot send notification - VRCUrl not configured");
+            return;
+        }
+
+        if (thisUdon == null)
+        {
+            Debug.LogError("[Basement] Cannot send notification - UdonBehaviour not cached");
+            return;
+        }
+
+        VRCStringDownloader.LoadUrl(webhookVRCUrl, thisUdon);
+        Debug.Log("[Basement] Webhook request sent.");
+    }
+
+    public override void OnStringLoadSuccess(IVRCStringDownload result)
+    {
+        Debug.Log("[Basement] Notification sent successfully!");
+    }
+
+    public override void OnStringLoadError(IVRCStringDownload result)
+    {
+        Debug.LogError($"[Basement] Notification failed: {result?.ErrorCode}");
+    }
+
+    [ContextMenu("Test Notification")]
+    public void TestNotification()
+    {
+        AnalyzeBasementSocial();
+        SendActivityUpdate();
+        Debug.Log($"[Basement] Manual test - Friends: {friendCount}, Visitors: {visitorCount}");
+    }
+}
