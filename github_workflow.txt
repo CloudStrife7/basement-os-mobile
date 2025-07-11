@@ -1,0 +1,249 @@
+# GitHub Actions workflow for deploying Lower Level 2.0 Basement Monitor PWA
+# Automatically deploys to GitHub Pages on push to main branch
+
+name: Deploy Basement Monitor PWA
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: # Allow manual deployment
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-js-version: '18'
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: |
+        npm install -g http-server
+        npm install -g pwa-asset-generator
+        
+    - name: 🖼️ Generate PWA icons (if needed)
+      run: |
+        # Create a simple basement-themed icon if none exists
+        if [ ! -f "icon-512.png" ]; then
+          echo "🎨 Generating basement-themed icons..."
+          
+          # Create a simple SVG icon
+          cat > basement-icon.svg << 'EOF'
+        <svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <rect width="512" height="512" fill="url(#bg)" rx="50"/>
+          <rect x="80" y="150" width="352" height="280" fill="#333" rx="20"/>
+          <rect x="100" y="170" width="312" height="200" fill="#000" rx="10"/>
+          <text x="256" y="280" text-anchor="middle" fill="#00ff00" font-family="monospace" font-size="36" font-weight="bold">LOWER</text>
+          <text x="256" y="320" text-anchor="middle" fill="#00ff00" font-family="monospace" font-size="36" font-weight="bold">LEVEL</text>
+          <circle cx="400" cy="200" r="8" fill="#00ff00"/>
+          <text x="256" y="450" text-anchor="middle" fill="#666" font-family="monospace" font-size="24">BASEMENT</text>
+        </svg>
+        EOF
+          
+          # Convert SVG to PNG using ImageMagick if available
+          if command -v convert &> /dev/null; then
+            convert basement-icon.svg -background transparent icon-512.png
+            convert icon-512.png -resize 192x192 icon-192.png
+            convert icon-512.png -resize 144x144 icon-144.png
+            convert icon-512.png -resize 128x128 icon-128.png
+            convert icon-512.png -resize 96x96 icon-96.png
+            convert icon-512.png -resize 72x72 icon-72.png
+          else
+            echo "⚠️ ImageMagick not available - using placeholder icons"
+            # Create placeholder icon files
+            echo "Placeholder icon" > icon-512.png
+            echo "Placeholder icon" > icon-192.png
+            echo "Placeholder icon" > icon-144.png
+            echo "Placeholder icon" > icon-128.png
+            echo "Placeholder icon" > icon-96.png
+            echo "Placeholder icon" > icon-72.png
+          fi
+          
+          rm basement-icon.svg
+        fi
+        
+    - name: 🔍 Validate PWA
+      run: |
+        echo "🔍 Validating PWA files..."
+        
+        # Check required files exist
+        required_files=("index.html" "manifest.json" "sw.js")
+        for file in "${required_files[@]}"; do
+          if [ ! -f "$file" ]; then
+            echo "❌ Missing required file: $file"
+            exit 1
+          else
+            echo "✅ Found: $file"
+          fi
+        done
+        
+        # Validate manifest.json
+        if command -v node &> /dev/null; then
+          node -e "
+            const fs = require('fs');
+            try {
+              const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
+              console.log('✅ manifest.json is valid JSON');
+              if (!manifest.name || !manifest.start_url || !manifest.icons) {
+                console.log('⚠️ manifest.json missing required fields');
+              } else {
+                console.log('✅ manifest.json has required fields');
+              }
+            } catch (error) {
+              console.log('❌ manifest.json is invalid:', error.message);
+              process.exit(1);
+            }
+          "
+        fi
+        
+        # Check for common issues
+        if grep -q "YOURUSERNAME" index.html; then
+          echo "⚠️ Found placeholder YOURUSERNAME in index.html - needs customization"
+        fi
+        
+        if grep -q "YOURUSERNAME" sw.js; then
+          echo "⚠️ Found placeholder YOURUSERNAME in sw.js - needs customization"
+        fi
+        
+        echo "✅ PWA validation complete"
+        
+    - name: 🧪 Test PWA locally
+      run: |
+        echo "🧪 Testing PWA locally..."
+        
+        # Start local server in background
+        http-server . -p 8080 &
+        SERVER_PID=$!
+        
+        # Wait for server to start
+        sleep 3
+        
+        # Test if server is responding
+        if curl -f http://localhost:8080/ > /dev/null 2>&1; then
+          echo "✅ Local server started successfully"
+        else
+          echo "❌ Local server failed to start"
+          kill $SERVER_PID 2>/dev/null || true
+          exit 1
+        fi
+        
+        # Test manifest.json
+        if curl -f http://localhost:8080/manifest.json > /dev/null 2>&1; then
+          echo "✅ manifest.json accessible"
+        else
+          echo "❌ manifest.json not accessible"
+        fi
+        
+        # Test service worker
+        if curl -f http://localhost:8080/sw.js > /dev/null 2>&1; then
+          echo "✅ sw.js accessible"
+        else
+          echo "❌ sw.js not accessible"
+        fi
+        
+        # Stop server
+        kill $SERVER_PID 2>/dev/null || true
+        
+        echo "✅ Local testing complete"
+        
+    - name: 📊 Generate deployment report
+      run: |
+        echo "📊 Generating deployment report..."
+        
+        cat > deployment-report.md << 'EOF'
+        # 🏠 Lower Level 2.0 Basement Monitor - Deployment Report
+        
+        ## 📅 Deployment Details
+        - **Date:** $(date)
+        - **Commit:** ${{ github.sha }}
+        - **Branch:** ${{ github.ref_name }}
+        - **Triggered by:** ${{ github.event_name }}
+        
+        ## 📁 Files Deployed
+        EOF
+        
+        echo "| File | Size | Status |" >> deployment-report.md
+        echo "|------|------|--------|" >> deployment-report.md
+        
+        for file in index.html manifest.json sw.js icon-*.png; do
+          if [ -f "$file" ]; then
+            size=$(du -h "$file" | cut -f1)
+            echo "| $file | $size | ✅ Ready |" >> deployment-report.md
+          fi
+        done
+        
+        cat >> deployment-report.md << 'EOF'
+        
+        ## 🚀 Next Steps
+        1. Visit your PWA at: `https://YOURUSERNAME.github.io/lowerlevel-basement-monitor/`
+        2. Test on mobile devices
+        3. Add to home screen
+        4. Enable notifications
+        
+        ## 🔧 Configuration Required
+        - Update GitHub URLs in index.html
+        - Add friend names to CONFIG.friendsList
+        - Customize notification messages
+        
+        EOF
+        
+        echo "✅ Deployment report generated"
+        
+    - name: 📁 Setup Pages
+      uses: actions/configure-pages@v4
+      
+    - name: 📤 Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: '.'
+        
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+    - name: 🚀 Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+      
+    - name: 🎉 Deployment success
+      run: |
+        echo "🎉 PWA deployed successfully!"
+        echo "📱 Your app is now available at: ${{ steps.deployment.outputs.page_url }}"
+        echo ""
+        echo "🔗 Quick links:"
+        echo "- App: ${{ steps.deployment.outputs.page_url }}"
+        echo "- Manifest: ${{ steps.deployment.outputs.page_url }}manifest.json"
+        echo "- Service Worker: ${{ steps.deployment.outputs.page_url }}sw.js"
+        echo ""
+        echo "📋 Next steps:"
+        echo "1. Update GitHub URLs in your code"
+        echo "2. Customize friend list"
+        echo "3. Test the app on mobile"
+        echo "4. Share with your crew!"

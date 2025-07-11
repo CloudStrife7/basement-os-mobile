@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lower Level 2.0 - Basement Monitor</title>
+    <meta name="description" content="Monitor your VRChat basement activity in real-time">
+    <meta name="theme-color" content="#1a1a2e">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Icons -->
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f172a 100%);
+            color: #00ff00;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            opacity: 0.8;
+            color: #66ff66;
+        }
+
+        .status-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 255, 0, 0.2);
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .status-text {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .last-update {
+            font-size: 10px;
+            color: #66ff66;
+            opacity: 0.7;
+        }
+
+        .count-display {
+            font-size: 24px;
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 0 0 15px #00ff00;
+        }
+
+        .players-list {
+            margin-top: 15px;
+        }
+
+        .player-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+        }
+
+        .player-item:last-child {
+            border-bottom: none;
+        }
+
+        .player-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .friend {
+            background: #00ff00;
+            box-shadow: 0 0 8px #00ff00;
+        }
+
+        .visitor {
+            background: #0099ff;
+            box-shadow: 0 0 8px #0099ff;
+        }
+
+        .player-name {
+            font-size: 14px;
+        }
+
+        .player-type {
+            margin-left: auto;
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            opacity: 0.7;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            border-radius: 6px;
+            color: #00ff00;
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .notification-setup {
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid #ffa500;
+            color: #ffa500;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+
+        .activity-log {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .log-item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.1);
+            font-size: 12px;
+        }
+
+        .log-time {
+            color: #66ff66;
+            opacity: 0.7;
+        }
+
+        .installing {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00ff00;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .pulse {
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { opacity: 0.6; }
+            to { opacity: 1; }
+        }
+
+        .offline {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">🏠 LOWER LEVEL 2.0</div>
+            <div class="subtitle">Basement Activity Monitor</div>
+        </div>
+
+        <div id="notification-prompt" class="notification-setup" style="display: none;">
+            📱 Enable notifications to get alerts when friends join the basement!
+            <button class="btn" onclick="enableNotifications()" style="margin-top: 10px; width: 100%;">
+                Enable Notifications
+            </button>
+        </div>
+
+        <div id="status-card" class="status-card">
+            <div class="status-header">
+                <div class="status-text pulse">🔄 Connecting...</div>
+                <div class="last-update" id="last-update">Initializing...</div>
+            </div>
+            
+            <div id="basement-content">
+                <div class="empty-state">
+                    <div class="empty-icon">🔄</div>
+                    <div>Loading basement status...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn" onclick="refreshStatus()">🔄 Refresh</button>
+            <button class="btn" onclick="openVRChat()">🎮 Join VRChat</button>
+            <button class="btn" onclick="toggleHistory()">📊 History</button>
+        </div>
+
+        <div id="activity-log" class="status-card" style="display: none;">
+            <div class="status-text" style="margin-bottom: 15px;">📈 Recent Activity</div>
+            <div id="log-content" class="activity-log">
+                <!-- Activity history will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - UPDATE THESE VALUES
+        const CONFIG = {
+            githubDataUrl: 'https://YOURUSERNAME.github.io/lowerlevel-activity/current_activity.json',
+            githubHistoryUrl: 'https://YOURUSERNAME.github.io/lowerlevel-activity/activity_log.json',
+            updateInterval: 10000, // 10 seconds
+            friendsList: ['YourFriend1', 'BestBuddy', 'VRChatPal'] // Update with real friend names
+        };
+
+        // App State
+        let currentActivity = null;
+        let activityHistory = [];
+        let lastUpdateTime = 0;
+        let updateTimer = null;
+        let isOnline = navigator.onLine;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        async function initializeApp() {
+            console.log('🏠 Initializing Lower Level 2.0 Monitor...');
+            
+            // Register service worker for PWA functionality
+            if ('serviceWorker' in navigator) {
+                try {
+                    await navigator.serviceWorker.register('sw.js');
+                    console.log('✅ Service Worker registered');
+                } catch (error) {
+                    console.error('❌ Service Worker registration failed:', error);
+                }
+            }
+
+            // Check notification permission
+            checkNotificationPermission();
+
+            // Start monitoring
+            await refreshStatus();
+            startAutoRefresh();
+
+            // Handle online/offline status
+            window.addEventListener('online', handleOnlineStatus);
+            window.addEventListener('offline', handleOnlineStatus);
+        }
+
+        function checkNotificationPermission() {
+            if ('Notification' in window) {
+                if (Notification.permission === 'default') {
+                    document.getElementById('notification-prompt').style.display = 'block';
+                }
+            }
+        }
+
+        async function enableNotifications() {
+            if ('Notification' in window) {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    document.getElementById('notification-prompt').style.display = 'none';
+                    showNotification('🎉 Notifications enabled!', 'You\'ll now get alerts when friends join the basement');
+                }
+            }
+        }
+
+        async function refreshStatus() {
+            try {
+                console.log('🔄 Fetching basement status...');
+                
+                const response = await fetch(CONFIG.githubDataUrl + '?t=' + Date.now());
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('📊 Activity data:', data);
+                
+                updateUI(data);
+                checkForNotifications(data);
+                
+                currentActivity = data;
+                lastUpdateTime = Date.now();
+                
+                // Update online status
+                setOnlineStatus(true);
+                
+            } catch (error) {
+                console.error('❌ Failed to fetch status:', error);
+                setOnlineStatus(false);
+                showOfflineUI();
+            }
+        }
+
+        function updateUI(activity) {
+            const statusCard = document.getElementById('status-card');
+            const basementContent = document.getElementById('basement-content');
+            const lastUpdate = document.getElementById('last-update');
+            
+            const totalCount = activity.total_count || 0;
+            const friendCount = activity.friend_count || 0;
+            const visitorCount = activity.visitor_count || 0;
+            
+            // Update last update time
+            lastUpdate.textContent = `Last update: ${new Date().toLocaleTimeString()}`;
+            
+            if (totalCount === 0) {
+                // Empty basement
+                basementContent.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">💤</div>
+                        <div>Basement is empty</div>
+                        <div style="font-size: 12px; opacity: 0.7; margin-top: 8px;">
+                            Perfect time to start a hangout!
+                        </div>
+                    </div>
+                `;
+                
+                document.querySelector('.status-text').innerHTML = '💤 Nobody Home';
+                
+            } else {
+                // Active basement
+                document.querySelector('.status-text').innerHTML = `👥 ${totalCount} People Active`;
+                
+                basementContent.innerHTML = `
+                    <div class="count-display">
+                        ${friendCount > 0 ? `👫 ${friendCount} friends` : ''}
+                        ${friendCount > 0 && visitorCount > 0 ? ' + ' : ''}
+                        ${visitorCount > 0 ? `👤 ${visitorCount} visitors` : ''}
+                    </div>
+                    <div class="players-list" id="players-list">
+                        <!-- Players will be populated by simulation -->
+                    </div>
+                `;
+                
+                // Simulate player list (since we don't have individual player data)
+                simulatePlayerList(friendCount, visitorCount);
+            }
+        }
+
+        function simulatePlayerList(friendCount, visitorCount) {
+            const playersList = document.getElementById('players-list');
+            if (!playersList) return;
+            
+            let playersHTML = '';
+            
+            // Add friends
+            for (let i = 0; i < friendCount; i++) {
+                const friendName = CONFIG.friendsList[i] || `Friend ${i + 1}`;
+                playersHTML += `
+                    <div class="player-item">
+                        <div class="player-status friend"></div>
+                        <div class="player-name">${friendName}</div>
+                        <div class="player-type">friend</div>
+                    </div>
+                `;
+            }
+            
+            // Add visitors
+            for (let i = 0; i < visitorCount; i++) {
+                playersHTML += `
+                    <div class="player-item">
+                        <div class="player-status visitor"></div>
+                        <div class="player-name">Visitor ${i + 1}</div>
+                        <div class="player-type">visitor</div>
+                    </div>
+                `;
+            }
+            
+            playersList.innerHTML = playersHTML;
+        }
+
+        function checkForNotifications(newActivity) {
+            if (!currentActivity || Notification.permission !== 'granted') return;
+            
+            const oldTotal = currentActivity.total_count || 0;
+            const newTotal = newActivity.total_count || 0;
+            const newFriends = newActivity.friend_count || 0;
+            const newVisitors = newActivity.visitor_count || 0;
+            
+            // Friend joined
+            if (newFriends > (currentActivity.friend_count || 0)) {
+                showNotification(
+                    '🟢 Friend joined the basement!',
+                    `Now ${newFriends} friends + ${newVisitors} visitors`
+                );
+            }
+            
+            // Visitor joined
+            else if (newVisitors > (currentActivity.visitor_count || 0)) {
+                showNotification(
+                    '🔵 New visitor in the basement!',
+                    `${newFriends} friends + ${newVisitors} visitors`
+                );
+            }
+            
+            // Basement became active (2+ people)
+            else if (oldTotal < 2 && newTotal >= 2) {
+                showNotification(
+                    '🎮 Basement is getting active!',
+                    `${newTotal} people hanging out - join them!`
+                );
+            }
+        }
+
+        function showNotification(title, body) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                const notification = new Notification(title, {
+                    body: body,
+                    icon: 'icon-192.png',
+                    tag: 'basement-activity',
+                    badge: 'icon-192.png'
+                });
+                
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+                
+                // Auto close after 5 seconds
+                setTimeout(() => notification.close(), 5000);
+            }
+        }
+
+        function startAutoRefresh() {
+            updateTimer = setInterval(refreshStatus, CONFIG.updateInterval);
+        }
+
+        function setOnlineStatus(online) {
+            isOnline = online;
+            const statusCard = document.getElementById('status-card');
+            
+            if (online) {
+                statusCard.classList.remove('offline');
+            } else {
+                statusCard.classList.add('offline');
+            }
+        }
+
+        function showOfflineUI() {
+            const basementContent = document.getElementById('basement-content');
+            document.querySelector('.status-text').innerHTML = '🔴 Connection Lost';
+            
+            basementContent.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">📡</div>
+                    <div>Unable to connect</div>
+                    <div style="font-size: 12px; opacity: 0.7; margin-top: 8px;">
+                        Check your internet connection
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleOnlineStatus() {
+            if (navigator.onLine && !isOnline) {
+                // Just came back online
+                refreshStatus();
+            }
+        }
+
+        async function toggleHistory() {
+            const activityLog = document.getElementById('activity-log');
+            const logContent = document.getElementById('log-content');
+            
+            if (activityLog.style.display === 'none') {
+                activityLog.style.display = 'block';
+                
+                try {
+                    const response = await fetch(CONFIG.githubHistoryUrl + '?t=' + Date.now());
+                    const history = await response.json();
+                    
+                    let historyHTML = '';
+                    
+                    // Show last 10 activities
+                    const recentHistory = history.slice(-10).reverse();
+                    
+                    recentHistory.forEach(activity => {
+                        const time = new Date(activity.timestamp * 1000).toLocaleString();
+                        const event = activity.event;
+                        let icon = '📊';
+                        let description = '';
+                        
+                        if (event.includes('friend_joined')) {
+                            icon = '🟢';
+                            description = `Friend joined (${activity.friend_count}F + ${activity.visitor_count}V)`;
+                        } else if (event.includes('visitor_joined')) {
+                            icon = '🔵';
+                            description = `Visitor joined (${activity.friend_count}F + ${activity.visitor_count}V)`;
+                        } else if (event.includes('_left')) {
+                            icon = '🟠';
+                            description = `Someone left (${activity.friend_count}F + ${activity.visitor_count}V)`;
+                        }
+                        
+                        historyHTML += `
+                            <div class="log-item">
+                                <div>${icon} ${description}</div>
+                                <div class="log-time">${time}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    logContent.innerHTML = historyHTML || '<div style="opacity: 0.7;">No recent activity</div>';
+                    
+                } catch (error) {
+                    logContent.innerHTML = '<div style="opacity: 0.7;">Unable to load history</div>';
+                }
+                
+            } else {
+                activityLog.style.display = 'none';
+            }
+        }
+
+        function openVRChat() {
+            // Try to open VRChat if installed, otherwise show instructions
+            const vrchatUrl = 'vrchat://launch';
+            
+            // Create a temporary link and click it
+            const link = document.createElement('a');
+            link.href = vrchatUrl;
+            link.click();
+            
+            // Show fallback message after a delay
+            setTimeout(() => {
+                if (confirm('VRChat not detected. Would you like to visit the VRChat website?')) {
+                    window.open('https://vrchat.com', '_blank');
+                }
+            }, 1000);
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button or banner
+            console.log('💾 PWA install prompt available');
+        });
+
+        // Handle app installation
+        window.addEventListener('appinstalled', () => {
+            console.log('🎉 PWA was installed');
+            deferredPrompt = null;
+        });
+    </script>
+</body>
+</html>
