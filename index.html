@@ -10,10 +10,10 @@
 
 ```
 <!-- PWA Manifest -->
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="pwa/manifest.json">
 
 <!-- Icons -->
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="pwa/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
@@ -89,6 +89,24 @@
         border-radius: 8px;
         box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
         position: relative;
+    }
+
+    .basement-live {
+        font-size: 14px;
+        color: #ff9500;
+        font-weight: bold;
+        margin-top: 10px;
+        padding: 8px;
+        background: rgba(255, 165, 0, 0.1);
+        border: 1px solid #ff9500;
+        border-radius: 6px;
+        animation: blink 1.5s ease-in-out infinite alternate;
+        display: none;
+    }
+
+    @keyframes blink {
+        0% { opacity: 0.6; }
+        100% { opacity: 1; }
     }
 
     .ascii-logo {
@@ -515,10 +533,12 @@
         display: flex;
         gap: 10px;
         margin-top: 15px;
+        flex-wrap: wrap;
     }
 
     .btn {
         flex: 1;
+        min-width: 120px;
         padding: 12px;
         background: rgba(0, 255, 0, 0.1);
         border: 1px solid #00ff00;
@@ -770,6 +790,9 @@
 ═══════════════════════════════════
 <span id="terminal-status">▓ INITIALIZING SYSTEM… ▓</span>
 </div>
+<div id="basement-live" class="basement-live">
+🔴 BASEMENT LIVE (0 Online)
+</div>
 </div>
 
 ```
@@ -820,7 +843,6 @@
         <button class="btn" onclick="refreshStatus()">[REFRESH]</button>
         <button class="btn" onclick="openDebugPanel()">[DEBUG]</button>
         <button class="btn btn-basement" id="basement-btn" onclick="toggleBasementLogin()">[LOGIN TO BASEMENT]</button>
-        <button class="btn" id="status-btn">[CONNECTING...]</button>
     </div>
 </div>
 
@@ -1092,14 +1114,14 @@
         // Register service worker for PWA functionality
         if ('serviceWorker' in navigator) {
             try {
-                await navigator.serviceWorker.register('sw.js');
+                await navigator.serviceWorker.register('pwa/sw.js');
                 console.log('✅ Service Worker registered');
                 logSystem('Service Worker registered successfully');
                 addTerminalMessage('>> PWA SERVICE WORKER ACTIVE', 'system');
             } catch (error) {
-                console.warn('⚠️ Service Worker registration failed (expected if sw.js missing):', error.message);
+                console.warn('⚠️ Service Worker registration failed (expected if pwa/sw.js missing):', error.message);
                 logSystem(`Service Worker registration failed: ${error.message}`, 'warning');
-                addTerminalMessage('>> PWA SERVICE WORKER DISABLED (sw.js missing)', 'system');
+                addTerminalMessage('>> PWA SERVICE WORKER DISABLED (pwa/sw.js missing)', 'system');
             }
         }
 
@@ -1423,6 +1445,7 @@
 
     function toggleBasementLogin() {
         const btn = document.getElementById('basement-btn');
+        const liveIndicator = document.getElementById('basement-live');
         const time = new Date().toLocaleTimeString();
         
         if (!isLoggedIntoBasement) {
@@ -1430,6 +1453,10 @@
             isLoggedIntoBasement = true;
             btn.textContent = '[LOGOFF BASEMENT]';
             btn.classList.add('logged-in');
+            
+            // Show and update live indicator
+            liveIndicator.style.display = 'block';
+            updateBasementLiveIndicator();
             
             // Add join message to chat
             const username = currentUser ? currentUser.name : 'User';
@@ -1455,6 +1482,9 @@
             btn.textContent = '[LOGIN TO BASEMENT]';
             btn.classList.remove('logged-in');
             
+            // Hide live indicator
+            liveIndicator.style.display = 'none';
+            
             // Add leave message to chat
             const username = currentUser ? currentUser.name : 'User';
             addTerminalMessage(`📤 ${username} has left the basement`, 'leave');
@@ -1474,6 +1504,16 @@
             
             logSystem(`User logged out of basement: ${username}`);
         }
+    }
+
+    function updateBasementLiveIndicator() {
+        const liveIndicator = document.getElementById('basement-live');
+        if (!liveIndicator || !isLoggedIntoBasement) return;
+        
+        const totalCount = currentActivity ? currentActivity.total_count || 0 : 0;
+        const userCount = totalCount + (isLoggedIntoBasement ? 1 : 0); // Add this user to count
+        
+        liveIndicator.textContent = `🔴 BASEMENT LIVE (${userCount} Online)`;
     }
 
     function sendExternalMessage() {
@@ -1610,7 +1650,8 @@
         addTerminalMessage('>> DIAGNOSTICS COMPLETE', 'debug');
     }
 
-    function openDebugPanel() {
+    // Debug Panel Functions - Make globally accessible
+    window.openDebugPanel = function() {
         const debugPanel = document.getElementById('debug-panel');
         const debugBody = document.getElementById('debug-content-body');
         
@@ -1680,16 +1721,20 @@
         debugMode = true;
         
         // Add event listeners for debug buttons
-        document.getElementById('debug-test-push')?.addEventListener('click', testPushNotification);
-        document.getElementById('debug-clear-chat')?.addEventListener('click', clearChatLog);
-        document.getElementById('debug-simulate-friend')?.addEventListener('click', simulateFriendJoin);
-        document.getElementById('debug-force-refresh')?.addEventListener('click', forceRefreshData);
-    }
+        document.getElementById('debug-test-push')?.addEventListener('click', window.testPushNotification);
+        document.getElementById('debug-clear-chat')?.addEventListener('click', window.clearChatLog);
+        document.getElementById('debug-simulate-friend')?.addEventListener('click', window.simulateFriendJoin);
+        document.getElementById('debug-force-refresh')?.addEventListener('click', window.forceRefreshData);
+    };
 
-    function closeDebugPanel() {
+    window.closeDebugPanel = function() {
         document.getElementById('debug-panel').style.display = 'none';
         debugMode = false;
-    }
+    };
+
+    // Local versions for compatibility
+    function openDebugPanel() { window.openDebugPanel(); }
+    function closeDebugPanel() { window.closeDebugPanel(); }
 
     function checkNotificationPermission() {
         if ('Notification' in window) {
@@ -1781,7 +1826,6 @@
 
     function updateUI(activity) {
         const lastUpdate = document.getElementById('last-update');
-        const statusBtn = document.getElementById('status-btn');
         
         const totalCount = activity.total_count || 0;
         const friendCount = activity.friend_count || 0;
@@ -1790,13 +1834,9 @@
         // Update last update time
         lastUpdate.textContent = `LAST UPDATE: ${new Date().toLocaleTimeString()}`;
         
-        // Update status button
-        if (totalCount === 0) {
-            statusBtn.textContent = '[BASEMENT EMPTY]';
-            statusBtn.style.color = '#ff6666';
-        } else {
-            statusBtn.textContent = `[${totalCount} ACTIVE]`;
-            statusBtn.style.color = '#00ff00';
+        // Update basement live indicator if user is logged in
+        if (isLoggedIntoBasement) {
+            updateBasementLiveIndicator();
         }
         
         // Only show detailed status on first load or when there are people
@@ -1951,9 +1991,9 @@
         if ('Notification' in window && Notification.permission === 'granted') {
             const notification = new Notification(title, {
                 body: body,
-                icon: 'icon-192.png',
+                icon: 'pwa/icon-192.png',
                 tag: type === 'chat' ? 'basement-chat' : 'basement-activity',
-                badge: 'icon-192.png',
+                badge: 'pwa/icon-192.png',
                 data: { type: type }
             });
             
@@ -2158,12 +2198,26 @@
     // Debug Functions - Make globally accessible
     window.testPushNotification = function() {
         if (Notification.permission === 'granted') {
+            // Check if we're in a PWA or mobile browser
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            if (isMobile && !isStandalone) {
+                addTerminalMessage('>> DEBUG: Mobile browser detected - notifications may not work', 'debug');
+                addTerminalMessage('>> TIP: Add to home screen for push notifications on mobile', 'debug');
+            }
+            
             showNotification(
                 '🧪 TEST NOTIFICATION', 
                 'This is a test push notification from Basement OS Debug Panel!',
                 'test'
             );
             addTerminalMessage('>> DEBUG: Test push notification sent', 'debug');
+            
+            if (isMobile && !isStandalone) {
+                addTerminalMessage('>> If notification didn\'t appear: Add app to home screen first', 'debug');
+            }
+            
             logSystem('Debug: Test push notification triggered');
         } else if (Notification.permission === 'default') {
             addTerminalMessage('>> DEBUG: Requesting notification permission...', 'debug');
@@ -2182,6 +2236,7 @@
         } else {
             addTerminalMessage('>> DEBUG: Notifications blocked by user - enable in browser settings', 'error');
             addTerminalMessage('>> TIP: On iOS, must add to home screen first', 'debug');
+            addTerminalMessage('>> TIP: On Android, notifications work in Chrome/Firefox browsers', 'debug');
         }
     };
 
@@ -2195,11 +2250,12 @@
         terminalContent.innerHTML = '';
         
         // Add confirmation
-        addTerminalMessage('>> DEBUG: Chat log cleared', 'debug');
-        addTerminalMessage(`>> Removed ${messageCount} messages from terminal`, 'debug');
+        addTerminalMessage('>> DEBUG: Local chat display cleared', 'debug');
+        addTerminalMessage(`>> Removed ${messageCount} messages from terminal display`, 'debug');
+        addTerminalMessage('>> NOTE: Firebase messages will reload on refresh', 'debug');
         addTerminalMessage('>> Type /help for available commands', 'command');
         
-        logSystem(`Debug: Chat log cleared (${messageCount} messages)`);
+        logSystem(`Debug: Local chat display cleared (${messageCount} messages)`);
     };
 
     window.simulateFriendJoin = function() {
