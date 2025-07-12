@@ -1,11 +1,11 @@
 // Basement OS Mobile - Service Worker v1.0
 const CACHE_NAME = ‘basement-os-v1’;
 const urlsToCache = [
-‘../’,
-‘../index.html’,
-‘./manifest.json’,
-‘./icon-192.png’,
-‘./icon-512.png’
+‘/basement-os-mobile/’,
+‘/basement-os-mobile/index.html’,
+‘/basement-os-mobile/pwa/manifest.json’,
+‘/basement-os-mobile/pwa/icon-192.png’,
+‘/basement-os-mobile/pwa/icon-512.png’
 ];
 
 // Install event - cache essential files
@@ -37,7 +37,7 @@ return fetch(event.request);
 .catch(() => {
 // If both cache and network fail, return offline page
 if (event.request.destination === ‘document’) {
-return caches.match(’../index.html’);
+return caches.match(’/basement-os-mobile/index.html’);
 }
 })
 );
@@ -111,7 +111,7 @@ event.notification.close();
 
 if (event.action === ‘open’ || !event.action) {
 event.waitUntil(
-clients.openWindow(’../’)
+clients.openWindow(’/basement-os-mobile/’)
 );
 }
 });
