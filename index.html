@@ -488,7 +488,7 @@
     <div class="container">
         <div class="header">
             <div class="ascii-logo">
-░▒▓█ BASEMENT OS MOBILE v24 █▓▒░
+░▒▓█ BASEMENT OS MOBILE v25 █▓▒░
 ═══════════════════════════════════
 <span id="terminal-status">▓ INITIALIZING SYSTEM... ▓</span>
             </div>
@@ -676,11 +676,11 @@
         }
 
         async function initializeApp() {
-            console.log('🏠 Initializing Lower Level 2.0 Monitor v24...');
-            logSystem('Basement OS Mobile v24 initialization started');
+            console.log('🏠 Initializing Lower Level 2.0 Monitor v25...');
+            logSystem('Basement OS Mobile v25 initialization started');
             
             updateStatusLine('STARTING UP...');
-            addTerminalMessage('>> BASEMENT OS MOBILE v24 STARTING UP...', 'system');
+            addTerminalMessage('>> BASEMENT OS MOBILE v25 STARTING UP...', 'system');
             addTerminalMessage('>> Terminal interface ready - Type /help for commands', 'command');
             
             // Register service worker for PWA functionality
@@ -689,9 +689,11 @@
                     await navigator.serviceWorker.register('sw.js');
                     console.log('✅ Service Worker registered');
                     logSystem('Service Worker registered successfully');
+                    addTerminalMessage('>> PWA SERVICE WORKER ACTIVE', 'system');
                 } catch (error) {
-                    console.error('❌ Service Worker registration failed:', error);
-                    logSystem(`Service Worker registration failed: ${error.message}`, 'error');
+                    console.warn('⚠️ Service Worker registration failed (expected if sw.js missing):', error.message);
+                    logSystem(`Service Worker registration failed: ${error.message}`, 'warning');
+                    addTerminalMessage('>> PWA SERVICE WORKER DISABLED (sw.js missing)', 'system');
                 }
             }
 
@@ -949,7 +951,7 @@
 
         function showVersion() {
             addTerminalMessage('>> BASEMENT OS MOBILE VERSION INFO:', 'debug');
-            addTerminalMessage('   Version: v24 Enhanced', 'debug');
+            addTerminalMessage('   Version: v25 Enhanced', 'debug');
             addTerminalMessage('   Build: Terminal Interface', 'debug');
             addTerminalMessage('   Platform: Progressive Web App', 'debug');
             addTerminalMessage('   VRChat Integration: BasementSocialNotifier.cs', 'debug');
