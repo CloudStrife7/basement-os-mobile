@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lower Level 2.0 - Basement Monitor</title>
-    <meta name="description" content="Monitor your VRChat basement activity in real-time">
+    <title>Basement OS Mobile - Terminal Interface</title>
+    <meta name="description" content="Terminal interface for VRChat basement monitoring with real-time chat">
     <meta name="theme-color" content="#1a1a2e">
     
     <!-- PWA Manifest -->
@@ -16,6 +16,14 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     
     <style>
+        @font-face {
+            font-family: 'Monocraft';
+            src: url('https://github.com/IdreesInc/Monocraft/releases/download/v4.0/Monocraft.ttc') format('truetype-collection');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -23,11 +31,13 @@
         }
 
         body {
-            font-family: 'Courier New', monospace;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f172a 100%);
+            font-family: 'Monocraft', 'Courier New', monospace;
+            background: #000000;
             color: #00ff00;
             min-height: 100vh;
             overflow-x: hidden;
+            font-size: 14px;
+            line-height: 1.4;
         }
 
         .container {
@@ -35,6 +45,143 @@
             margin: 0 auto;
             padding: 20px;
             min-height: 100vh;
+        }
+
+        .chat-section {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: rgba(0, 255, 0, 0.1);
+            padding: 15px;
+            border-bottom: 1px solid #00ff00;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-title {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .unread-badge {
+            background: #ff3333;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 10px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        .chat-messages {
+            height: 250px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .message-own {
+            background: rgba(0, 255, 0, 0.1);
+            margin-left: 20px;
+            text-align: right;
+        }
+
+        .message-other {
+            background: rgba(0, 150, 255, 0.1);
+            margin-right: 20px;
+        }
+
+        .message-system {
+            background: rgba(255, 165, 0, 0.1);
+            text-align: center;
+            font-style: italic;
+            color: #ffa500;
+        }
+
+        .message-author {
+            font-weight: bold;
+            margin-bottom: 3px;
+            font-size: 10px;
+            opacity: 0.8;
+        }
+
+        .message-time {
+            font-size: 9px;
+            opacity: 0.6;
+            margin-top: 3px;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border-top: 1px solid rgba(0, 255, 0, 0.3);
+        }
+
+        .message-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            padding: 8px;
+            color: #00ff00;
+            font-family: inherit;
+            font-size: 12px;
+        }
+
+        .message-input:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+        }
+
+        .send-btn {
+            margin-left: 8px;
+            padding: 8px 12px;
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            color: #00ff00;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .send-btn:hover {
+            background: rgba(0, 255, 0, 0.3);
+        }
+
+        .chat-toggle {
+            margin-top: 15px;
+        }
+
+        .typing-indicator {
+            padding: 5px 10px;
+            font-size: 10px;
+            opacity: 0.7;
+            color: #66ff66;
+            font-style: italic;
+        }
+
+        .connection-status {
+            font-size: 10px;
+            opacity: 0.6;
+            color: #66ff66;
+        }
+
+        .connection-status.disconnected {
+            color: #ff6666;
         }
 
         .header {
@@ -248,53 +395,84 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="title">🏠 LOWER LEVEL 2.0</div>
-            <div class="subtitle">Basement Activity Monitor</div>
+            <div class="title">[BASEMENT OS MOBILE]</div>
+            <div class="subtitle">TERMINAL INTERFACE v1.0</div>
         </div>
 
         <div id="notification-prompt" class="notification-setup" style="display: none;">
-            📱 Enable notifications to get alerts when friends join the basement!
+            > Enable push notifications for system alerts
             <button class="btn" onclick="enableNotifications()" style="margin-top: 10px; width: 100%;">
-                Enable Notifications
+                ENABLE NOTIFICATIONS
             </button>
         </div>
 
-        <div id="status-card" class="status-card">
+        <div id="terminal-window" class="status-card">
             <div class="status-header">
-                <div class="status-text pulse">🔄 Connecting...</div>
-                <div class="last-update" id="last-update">Initializing...</div>
+                <div class="status-text">[BASEMENT OS TERMINAL]</div>
+                <div class="last-update" id="last-update">INITIALIZING...</div>
             </div>
             
-            <div id="basement-content">
-                <div class="empty-state">
-                    <div class="empty-icon">🔄</div>
-                    <div>Loading basement status...</div>
+            <div id="terminal-content" class="chat-messages" style="height: 300px;">
+                <div class="message message-system">
+                    <div>> BASEMENT OS MOBILE v1.0 INITIALIZED</div>
+                    <div class="message-time">Lower Level 2.0 Terminal Interface</div>
                 </div>
+                <div class="message message-system">
+                    <div>> Connecting to basement monitoring system...</div>
+                    <div class="message-time">Establishing data link</div>
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typing-indicator" style="display: none;">
+                > Someone is typing...
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="message-input" class="message-input" placeholder="> Enter command or message..." maxlength="200">
+                <button onclick="sendMessage()" class="send-btn" id="send-btn">SEND</button>
             </div>
         </div>
 
         <div class="buttons">
-            <button class="btn" onclick="refreshStatus()">🔄 Refresh</button>
-            <button class="btn" onclick="openVRChat()">🎮 Join VRChat</button>
-            <button class="btn" onclick="toggleHistory()">📊 History</button>
+            <button class="btn" onclick="refreshStatus()">[REFRESH]</button>
+            <button class="btn" onclick="openVRChat()">[JOIN VRCHAT]</button>
+            <button class="btn" id="status-btn">[CONNECTING...]</button>
         </div>
 
-        <div id="activity-log" class="status-card" style="display: none;">
-            <div class="status-text" style="margin-bottom: 15px;">📈 Recent Activity</div>
-            <div id="log-content" class="activity-log">
-                <!-- Activity history will be populated here -->
-            </div>
+        <div id="activity-log" style="display: none;">
+            <!-- Hidden - activity is now integrated into terminal -->
         </div>
     </div>
 
     <script>
         // Configuration - UPDATE THESE VALUES
         const CONFIG = {
-            githubDataUrl: 'https://CloudStrife7.github.io/lowerlevel-activity/current_activity.json',
-            githubHistoryUrl: 'https://CloudStrife7.github.io/lowerlevel-activity/activity_log.json',
+            githubDataUrl: 'https://YOURUSERNAME.github.io/lowerlevel-activity/current_activity.json',
+            githubHistoryUrl: 'https://YOURUSERNAME.github.io/lowerlevel-activity/activity_log.json',
             updateInterval: 10000, // 10 seconds
-            friendsList: ['GameFuel', '∗Lexx∗', 'Onawarren' 'p_dreikosen 437e' 'Joe․xino b349' 'M0J170'] // Update with real friend names
+            friendsList: ['YourFriend1', 'BestBuddy', 'VRChatPal'], // Update with real friend names
+            
+            // Firebase Chat Configuration
+            firebase: {
+                apiKey: "YOUR_FIREBASE_API_KEY",
+                authDomain: "basement-chat-XXXXX.firebaseapp.com",
+                databaseURL: "https://basement-chat-XXXXX-default-rtdb.firebaseio.com",
+                projectId: "basement-chat-XXXXX",
+                storageBucket: "basement-chat-XXXXX.appspot.com",
+                messagingSenderId: "123456789",
+                appId: "1:123456789:web:abcdef123456"
+            }
         };
+
+        // Chat State
+        let chatEnabled = false;
+        let firebaseApp = null;
+        let database = null;
+        let currentUser = null;
+        let messagesRef = null;
+        let unreadCount = 0;
+        let lastMessageTime = 0;
+        let typingTimeout = null;
 
         // App State
         let currentActivity = null;
@@ -321,6 +499,9 @@
                 }
             }
 
+            // Initialize Firebase Chat
+            await initializeChat();
+
             // Check notification permission
             checkNotificationPermission();
 
@@ -331,6 +512,136 @@
             // Handle online/offline status
             window.addEventListener('online', handleOnlineStatus);
             window.addEventListener('offline', handleOnlineStatus);
+
+            // Setup chat input handlers
+            setupChatHandlers();
+        }
+
+        async function initializeChat() {
+            try {
+                // Load Firebase SDK
+                await loadFirebaseSDK();
+                
+                // Initialize Firebase
+                if (CONFIG.firebase.apiKey && CONFIG.firebase.apiKey !== "YOUR_FIREBASE_API_KEY") {
+                    firebaseApp = firebase.initializeApp(CONFIG.firebase);
+                    database = firebase.database();
+                    
+                    // Set up user
+                    currentUser = await setupChatUser();
+                    
+                    // Initialize chat listeners
+                    setupChatListeners();
+                    
+                    chatEnabled = true;
+                    updateChatStatus('Connected');
+                    console.log('✅ Chat initialized successfully');
+                } else {
+                    console.log('ℹ️ Firebase not configured - chat disabled');
+                    updateChatStatus('Chat disabled');
+                }
+            } catch (error) {
+                console.error('❌ Chat initialization failed:', error);
+                updateChatStatus('Connection failed');
+            }
+        }
+
+        async function loadFirebaseSDK() {
+            // Load Firebase SDK dynamically
+            if (typeof firebase === 'undefined') {
+                const script1 = document.createElement('script');
+                script1.src = 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js';
+                document.head.appendChild(script1);
+                
+                const script2 = document.createElement('script');
+                script2.src = 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js';
+                document.head.appendChild(script2);
+                
+                // Wait for scripts to load
+                await new Promise((resolve) => {
+                    script2.onload = resolve;
+                });
+            }
+        }
+
+        async function setupChatUser() {
+            // Get or create user identity
+            let userId = localStorage.getItem('basement-chat-user-id');
+            let username = localStorage.getItem('basement-chat-username');
+            
+            if (!userId || !username) {
+                // First time setup
+                userId = 'user_' + Math.random().toString(36).substr(2, 9);
+                username = prompt('Enter your name for basement chat:') || 'Anonymous';
+                
+                localStorage.setItem('basement-chat-user-id', userId);
+                localStorage.setItem('basement-chat-username', username);
+            }
+            
+            return { id: userId, name: username };
+        }
+
+        function setupChatListeners() {
+            if (!database || !currentUser) return;
+            
+            messagesRef = database.ref('basement-chat/messages');
+            
+            // Listen for new messages
+            messagesRef.limitToLast(50).on('child_added', (snapshot) => {
+                const message = snapshot.val();
+                displayMessage(message);
+                
+                // Show notification if chat is closed and message is from someone else
+                if (message.userId !== currentUser.id && document.getElementById('chat-section').style.display === 'none') {
+                    unreadCount++;
+                    updateUnreadBadge();
+                    
+                    if (Notification.permission === 'granted') {
+                        showNotification(
+                            `💬 ${message.username}`,
+                            message.text,
+                            'chat'
+                        );
+                    }
+                }
+            });
+            
+            // Listen for typing indicators
+            const typingRef = database.ref('basement-chat/typing');
+            typingRef.on('value', (snapshot) => {
+                const typingUsers = snapshot.val() || {};
+                updateTypingIndicator(typingUsers);
+            });
+        }
+
+        function setupChatHandlers() {
+            const messageInput = document.getElementById('message-input');
+            const sendBtn = document.getElementById('send-btn');
+            
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+                
+                // Show typing indicator
+                if (chatEnabled && currentUser) {
+                    clearTimeout(typingTimeout);
+                    
+                    const typingRef = database.ref(`basement-chat/typing/${currentUser.id}`);
+                    typingRef.set({
+                        username: currentUser.name,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    
+                    typingTimeout = setTimeout(() => {
+                        typingRef.remove();
+                    }, 3000);
+                }
+            });
+            
+            messageInput.addEventListener('input', () => {
+                sendBtn.disabled = messageInput.value.trim() === '';
+            });
         }
 
         function checkNotificationPermission() {
@@ -346,7 +657,7 @@
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
                     document.getElementById('notification-prompt').style.display = 'none';
-                    showNotification('🎉 Notifications enabled!', 'You\'ll now get alerts when friends join the basement');
+                    showNotification('NOTIFICATIONS ENABLED', 'You will now get alerts when friends join the basement');
                 }
             }
         }
@@ -381,127 +692,186 @@
         }
 
         function updateUI(activity) {
-            const statusCard = document.getElementById('status-card');
-            const basementContent = document.getElementById('basement-content');
             const lastUpdate = document.getElementById('last-update');
+            const statusBtn = document.getElementById('status-btn');
             
             const totalCount = activity.total_count || 0;
             const friendCount = activity.friend_count || 0;
             const visitorCount = activity.visitor_count || 0;
             
             // Update last update time
-            lastUpdate.textContent = `Last update: ${new Date().toLocaleTimeString()}`;
+            lastUpdate.textContent = `LAST UPDATE: ${new Date().toLocaleTimeString()}`;
             
+            // Update status button
             if (totalCount === 0) {
-                // Empty basement
-                basementContent.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">💤</div>
-                        <div>Basement is empty</div>
-                        <div style="font-size: 12px; opacity: 0.7; margin-top: 8px;">
-                            Perfect time to start a hangout!
-                        </div>
-                    </div>
-                `;
-                
-                document.querySelector('.status-text').innerHTML = '💤 Nobody Home';
-                
+                statusBtn.textContent = '[OFFLINE]';
+                statusBtn.style.color = '#ff6666';
             } else {
-                // Active basement
-                document.querySelector('.status-text').innerHTML = `👥 ${totalCount} People Active`;
+                statusBtn.textContent = `[ONLINE ${totalCount}]`;
+                statusBtn.style.color = '#00ff00';
+            }
+            
+            // Add status message to terminal
+            addTerminalMessage(`>> BASEMENT STATUS UPDATE: ${totalCount} people active`, 'system');
+            
+            if (totalCount > 0) {
+                let details = '';
+                if (friendCount > 0 && visitorCount > 0) {
+                    details = `${friendCount} friends, ${visitorCount} visitors`;
+                } else if (friendCount > 0) {
+                    details = `${friendCount} friends`;
+                } else {
+                    details = `${visitorCount} visitors`;
+                }
+                addTerminalMessage(`   ${details} currently in basement`, 'system');
                 
-                basementContent.innerHTML = `
-                    <div class="count-display">
-                        ${friendCount > 0 ? `👫 ${friendCount} friends` : ''}
-                        ${friendCount > 0 && visitorCount > 0 ? ' + ' : ''}
-                        ${visitorCount > 0 ? `👤 ${visitorCount} visitors` : ''}
-                    </div>
-                    <div class="players-list" id="players-list">
-                        <!-- Players will be populated by simulation -->
-                    </div>
-                `;
+                // List known friends if any
+                if (friendCount > 0) {
+                    for (let i = 0; i < friendCount; i++) {
+                        const friendName = CONFIG.friendsList[i] || `FRIEND_${i + 1}`;
+                        addTerminalMessage(`   [FRIEND] ${friendName}`, 'system');
+                    }
+                }
                 
-                // Simulate player list (since we don't have individual player data)
-                simulatePlayerList(friendCount, visitorCount);
+                // List visitors if any
+                if (visitorCount > 0) {
+                    for (let i = 0; i < visitorCount; i++) {
+                        addTerminalMessage(`   [VISITOR] UNKNOWN_USER_${i + 1}`, 'system');
+                    }
+                }
+            } else {
+                addTerminalMessage('   Basement is empty - perfect time to start a hangout', 'system');
             }
         }
 
-        function simulatePlayerList(friendCount, visitorCount) {
-            const playersList = document.getElementById('players-list');
-            if (!playersList) return;
+        function addTerminalMessage(text, type = 'system', username = '') {
+            const terminalContent = document.getElementById('terminal-content');
+            const messageDiv = document.createElement('div');
             
-            let playersHTML = '';
+            const isOwn = currentUser && username === currentUser.name;
+            const isSystem = type === 'system';
             
-            // Add friends
-            for (let i = 0; i < friendCount; i++) {
-                const friendName = CONFIG.friendsList[i] || `Friend ${i + 1}`;
-                playersHTML += `
-                    <div class="player-item">
-                        <div class="player-status friend"></div>
-                        <div class="player-name">${friendName}</div>
-                        <div class="player-type">friend</div>
-                    </div>
+            messageDiv.className = `message ${isOwn ? 'message-own' : isSystem ? 'message-system' : 'message-other'}`;
+            
+            const time = new Date().toLocaleTimeString();
+            
+            if (isSystem) {
+                messageDiv.innerHTML = `
+                    <div>${text}</div>
+                    <div class="message-time">${time}</div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    ${!isOwn ? `<div class="message-author">[${username}]</div>` : ''}
+                    <div>${text}</div>
+                    <div class="message-time">${time}</div>
                 `;
             }
             
-            // Add visitors
-            for (let i = 0; i < visitorCount; i++) {
-                playersHTML += `
-                    <div class="player-item">
-                        <div class="player-status visitor"></div>
-                        <div class="player-name">Visitor ${i + 1}</div>
-                        <div class="player-type">visitor</div>
-                    </div>
-                `;
-            }
+            terminalContent.appendChild(messageDiv);
+            terminalContent.scrollTop = terminalContent.scrollHeight;
             
-            playersList.innerHTML = playersHTML;
+            // Keep only last 100 messages for performance
+            while (terminalContent.children.length > 100) {
+                terminalContent.removeChild(terminalContent.firstChild);
+            }
         }
 
         function checkForNotifications(newActivity) {
-            if (!currentActivity || Notification.permission !== 'granted') return;
+            if (!currentActivity) return;
             
             const oldTotal = currentActivity.total_count || 0;
             const newTotal = newActivity.total_count || 0;
+            const oldFriends = currentActivity.friend_count || 0;
             const newFriends = newActivity.friend_count || 0;
+            const oldVisitors = currentActivity.visitor_count || 0;
             const newVisitors = newActivity.visitor_count || 0;
             
-            // Friend joined
-            if (newFriends > (currentActivity.friend_count || 0)) {
-                showNotification(
-                    '🟢 Friend joined the basement!',
-                    `Now ${newFriends} friends + ${newVisitors} visitors`
-                );
+            // Detect specific changes and add to terminal
+            if (newFriends > oldFriends) {
+                // Friend joined
+                const friendName = getFriendNameByIndex(newFriends - 1) || 'UNKNOWN_FRIEND';
+                addTerminalMessage(`>> FRIEND JOINED: ${friendName} entered the basement`, 'system');
+                
+                if (Notification.permission === 'granted') {
+                    showNotification('FRIEND JOINED BASEMENT', `${friendName} entered the basement`, 'basement');
+                }
             }
             
-            // Visitor joined
-            else if (newVisitors > (currentActivity.visitor_count || 0)) {
-                showNotification(
-                    '🔵 New visitor in the basement!',
-                    `${newFriends} friends + ${newVisitors} visitors`
-                );
+            if (newFriends < oldFriends) {
+                // Friend left
+                const friendName = 'FRIEND'; // We don't know which one left
+                addTerminalMessage(`>> FRIEND LEFT: A friend has left the basement`, 'system');
             }
             
-            // Basement became active (2+ people)
-            else if (oldTotal < 2 && newTotal >= 2) {
-                showNotification(
-                    '🎮 Basement is getting active!',
-                    `${newTotal} people hanging out - join them!`
-                );
+            if (newVisitors > oldVisitors) {
+                // Visitor joined
+                addTerminalMessage(`>> VISITOR JOINED: Unknown user entered the basement`, 'system');
+                
+                if (Notification.permission === 'granted') {
+                    showNotification('VISITOR JOINED BASEMENT', 'Unknown user entered the basement', 'basement');
+                }
+            }
+            
+            if (newVisitors < oldVisitors) {
+                // Visitor left
+                addTerminalMessage(`>> VISITOR LEFT: Unknown user has left the basement`, 'system');
+            }
+            
+            // Special status messages
+            if (oldTotal === 0 && newTotal > 0) {
+                addTerminalMessage(`>> BASEMENT ACTIVITY: First person entered - basement is now active!`, 'system');
+            }
+            
+            if (oldTotal > 0 && newTotal === 0) {
+                addTerminalMessage(`>> BASEMENT EMPTY: Last person left - basement is now empty`, 'system');
+            }
+            
+            if (newTotal >= 4 && oldTotal < 4) {
+                addTerminalMessage(`>> HIGH ACTIVITY: ${newTotal} people in basement - big hangout happening!`, 'system');
             }
         }
 
-        function showNotification(title, body) {
+        function getFriendNameByIndex(index) {
+            return CONFIG.friendsList[index] || null;
+        }
+
+        function displayMessage(message) {
+            // For chat messages from Firebase
+            if (message.type === 'system') {
+                addTerminalMessage(message.text, 'system');
+            } else {
+                const isOwn = currentUser && message.userId === currentUser.id;
+                addTerminalMessage(message.text, 'user', message.username);
+                
+                // Show notification if not own message
+                if (!isOwn && Notification.permission === 'granted') {
+                    showNotification(`MESSAGE FROM ${message.username}`, message.text, 'chat');
+                }
+            }
+        }
+
+        function showNotification(title, body, type = 'basement') {
             if ('Notification' in window && Notification.permission === 'granted') {
                 const notification = new Notification(title, {
                     body: body,
                     icon: 'icon-192.png',
-                    tag: 'basement-activity',
-                    badge: 'icon-192.png'
+                    tag: type === 'chat' ? 'basement-chat' : 'basement-activity',
+                    badge: 'icon-192.png',
+                    data: { type: type }
                 });
                 
                 notification.onclick = function() {
                     window.focus();
+                    
+                    // If it's a chat notification, open chat
+                    if (type === 'chat') {
+                        const chatSection = document.getElementById('chat-section');
+                        if (chatSection.style.display === 'none') {
+                            toggleChat();
+                        }
+                    }
+                    
                     notification.close();
                 };
                 
@@ -527,12 +897,12 @@
 
         function showOfflineUI() {
             const basementContent = document.getElementById('basement-content');
-            document.querySelector('.status-text').innerHTML = '🔴 Connection Lost';
+            document.querySelector('.status-text').innerHTML = '[CONNECTION LOST]';
             
             basementContent.innerHTML = `
                 <div class="empty-state">
-                    <div class="empty-icon">📡</div>
-                    <div>Unable to connect</div>
+                    <div class="empty-icon">[ERROR]</div>
+                    <div>UNABLE TO CONNECT</div>
                     <div style="font-size: 12px; opacity: 0.7; margin-top: 8px;">
                         Check your internet connection
                     </div>
@@ -547,55 +917,170 @@
             }
         }
 
-        async function toggleHistory() {
-            const activityLog = document.getElementById('activity-log');
-            const logContent = document.getElementById('log-content');
+        function sendMessage() {
+            if (!chatEnabled || !currentUser || !database) {
+                alert('Chat is not available');
+                return;
+            }
             
-            if (activityLog.style.display === 'none') {
-                activityLog.style.display = 'block';
+            const messageInput = document.getElementById('message-input');
+            const text = messageInput.value.trim();
+            
+            if (!text) return;
+            
+            const message = {
+                text: text,
+                username: currentUser.name,
+                userId: currentUser.id,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                type: 'user'
+            };
+            
+            // Send message to Firebase
+            messagesRef.push(message).then(() => {
+                messageInput.value = '';
+                document.getElementById('send-btn').disabled = true;
                 
-                try {
-                    const response = await fetch(CONFIG.githubHistoryUrl + '?t=' + Date.now());
-                    const history = await response.json();
-                    
-                    let historyHTML = '';
-                    
-                    // Show last 10 activities
-                    const recentHistory = history.slice(-10).reverse();
-                    
-                    recentHistory.forEach(activity => {
-                        const time = new Date(activity.timestamp * 1000).toLocaleString();
-                        const event = activity.event;
-                        let icon = '📊';
-                        let description = '';
-                        
-                        if (event.includes('friend_joined')) {
-                            icon = '🟢';
-                            description = `Friend joined (${activity.friend_count}F + ${activity.visitor_count}V)`;
-                        } else if (event.includes('visitor_joined')) {
-                            icon = '🔵';
-                            description = `Visitor joined (${activity.friend_count}F + ${activity.visitor_count}V)`;
-                        } else if (event.includes('_left')) {
-                            icon = '🟠';
-                            description = `Someone left (${activity.friend_count}F + ${activity.visitor_count}V)`;
-                        }
-                        
-                        historyHTML += `
-                            <div class="log-item">
-                                <div>${icon} ${description}</div>
-                                <div class="log-time">${time}</div>
-                            </div>
-                        `;
-                    });
-                    
-                    logContent.innerHTML = historyHTML || '<div style="opacity: 0.7;">No recent activity</div>';
-                    
-                } catch (error) {
-                    logContent.innerHTML = '<div style="opacity: 0.7;">Unable to load history</div>';
+                // Remove typing indicator
+                if (typingTimeout) {
+                    clearTimeout(typingTimeout);
+                    database.ref(`basement-chat/typing/${currentUser.id}`).remove();
                 }
+            }).catch((error) => {
+                console.error('Failed to send message:', error);
+                alert('Failed to send message');
+            });
+        }
+
+        function displayMessage(message) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            
+            const isOwn = currentUser && message.userId === currentUser.id;
+            const isSystem = message.type === 'system';
+            
+            messageDiv.className = `message ${isOwn ? 'message-own' : isSystem ? 'message-system' : 'message-other'}`;
+            
+            const time = message.timestamp ? new Date(message.timestamp).toLocaleTimeString() : 'now';
+            
+            if (isSystem) {
+                messageDiv.innerHTML = `
+                    <div>${message.text}</div>
+                    <div class="message-time">${time}</div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    ${!isOwn ? `<div class="message-author">${message.username}</div>` : ''}
+                    <div>${message.text}</div>
+                    <div class="message-time">${time}</div>
+                `;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Auto-scroll to bottom
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
+        }
+
+        function toggleChat() {
+            const chatSection = document.getElementById('chat-section');
+            const toggleBtn = document.getElementById('chat-toggle-btn');
+            
+            if (chatSection.style.display === 'none') {
+                chatSection.style.display = 'block';
+                toggleBtn.textContent = '[HISTORY]';
+                
+                // Hide activity log if open
+                document.getElementById('activity-log').style.display = 'none';
+                
+                // Reset unread count
+                unreadCount = 0;
+                updateUnreadBadge();
+                
+                // Focus message input
+                setTimeout(() => {
+                    document.getElementById('message-input').focus();
+                }, 100);
                 
             } else {
-                activityLog.style.display = 'none';
+                chatSection.style.display = 'none';
+                toggleBtn.innerHTML = '[CHAT] <span id="unread-count" class="unread-badge" style="display: none;">0</span>';
+            }
+        }
+
+        function updateUnreadBadge() {
+            const badge = document.getElementById('unread-count');
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function updateChatStatus(status) {
+            const statusElement = document.getElementById('chat-status');
+            if (statusElement) {
+                statusElement.textContent = status;
+                statusElement.className = `connection-status ${status.includes('failed') || status.includes('disabled') ? 'disconnected' : ''}`;
+            }
+        }
+
+        function updateTypingIndicator(typingUsers) {
+            const indicator = document.getElementById('typing-indicator');
+            if (!indicator || !currentUser) return;
+            
+            // Filter out current user and expired typing indicators
+            const activeTypers = Object.entries(typingUsers)
+                .filter(([userId, data]) => {
+                    if (userId === currentUser.id) return false;
+                    const age = Date.now() - (data.timestamp || 0);
+                    return age < 5000; // 5 seconds
+                })
+                .map(([userId, data]) => data.username);
+            
+            if (activeTypers.length > 0) {
+                const typingText = activeTypers.length === 1 
+                    ? `> ${activeTypers[0]} is typing...`
+                    : `> ${activeTypers.slice(0, 2).join(', ')}${activeTypers.length > 2 ? ' and others' : ''} are typing...`;
+                
+                indicator.textContent = typingText;
+                indicator.style.display = 'block';
+            } else {
+                indicator.style.display = 'none';
+            }
+        }
+
+        // Send system message when basement activity changes
+        function sendBasementActivityMessage(activity) {
+            if (!chatEnabled || !database || !messagesRef) return;
+            
+            const event = activity.event;
+            const friends = activity.friend_count || 0;
+            const visitors = activity.visitor_count || 0;
+            const total = activity.total_count || 0;
+            
+            let systemMessage = '';
+            
+            if (event.includes('friend_joined') && friends >= 2) {
+                systemMessage = `>> ${friends} friends are now in the basement! Perfect time to join VRChat`;
+            } else if (total === 0 && event.includes('_left')) {
+                systemMessage = `>> Basement is empty - who wants to start a hangout?`;
+            } else if (total >= 4) {
+                systemMessage = `>> Basement is getting crowded with ${total} people! Big hangout happening`;
+            }
+            
+            if (systemMessage) {
+                const message = {
+                    text: systemMessage,
+                    type: 'system',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                };
+                
+                messagesRef.push(message).catch(console.error);
             }
         }
 
