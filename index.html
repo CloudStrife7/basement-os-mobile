@@ -422,7 +422,7 @@
     <div class="container">
         <div class="header">
             <div class="title">[BASEMENT OS MOBILE]</div>
-            <div class="subtitle">TERMINAL INTERFACE v1.0</div>
+            <div class="subtitle">TERMINAL INTERFACE v3.0</div>
         </div>
 
         <div id="notification-prompt" class="notification-setup" style="display: none;">
@@ -440,7 +440,7 @@
             
             <div id="terminal-content" class="chat-messages" style="height: 300px;">
                 <div class="message message-system">
-                    <div>> BASEMENT OS MOBILE v1.0 INITIALIZED</div>
+                    <div>> BASEMENT OS MOBILE v3.0 INITIALIZED</div>
                     <div class="message-time">Lower Level 2.0 Terminal Interface</div>
                 </div>
                 <div class="message message-system">
@@ -471,18 +471,14 @@
     </div>
 
     <script>
-        // Configuration - UPDATE THESE VALUES FOR YOUR SETUP
+        // Configuration - CORRECTED URLS
         const CONFIG = {
-            // IMPORTANT: Replace with your actual GitHub Pages URLs
-            // Format: 'https://YOURUSERNAME.github.io/REPOSITORY/current_activity.json'
-            githubDataUrl: 'https://CloudStrife7.github.io/lowerlevel-activity/current_activity.json',
-            githubHistoryUrl: 'https://CloudStrife7.github.io/lowerlevel-activity/activity_log.json',
-            
-            // Demo mode will automatically activate if GitHub URLs return 404
-            demoMode: false, // Will auto-enable if URLs not accessible
+            // FIXED: Updated to match your actual GitHub Pages setup
+            githubDataUrl: 'https://cloudstrife7.github.io/basement-os-mobile/current_activity.json',
+            githubHistoryUrl: 'https://cloudstrife7.github.io/basement-os-mobile/activity_log.json',
             
             updateInterval: 10000, // 10 seconds
-            friendsList: ['YourFriend1', 'BestBuddy', 'VRChatPal'], // Update with real friend names
+            friendsList: ['YourFriend1', 'BestBuddy', 'VRChatPal'], // TODO: Update with actual friend names
             
             // Firebase Chat Configuration (optional)
             firebase: {
@@ -534,7 +530,7 @@
         });
 
         async function initializeApp() {
-            console.log('🏠 Initializing Lower Level 2.0 Monitor...');
+            console.log('🏠 Initializing Lower Level 2.0 Monitor v3.0...');
             
             addTerminalMessage('>> SYSTEM STARTUP SEQUENCE INITIATED', 'system');
             
@@ -573,6 +569,7 @@
         function startDemoMode() {
             isInDemoMode = true;
             addTerminalMessage('>> DEMO MODE ACTIVATED - Simulating basement activity', 'system');
+            addTerminalMessage('>> NOTIFICATIONS DISABLED in demo mode', 'system');
             
             // Start with empty basement
             updateUI(demoActivities[0]);
@@ -912,7 +909,8 @@
                 const friendName = getFriendNameByIndex(newFriends - 1) || 'UNKNOWN_FRIEND';
                 addTerminalMessage(`>> FRIEND JOINED: ${friendName} entered the basement`, 'system');
                 
-                if (Notification.permission === 'granted') {
+                // Only show notifications if NOT in demo mode
+                if (!isInDemoMode && Notification.permission === 'granted') {
                     showNotification('FRIEND JOINED BASEMENT', `${friendName} entered the basement`, 'basement');
                 }
             }
@@ -926,7 +924,8 @@
                 // Visitor joined
                 addTerminalMessage(`>> VISITOR JOINED: Unknown user entered the basement`, 'system');
                 
-                if (Notification.permission === 'granted') {
+                // Only show notifications if NOT in demo mode
+                if (!isInDemoMode && Notification.permission === 'granted') {
                     showNotification('VISITOR JOINED BASEMENT', 'Unknown user entered the basement', 'basement');
                 }
             }
