@@ -520,7 +520,7 @@ TERMINAL INTERFACE READY</div>
 USER: <span id="current-user">UNKNOWN</span>
 </div>
 <div id="basement-live" class="basement-live">
-<span class="emoji">🔴</span> BASEMENT LIVE (1 Online)
+<span class="emoji">🟢</span> BASEMENT LIVE (1 Online)
 </div>
 </div>
 
@@ -887,7 +887,7 @@ USER: <span id="current-user">UNKNOWN</span>
         if (!liveIndicator || !isLoggedIntoBasement) return;
         
         // Update content with animated emoji
-        liveIndicator.innerHTML = '<span class="emoji">🔴</span> BASEMENT LIVE (1 Online)';
+        liveIndicator.innerHTML = '<span class="emoji">🟢</span> BASEMENT LIVE (1 Online)';
     }
 
     async function enableNotifications() {
