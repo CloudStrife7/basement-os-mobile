@@ -7,6 +7,10 @@
     <meta name="theme-color" content="#000000">
     <title>Basement OS Mobile ALPHA</title>
     
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js">
+    
     <!-- PWA Manifest -->
     <link rel="manifest" href="/basement-os-mobile/manifest.json">
     
@@ -53,7 +57,7 @@
         .container {
             max-width: 400px;
             margin: 0 auto;
-            animation: powerOn 2s ease-in-out;
+            /* animation: powerOn 2s ease-in-out; -- DISABLED */
         }
 
         @keyframes powerOn {
@@ -417,6 +421,16 @@
             25% { transform: translateX(-10px); }
             75% { transform: translateX(10px); }
         }
+
+        /* DISABLE ALL ANIMATIONS - Uncomment to remove all motion */
+        /*
+        *, *::before, *::after {
+            animation-duration: 0s !important;
+            animation-delay: 0s !important;
+            transition-duration: 0s !important;
+            transition-delay: 0s !important;
+        }
+        */
 
         /* PWA Install Prompt */
         .pwa-prompt {
