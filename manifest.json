@@ -10,13 +10,13 @@
   "scope": "/basement-os-mobile/",
   "icons": [
     {
-      "src": "/basement-os-mobile/icon-192.png",
+      "src": "/basement-os-mobile/pwa/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/basement-os-mobile/icon-512.png",
+      "src": "/basement-os-mobile/pwa/icon-512.png",
       "sizes": "512x512",
       "type": "image/png", 
       "purpose": "any maskable"
