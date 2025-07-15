@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,1058 +6,1140 @@
     <meta name="color-scheme" content="dark">
     <meta name="theme-color" content="#000000">
     <title>Basement OS Mobile ALPHA</title>
-
-```
-<!-- PWA Manifest -->
-<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQmFzZW1lbnQgT1MgTW9iaWxlIEFMUEhBIiwic2hvcnRfbmFtZSI6IkJhc2VtZW50IE9TIiwidGhlbWVfY29sb3IiOiIjMDAwMDAwIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwMDAwMDAiLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsInN0YXJ0X3VybCI6Ii8iLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCNGJXeHVjejBpYUhSMGNEb3ZMM2QzZHk1M00zUnZjbWN2TWpBd01DOXpkbWNpSUhacFpYZENiM2c5SWpBZ01DQXhPVElnTVRreUlpQjNhV1IwYUQwaU1Ua3lJaUJvWldsbmFIUTlJakU1TWlJK1BISmxZM1FnZUQwaU1DSWdlVDBpTUNJZ2QybGtkR2c5SWpFNU1pSWdhR1ZwWjJoMFBTSXhPVElpSUdacGJHdzlJaU13TURBaUx6NDhkR1Y0ZENCNFBTSTVOaUlnZVQwaU9UWWlJSFJsZUhRdFlXNWphRzl5UFNKdGFXUmtiR1VpSUdacGJHdzlJaU13WmptbU1EQWlJR1p2Ym5RdGMybDZaVDBpTVRnaUlHWnZiblF0Wm1GdGFXeDVQU0pEYjNWeWFXVnlMQ0J0YjI1dmMzQmhZMlVpUGtJOEwzUmxlSFErUEM5emRtYysifSwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
-
-<!-- Icons -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIiB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIGZpbGw9IiMwMDAiLz48dGV4dCB4PSI5NiIgeT0iOTYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwZmYwMCIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkNvdXJpZXIsIG1vbm9zcGFjZSI+QjwvdGV4dD48L3N2Zz4=">
-
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    html, body {
-        background: #000000 !important;
-        background-color: #000000 !important;
-    }
-
-    body {
-        font-family: 'Courier New', monospace;
-        background: #000000 !important;
-        color: #00ff00;
-        min-height: 100vh;
-        padding: 15px;
-        font-size: 14px;
-        line-height: 1.4;
-    }
-
-    /* CRT Monitor Effects */
-    body::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(transparent 2px, rgba(0, 255, 0, 0.03) 2px, rgba(0, 255, 0, 0.03) 4px, transparent 4px);
-        background-size: 100% 4px;
-        pointer-events: none;
-        z-index: 1000;
-    }
-
-    .container {
-        max-width: 400px;
-        margin: 0 auto;
-        animation: powerOn 2s ease-in-out;
-    }
-
-    @keyframes powerOn {
-        0% {
-            transform: scaleY(0.001) scaleX(1);
-            opacity: 0;
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="#" id="manifest-placeholder">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="#" id="icon-placeholder">
+    <link rel="apple-touch-icon" href="#" id="apple-icon-placeholder">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        50% {
-            transform: scaleY(0.1) scaleX(1);
-            opacity: 0.5;
+
+        html, body {
+            background: #000000 !important;
+            background-color: #000000 !important;
         }
-        100% {
-            transform: scaleY(1) scaleX(1);
-            opacity: 1;
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000000 !important;
+            color: #00ff00;
+            min-height: 100vh;
+            padding: 15px;
+            font-size: 14px;
+            line-height: 1.4;
         }
-    }
 
-    .header {
-        text-align: center;
-        margin-bottom: 20px;
-        padding: 15px;
-        background: rgba(0, 255, 0, 0.1);
-        border: 1px solid #00ff00;
-        border-radius: 8px;
-        box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-        position: relative;
-    }
+        /* CRT Monitor Effects */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(transparent 2px, rgba(0, 255, 0, 0.03) 2px, rgba(0, 255, 0, 0.03) 4px, transparent 4px);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1000;
+        }
 
-    .ascii-logo {
-        font-family: 'Courier New', monospace;
-        font-size: 10px;
-        line-height: 1.1;
-        color: #00ff00;
-        text-shadow: 0 0 5px #00ff00;
-        margin-bottom: 5px;
-        white-space: pre-line;
-    }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            animation: powerOn 2s ease-in-out;
+        }
 
-    .user-display {
-        background: rgba(0, 255, 0, 0.15);
-        border: 1px solid #00ff00;
-        padding: 8px;
-        margin-top: 10px;
-        border-radius: 4px;
-        font-size: 12px;
-        text-align: center;
-        display: none;
-    }
+        @keyframes powerOn {
+            0% {
+                transform: scaleY(0.001) scaleX(1);
+                opacity: 0;
+            }
+            50% {
+                transform: scaleY(0.1) scaleX(1);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scaleY(1) scaleX(1);
+                opacity: 1;
+            }
+        }
 
-    .basement-live {
-        font-size: 14px;
-        color: #ff9500;
-        font-weight: bold;
-        margin-top: 10px;
-        padding: 8px;
-        background: rgba(255, 165, 0, 0.1);
-        border: 1px solid #ff9500;
-        border-radius: 6px;
-        display: none;
-        text-align: center;
-    }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            position: relative;
+        }
 
-    .basement-live.active {
-        display: block;
-    }
+        .ascii-logo {
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            line-height: 1.1;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            margin-bottom: 5px;
+            white-space: pre-line;
+        }
 
-    .basement-live .emoji {
-        animation: switchEmoji 2s ease-in-out infinite alternate;
-        display: inline-block;
-    }
+        .user-display {
+            background: rgba(0, 255, 0, 0.15);
+            border: 1px solid #00ff00;
+            padding: 8px;
+            margin-top: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-align: center;
+            display: none;
+        }
 
-    @keyframes switchEmoji {
-        0% { 
+        .basement-live {
+            font-size: 14px;
             color: #ff9500;
-            text-shadow: 0 0 5px #ff9500;
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid #ff9500;
+            border-radius: 6px;
+            display: none;
+            text-align: center;
         }
-        100% { 
+
+        .basement-live.active {
+            display: block;
+        }
+
+        .basement-live .emoji {
+            animation: switchEmoji 2s ease-in-out infinite alternate;
+            display: inline-block;
+        }
+
+        @keyframes switchEmoji {
+            0% { 
+                color: #ff9500;
+                text-shadow: 0 0 5px #ff9500;
+            }
+            100% { 
+                color: #00ff00;
+                text-shadow: 0 0 5px #00ff00;
+            }
+        }
+
+        /* Access Code Lock Screen */
+        .lock-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9998;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .lock-content {
+            text-align: center;
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid #00ff00;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+        }
+
+        .lock-title {
+            font-size: 20px;
+            color: #00ff00;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .lock-subtitle {
+            font-size: 12px;
+            color: #66ff66;
+            margin-bottom: 25px;
+            opacity: 0.8;
+        }
+
+        .access-code-display {
+            font-size: 24px;
+            letter-spacing: 8px;
+            margin-bottom: 20px;
+            min-height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             color: #00ff00;
             text-shadow: 0 0 5px #00ff00;
         }
-    }
 
-    /* Access Code Lock Screen */
-    .lock-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.95);
-        z-index: 9998;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-    }
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 200px;
+            margin: 0 auto;
+        }
 
-    .lock-content {
-        text-align: center;
-        background: rgba(0, 255, 0, 0.1);
-        border: 2px solid #00ff00;
-        border-radius: 12px;
-        padding: 30px;
-        box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
-    }
+        .numpad-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            color: #00ff00;
+            font-size: 18px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            touch-action: manipulation;
+        }
 
-    .lock-title {
-        font-size: 20px;
-        color: #00ff00;
-        margin-bottom: 10px;
-        text-shadow: 0 0 10px #00ff00;
-    }
+        .numpad-btn:hover, .numpad-btn:active {
+            background: rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            transform: scale(0.95);
+        }
 
-    .lock-subtitle {
-        font-size: 12px;
-        color: #66ff66;
-        margin-bottom: 25px;
-        opacity: 0.8;
-    }
+        .numpad-0 {
+            grid-column: span 2;
+        }
 
-    .access-code-display {
-        font-size: 24px;
-        letter-spacing: 8px;
-        margin-bottom: 20px;
-        min-height: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #00ff00;
-        text-shadow: 0 0 5px #00ff00;
-    }
+        .clear-btn {
+            background: rgba(255, 165, 0, 0.1);
+            border-color: #ffa500;
+            color: #ffa500;
+        }
 
-    .numpad {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-        max-width: 200px;
-        margin: 0 auto;
-    }
+        .clear-btn:hover, .clear-btn:active {
+            background: rgba(255, 165, 0, 0.2);
+            box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
+        }
 
-    .numpad-btn {
-        width: 60px;
-        height: 60px;
-        background: rgba(0, 255, 0, 0.1);
-        border: 2px solid #00ff00;
-        border-radius: 8px;
-        color: #00ff00;
-        font-size: 18px;
-        font-family: inherit;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        user-select: none;
-        touch-action: manipulation;
-    }
+        .status-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 255, 0, 0.2);
+            position: relative;
+        }
 
-    .numpad-btn:hover, .numpad-btn:active {
-        background: rgba(0, 255, 0, 0.2);
-        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-        transform: scale(0.95);
-    }
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
 
-    .numpad-0 {
-        grid-column: span 2;
-    }
+        .status-text {
+            font-size: 16px;
+            font-weight: bold;
+        }
 
-    .clear-btn {
-        background: rgba(255, 165, 0, 0.1);
-        border-color: #ffa500;
-        color: #ffa500;
-    }
+        .last-update {
+            font-size: 10px;
+            color: #66ff66;
+            opacity: 0.7;
+        }
 
-    .clear-btn:hover, .clear-btn:active {
-        background: rgba(255, 165, 0, 0.2);
-        box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
-    }
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            margin-bottom: 10px;
+        }
 
-    .status-card {
-        background: rgba(0, 0, 0, 0.6);
-        border: 1px solid #00ff00;
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 15px;
-        box-shadow: 0 4px 15px rgba(0, 255, 0, 0.2);
-        position: relative;
-    }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
 
-    .status-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-    }
+        .message-system {
+            background: rgba(255, 165, 0, 0.1);
+            color: #ffa500;
+            border-left: 3px solid #ffa500;
+            padding-left: 10px;
+        }
 
-    .status-text {
-        font-size: 16px;
-        font-weight: bold;
-    }
+        .message-user {
+            background: rgba(0, 255, 0, 0.1);
+            color: #00ff00;
+            border-left: 3px solid #00ff00;
+            padding-left: 10px;
+        }
 
-    .last-update {
-        font-size: 10px;
-        color: #66ff66;
-        opacity: 0.7;
-    }
+        .message-basement {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ff9500;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid rgba(255, 165, 0, 0.3);
+            border-left: 3px solid #ff9500;
+            padding-left: 10px;
+        }
 
-    .chat-messages {
-        height: 300px;
-        overflow-y: auto;
-        padding: 10px;
-        background: rgba(0, 0, 0, 0.6);
-        border: 1px solid rgba(0, 255, 0, 0.3);
-        margin-bottom: 10px;
-    }
+        .message-error {
+            background: rgba(255, 0, 0, 0.1);
+            color: #ff6666;
+            text-align: left;
+            border-left: 3px solid #ff6666;
+            padding-left: 10px;
+        }
 
-    .message {
-        margin-bottom: 10px;
-        padding: 8px;
-        border-radius: 6px;
-        font-size: 12px;
-    }
+        .message-time {
+            font-size: 9px;
+            opacity: 0.6;
+            margin-top: 3px;
+        }
 
-    .message-system {
-        background: rgba(255, 165, 0, 0.1);
-        color: #ffa500;
-        border-left: 3px solid #ffa500;
-        padding-left: 10px;
-    }
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            border-radius: 4px;
+        }
 
-    .message-user {
-        background: rgba(0, 255, 0, 0.1);
-        color: #00ff00;
-        border-left: 3px solid #00ff00;
-        padding-left: 10px;
-    }
+        .message-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            padding: 8px;
+            color: #00ff00;
+            font-family: inherit;
+            font-size: 12px;
+        }
 
-    .message-basement {
-        background: rgba(255, 165, 0, 0.2);
-        color: #ff9500;
-        text-align: left;
-        font-weight: bold;
-        border: 1px solid rgba(255, 165, 0, 0.3);
-        border-left: 3px solid #ff9500;
-        padding-left: 10px;
-    }
+        .message-input:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+        }
 
-    .message-error {
-        background: rgba(255, 0, 0, 0.1);
-        color: #ff6666;
-        text-align: left;
-        border-left: 3px solid #ff6666;
-        padding-left: 10px;
-    }
+        .send-btn {
+            margin-left: 8px;
+            padding: 8px 12px;
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            color: #00ff00;
+            cursor: pointer;
+            font-size: 12px;
+            touch-action: manipulation;
+        }
 
-    .message-time {
-        font-size: 9px;
-        opacity: 0.6;
-        margin-top: 3px;
-    }
+        .send-btn:hover, .send-btn:active {
+            background: rgba(0, 255, 0, 0.3);
+        }
 
-    .chat-input {
-        display: flex;
-        padding: 10px;
-        background: rgba(0, 0, 0, 0.4);
-        border: 1px solid rgba(0, 255, 0, 0.3);
-        border-radius: 4px;
-    }
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
-    .message-input {
-        flex: 1;
-        background: rgba(0, 0, 0, 0.8);
-        border: 1px solid #00ff00;
-        border-radius: 4px;
-        padding: 8px;
-        color: #00ff00;
-        font-family: inherit;
-        font-size: 12px;
-    }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
 
-    .message-input:focus {
-        outline: none;
-        box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
-    }
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            border-radius: 6px;
+            color: #00ff00;
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            touch-action: manipulation;
+        }
 
-    .send-btn {
-        margin-left: 8px;
-        padding: 8px 12px;
-        background: rgba(0, 255, 0, 0.2);
-        border: 1px solid #00ff00;
-        border-radius: 4px;
-        color: #00ff00;
-        cursor: pointer;
-        font-size: 12px;
-        touch-action: manipulation;
-    }
+        .btn:hover, .btn:active {
+            background: rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            transform: scale(0.95);
+        }
 
-    .send-btn:hover, .send-btn:active {
-        background: rgba(0, 255, 0, 0.3);
-    }
+        .btn-basement {
+            background: rgba(255, 165, 0, 0.1);
+            border-color: #ffa500;
+            color: #ffa500;
+        }
 
-    .send-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
+        .btn-basement:hover, .btn-basement:active {
+            background: rgba(255, 165, 0, 0.2);
+            box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
+        }
 
-    .buttons {
-        display: flex;
-        gap: 10px;
-        margin-top: 15px;
-        flex-wrap: wrap;
-    }
+        .btn-basement.logged-in {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: #ff6666;
+            color: #ff6666;
+        }
 
-    .btn {
-        flex: 1;
-        min-width: 120px;
-        padding: 12px;
-        background: rgba(0, 255, 0, 0.1);
-        border: 1px solid #00ff00;
-        border-radius: 6px;
-        color: #00ff00;
-        font-family: inherit;
-        font-size: 12px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        touch-action: manipulation;
-    }
+        .btn-basement.logged-in:hover, .btn-basement.logged-in:active {
+            background: rgba(255, 0, 0, 0.2);
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
 
-    .btn:hover, .btn:active {
-        background: rgba(0, 255, 0, 0.2);
-        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-        transform: scale(0.95);
-    }
+        .shake {
+            animation: shake 0.5s;
+        }
 
-    .btn-basement {
-        background: rgba(255, 165, 0, 0.1);
-        border-color: #ffa500;
-        color: #ffa500;
-    }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
 
-    .btn-basement:hover, .btn-basement:active {
-        background: rgba(255, 165, 0, 0.2);
-        box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
-    }
+        /* PWA Install Prompt */
+        .pwa-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            color: #00ff00;
+            font-size: 12px;
+            text-align: center;
+            display: none;
+            z-index: 9999;
+        }
 
-    .btn-basement.logged-in {
-        background: rgba(255, 0, 0, 0.1);
-        border-color: #ff6666;
-        color: #ff6666;
-    }
+        .pwa-prompt.show {
+            display: block;
+        }
 
-    .btn-basement.logged-in:hover, .btn-basement.logged-in:active {
-        background: rgba(255, 0, 0, 0.2);
-        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-    }
+        .pwa-prompt button {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 11px;
+        }
 
-    .shake {
-        animation: shake 0.5s;
-    }
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            z-index: 9999;
+        }
 
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-10px); }
-        75% { transform: translateX(10px); }
-    }
+        .connection-status.online {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+        }
 
-    /* PWA Install Prompt */
-    .pwa-prompt {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        right: 20px;
-        background: rgba(0, 255, 0, 0.1);
-        border: 1px solid #00ff00;
-        border-radius: 8px;
-        padding: 15px;
-        color: #00ff00;
-        font-size: 12px;
-        text-align: center;
-        display: none;
-        z-index: 9999;
-    }
-
-    .pwa-prompt.show {
-        display: block;
-    }
-
-    .pwa-prompt button {
-        background: rgba(0, 255, 0, 0.2);
-        border: 1px solid #00ff00;
-        color: #00ff00;
-        padding: 8px 16px;
-        margin: 5px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-family: inherit;
-        font-size: 11px;
-    }
-
-    /* Connection Status */
-    .connection-status {
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-size: 10px;
-        z-index: 9999;
-    }
-
-    .connection-status.online {
-        background: rgba(0, 255, 0, 0.2);
-        border: 1px solid #00ff00;
-        color: #00ff00;
-    }
-
-    .connection-status.offline {
-        background: rgba(255, 0, 0, 0.2);
-        border: 1px solid #ff6666;
-        color: #ff6666;
-    }
-</style>
-```
-
+        .connection-status.offline {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff6666;
+            color: #ff6666;
+        }
+    </style>
 </head>
 <body>
     <!-- Connection Status -->
     <div id="connection-status" class="connection-status online">● ONLINE</div>
 
-```
-<!-- PWA Install Prompt -->
-<div id="pwa-prompt" class="pwa-prompt">
-    <div>📱 Install Basement OS as an app for push notifications</div>
-    <button onclick="installPWA()">Install</button>
-    <button onclick="dismissPWAPrompt()">Dismiss</button>
-</div>
+    <!-- PWA Install Prompt -->
+    <div id="pwa-prompt" class="pwa-prompt">
+        <div>📱 Install Basement OS as an app for push notifications</div>
+        <button onclick="installPWA()">Install</button>
+        <button onclick="dismissPWAPrompt()">Dismiss</button>
+    </div>
 
-<!-- Access Code Lock Screen -->
-<div id="lock-screen" class="lock-screen">
-    <div class="lock-content">
-        <div class="lock-title">[BASEMENT OS SECURE ACCESS]</div>
-        <div class="lock-subtitle">Enter access code to continue</div>
-        <div class="access-code-display" id="access-code-display">_ _ _ _</div>
-        <div class="numpad">
-            <button class="numpad-btn" data-digit="1">1</button>
-            <button class="numpad-btn" data-digit="2">2</button>
-            <button class="numpad-btn" data-digit="3">3</button>
-            <button class="numpad-btn" data-digit="4">4</button>
-            <button class="numpad-btn" data-digit="5">5</button>
-            <button class="numpad-btn" data-digit="6">6</button>
-            <button class="numpad-btn" data-digit="7">7</button>
-            <button class="numpad-btn" data-digit="8">8</button>
-            <button class="numpad-btn" data-digit="9">9</button>
-            <button class="numpad-btn numpad-0" data-digit="0">0</button>
-            <button class="numpad-btn clear-btn" data-action="clear">CLR</button>
+    <!-- Access Code Lock Screen -->
+    <div id="lock-screen" class="lock-screen">
+        <div class="lock-content">
+            <div class="lock-title">[BASEMENT OS SECURE ACCESS]</div>
+            <div class="lock-subtitle">Enter access code to continue</div>
+            <div class="access-code-display" id="access-code-display">_ _ _ _</div>
+            <div class="numpad">
+                <button class="numpad-btn" data-digit="1">1</button>
+                <button class="numpad-btn" data-digit="2">2</button>
+                <button class="numpad-btn" data-digit="3">3</button>
+                <button class="numpad-btn" data-digit="4">4</button>
+                <button class="numpad-btn" data-digit="5">5</button>
+                <button class="numpad-btn" data-digit="6">6</button>
+                <button class="numpad-btn" data-digit="7">7</button>
+                <button class="numpad-btn" data-digit="8">8</button>
+                <button class="numpad-btn" data-digit="9">9</button>
+                <button class="numpad-btn numpad-0" data-digit="0">0</button>
+                <button class="numpad-btn clear-btn" data-action="clear">CLR</button>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="container">
-    <div class="header">
-        <div class="ascii-logo">BASEMENT OS MOBILE ALPHA v1.0
-```
-
+    <div class="container">
+        <div class="header">
+            <div class="ascii-logo">BASEMENT OS MOBILE ALPHA v1.0
 ═══════════════════════════════════
 TERMINAL INTERFACE READY</div>
-<div id="user-display" class="user-display">
-USER: <span id="current-user">UNKNOWN</span>
-</div>
-<div id="basement-live" class="basement-live">
-<span class="emoji">🟠</span> BASEMENT LIVE (<span id="online-count">0</span> Online)
-</div>
-</div>
-
-```
-    <div id="terminal-window" class="status-card">
-        <div class="status-header">
-            <div class="status-text">[BASEMENT OS TERMINAL]</div>
-            <div class="last-update" id="last-update">READY</div>
+            <div id="user-display" class="user-display">
+                USER: <span id="current-user">UNKNOWN</span>
+            </div>
+            <div id="basement-live" class="basement-live">
+                <span class="emoji">🟠</span> BASEMENT LIVE (<span id="online-count">0</span> Online)
+            </div>
         </div>
-        
-        <div id="terminal-content" class="chat-messages">
-            <!-- Messages will be added here -->
-        </div>
-        
-        <div class="chat-input">
-            <input type="text" id="message-input" class="message-input" placeholder="> Enter command or message..." maxlength="200">
-            <button onclick="sendMessage()" class="send-btn" id="send-btn" disabled>SEND</button>
-        </div>
-    </div>
 
-    <div class="buttons">
-        <button class="btn" onclick="refreshStatus()">[REFRESH]</button>
-        <button class="btn" onclick="toggleNotifications()" id="notify-btn">[NOTIFY]</button>
-        <button class="btn btn-basement" onclick="toggleBasementLogin()" id="basement-btn">[LOGIN TO BASEMENT]</button>
-        <button class="btn" onclick="logout()">[LOGOUT]</button>
-    </div>
-</div>
-
-<script>
-    // Configuration - Access Codes
-    const ACCESS_CODES = {
-        '1337': { user: 'GameFuel', admin: true },
-        '6040': { user: 'Lexx', admin: false },
-        '6191': { user: 'Onawarren', admin: false },
-        '2813': { user: 'Joexino', admin: false },
-        '8300': { user: 'M0J170', admin: false },
-        '0828': { user: 'Paulinko', admin: false },
-        '2024': { user: 'Admin', admin: true }
-    };
-
-    // App State
-    let currentUser = null;
-    let isAdmin = false;
-    let isLoggedIntoBasement = false;
-    let enteredCode = '';
-    let deferredPrompt = null;
-    let isOnline = navigator.onLine;
-
-    // Initialize App
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeApp();
-        setupEventHandlers();
-        checkSavedSession();
-        setupPWA();
-    });
-
-    function initializeApp() {
-        console.log('🏠 Initializing Basement OS Mobile ALPHA...');
-        updateConnectionStatus();
-        
-        // Check for saved session
-        const savedSession = getSavedSession();
-        if (savedSession && ACCESS_CODES[savedSession.code]) {
-            authenticateUser(savedSession.code);
-            return;
-        }
-        
-        // Show lock screen
-        document.getElementById('lock-screen').style.display = 'flex';
-    }
-
-    function setupEventHandlers() {
-        // Numpad handlers
-        document.querySelectorAll('.numpad-btn').forEach(btn => {
-            btn.addEventListener('click', handleNumpadClick);
-            btn.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                this.click();
-            });
-        });
-
-        // Chat input handlers
-        const messageInput = document.getElementById('message-input');
-        const sendBtn = document.getElementById('send-btn');
-        
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !sendBtn.disabled) {
-                sendMessage();
-            }
-        });
-        
-        messageInput.addEventListener('input', () => {
-            const hasText = messageInput.value.trim() !== '';
-            sendBtn.disabled = !hasText;
-        });
-
-        // Connection monitoring
-        window.addEventListener('online', () => {
-            isOnline = true;
-            updateConnectionStatus();
-            addTerminalMessage('>> CONNECTION RESTORED', 'system');
-        });
-
-        window.addEventListener('offline', () => {
-            isOnline = false;
-            updateConnectionStatus();
-            addTerminalMessage('>> CONNECTION LOST - Operating in offline mode', 'error');
-        });
-    }
-
-    function handleNumpadClick(e) {
-        const digit = e.target.getAttribute('data-digit');
-        const action = e.target.getAttribute('data-action');
-        
-        if (digit !== null) {
-            enterDigit(digit);
-        } else if (action === 'clear') {
-            clearCode();
-        }
-    }
-
-    function enterDigit(digit) {
-        if (enteredCode.length < 4) {
-            enteredCode += digit;
-            updateCodeDisplay();
+        <div id="terminal-window" class="status-card">
+            <div class="status-header">
+                <div class="status-text">[BASEMENT OS TERMINAL]</div>
+                <div class="last-update" id="last-update">READY</div>
+            </div>
             
-            if (enteredCode.length === 4) {
-                setTimeout(checkAccessCode, 200);
+            <div id="terminal-content" class="chat-messages">
+                <!-- Messages will be added here -->
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="message-input" class="message-input" placeholder="> Enter command or message..." maxlength="200">
+                <button onclick="sendMessage()" class="send-btn" id="send-btn" disabled>SEND</button>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn" onclick="refreshStatus()">[REFRESH]</button>
+            <button class="btn" onclick="toggleNotifications()" id="notify-btn">[NOTIFY]</button>
+            <button class="btn btn-basement" onclick="toggleBasementLogin()" id="basement-btn">[LOGIN TO BASEMENT]</button>
+            <button class="btn" onclick="logout()">[LOGOUT]</button>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - Access Codes
+        const ACCESS_CODES = {
+            '1337': { user: 'GameFuel', admin: true },
+            '6040': { user: 'Lexx', admin: false },
+            '6191': { user: 'Onawarren', admin: false },
+            '2813': { user: 'Joexino', admin: false },
+            '8300': { user: 'M0J170', admin: false },
+            '0828': { user: 'Paulinko', admin: false },
+            '2024': { user: 'Admin', admin: true }
+        };
+
+        // App State
+        let currentUser = null;
+        let isAdmin = false;
+        let isLoggedIntoBasement = false;
+        let enteredCode = '';
+        let deferredPrompt = null;
+        let isOnline = navigator.onLine;
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventHandlers();
+            checkSavedSession();
+            setupPWA();
+        });
+
+        function initializeApp() {
+            console.log('🏠 Initializing Basement OS Mobile ALPHA...');
+            updateConnectionStatus();
+            
+            // Check for saved session
+            const savedSession = getSavedSession();
+            if (savedSession && ACCESS_CODES[savedSession.code]) {
+                authenticateUser(savedSession.code);
+                return;
             }
+            
+            // Show lock screen
+            document.getElementById('lock-screen').style.display = 'flex';
         }
-    }
 
-    function clearCode() {
-        enteredCode = '';
-        updateCodeDisplay();
-    }
+        function setupEventHandlers() {
+            // Numpad handlers
+            document.querySelectorAll('.numpad-btn').forEach(btn => {
+                btn.addEventListener('click', handleNumpadClick);
+                btn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    this.click();
+                });
+            });
 
-    function updateCodeDisplay() {
-        const display = document.getElementById('access-code-display');
-        let displayText = '';
-        
-        for (let i = 0; i < 4; i++) {
-            if (i < enteredCode.length) {
-                displayText += '● ';
-            } else {
-                displayText += '_ ';
-            }
+            // Chat input handlers
+            const messageInput = document.getElementById('message-input');
+            const sendBtn = document.getElementById('send-btn');
+            
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !sendBtn.disabled) {
+                    sendMessage();
+                }
+            });
+            
+            messageInput.addEventListener('input', () => {
+                const hasText = messageInput.value.trim() !== '';
+                sendBtn.disabled = !hasText;
+            });
+
+            // Connection monitoring
+            window.addEventListener('online', () => {
+                isOnline = true;
+                updateConnectionStatus();
+                addTerminalMessage('>> CONNECTION RESTORED', 'system');
+            });
+
+            window.addEventListener('offline', () => {
+                isOnline = false;
+                updateConnectionStatus();
+                addTerminalMessage('>> CONNECTION LOST - Operating in offline mode', 'error');
+            });
         }
-        
-        display.textContent = displayText.trim();
-    }
 
-    function checkAccessCode() {
-        const userInfo = ACCESS_CODES[enteredCode];
-        
-        if (userInfo) {
-            authenticateUser(enteredCode);
-        } else {
-            // Show error animation
-            const lockContent = document.querySelector('.lock-content');
-            lockContent.classList.add('shake');
-            setTimeout(() => {
-                lockContent.classList.remove('shake');
+        function handleNumpadClick(e) {
+            const digit = e.target.getAttribute('data-digit');
+            const action = e.target.getAttribute('data-action');
+            
+            if (digit !== null) {
+                enterDigit(digit);
+            } else if (action === 'clear') {
                 clearCode();
+            }
+        }
+
+        function enterDigit(digit) {
+            if (enteredCode.length < 4) {
+                enteredCode += digit;
+                updateCodeDisplay();
+                
+                if (enteredCode.length === 4) {
+                    setTimeout(checkAccessCode, 200);
+                }
+            }
+        }
+
+        function clearCode() {
+            enteredCode = '';
+            updateCodeDisplay();
+        }
+
+        function updateCodeDisplay() {
+            const display = document.getElementById('access-code-display');
+            let displayText = '';
+            
+            for (let i = 0; i < 4; i++) {
+                if (i < enteredCode.length) {
+                    displayText += '● ';
+                } else {
+                    displayText += '_ ';
+                }
+            }
+            
+            display.textContent = displayText.trim();
+        }
+
+        function checkAccessCode() {
+            const userInfo = ACCESS_CODES[enteredCode];
+            
+            if (userInfo) {
+                authenticateUser(enteredCode);
+            } else {
+                // Show error animation
+                const lockContent = document.querySelector('.lock-content');
+                lockContent.classList.add('shake');
+                setTimeout(() => {
+                    lockContent.classList.remove('shake');
+                    clearCode();
+                }, 500);
+            }
+        }
+
+        function authenticateUser(code) {
+            const userInfo = ACCESS_CODES[code];
+            currentUser = userInfo.user;
+            isAdmin = userInfo.admin;
+            
+            // Save session
+            saveSession(code);
+            
+            // Hide lock screen and show main interface
+            document.getElementById('lock-screen').style.display = 'none';
+            
+            // Update UI
+            document.getElementById('current-user').textContent = currentUser;
+            document.getElementById('user-display').style.display = 'block';
+            
+            // Welcome messages
+            addTerminalMessage('>> BASEMENT OS MOBILE ALPHA v1.0 STARTING UP...', 'system');
+            addTerminalMessage(`>> Welcome, ${currentUser}!`, 'system');
+            addTerminalMessage('>> Terminal interface ready - Type /help for commands', 'system');
+            
+            if (isAdmin) {
+                addTerminalMessage('>> ADMIN ACCESS GRANTED - Additional controls available', 'system');
+            }
+
+            // Check PWA status
+            checkPWAStatus();
+            
+            addTerminalMessage('>> SYSTEM READY FOR OPERATION', 'system');
+            updateLastActivity();
+        }
+
+        function saveSession(code) {
+            try {
+                const session = {
+                    code: code,
+                    user: currentUser,
+                    admin: isAdmin,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('basement-session', JSON.stringify(session));
+            } catch (e) {
+                console.log('Could not save session:', e);
+            }
+        }
+
+        function getSavedSession() {
+            try {
+                const saved = localStorage.getItem('basement-session');
+                if (saved) {
+                    const session = JSON.parse(saved);
+                    // Check if session is less than 24 hours old
+                    if (Date.now() - session.timestamp < 24 * 60 * 60 * 1000) {
+                        return session;
+                    }
+                }
+            } catch (e) {
+                console.log('Could not load session:', e);
+            }
+            return null;
+        }
+
+        function checkSavedSession() {
+            const saved = getSavedSession();
+            if (saved && ACCESS_CODES[saved.code]) {
+                // Auto-login if valid session exists
+                return true;
+            }
+            return false;
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const text = messageInput.value.trim();
+            
+            if (!text) return;
+            
+            if (text.startsWith('/')) {
+                handleCommand(text);
+            } else {
+                // Regular message
+                addTerminalMessage(`[${currentUser}] ${text}`, 'user');
+                
+                // Simulate sending to Firebase (in real app, this would sync across devices)
+                if (isLoggedIntoBasement) {
+                    simulateBasementMessage(text);
+                }
+            }
+            
+            messageInput.value = '';
+            document.getElementById('send-btn').disabled = true;
+            updateLastActivity();
+        }
+
+        function handleCommand(command) {
+            const cmd = command.toLowerCase().trim();
+            addTerminalMessage(`>> Executing: ${cmd}`, 'system');
+            
+            switch (cmd) {
+                case '/help':
+                    showHelp();
+                    break;
+                case '/status':
+                    showStatus();
+                    break;
+                case '/clear':
+                    clearTerminal();
+                    break;
+                case '/basement':
+                    toggleBasementLogin();
+                    break;
+                case '/notify':
+                    toggleNotifications();
+                    break;
+                case '/logout':
+                    logout();
+                    break;
+                default:
+                    addTerminalMessage(`>> Unknown command: ${cmd}`, 'error');
+                    addTerminalMessage('>> Type /help for available commands', 'system');
+            }
+        }
+
+        function showHelp() {
+            addTerminalMessage('>> BASEMENT OS TERMINAL COMMANDS:', 'system');
+            addTerminalMessage('   /help - Show this help message', 'system');
+            addTerminalMessage('   /status - Show system status', 'system');
+            addTerminalMessage('   /clear - Clear terminal', 'system');
+            addTerminalMessage('   /basement - Toggle basement login', 'system');
+            addTerminalMessage('   /notify - Toggle notifications', 'system');
+            addTerminalMessage('   /logout - Logout and return to lock screen', 'system');
+        }
+
+        function showStatus() {
+            addTerminalMessage('>> SYSTEM STATUS REPORT:', 'system');
+            addTerminalMessage(`   User: ${currentUser}`, 'system');
+            addTerminalMessage(`   Admin Access: ${isAdmin ? 'YES' : 'NO'}`, 'system');
+            addTerminalMessage(`   Basement Login: ${isLoggedIntoBasement ? 'YES' : 'NO'}`, 'system');
+            addTerminalMessage(`   Connection: ${isOnline ? 'ONLINE' : 'OFFLINE'}`, 'system');
+            addTerminalMessage(`   PWA Status: ${isPWAInstalled() ? 'INSTALLED' : 'WEB APP'}`, 'system');
+        }
+
+        function clearTerminal() {
+            document.getElementById('terminal-content').innerHTML = '';
+            addTerminalMessage('>> TERMINAL CLEARED', 'system');
+        }
+
+        function toggleBasementLogin() {
+            const btn = document.getElementById('basement-btn');
+            const liveIndicator = document.getElementById('basement-live');
+            
+            if (!isLoggedIntoBasement) {
+                // Login to basement
+                isLoggedIntoBasement = true;
+                btn.textContent = '[LOGOFF BASEMENT]';
+                btn.classList.add('logged-in');
+                
+                liveIndicator.classList.add('active');
+                updateOnlineCount(1);
+                
+                addTerminalMessage(`📤 ${currentUser} joined the basement`, 'basement');
+                
+                // Push notification
+                showNotification('BASEMENT LOGIN', `${currentUser} joined the basement`);
+                
+            } else {
+                // Logout from basement
+                isLoggedIntoBasement = false;
+                btn.textContent = '[LOGIN TO BASEMENT]';
+                btn.classList.remove('logged-in');
+                
+                liveIndicator.classList.remove('active');
+                updateOnlineCount(0);
+                
+                addTerminalMessage(`📤 ${currentUser} left the basement`, 'basement');
+            }
+            
+            updateLastActivity();
+        }
+
+        function updateOnlineCount(count) {
+            document.getElementById('online-count').textContent = count;
+        }
+
+        function simulateBasementMessage(message) {
+            // In real app, this would save to Firebase and sync across devices
+            setTimeout(() => {
+                addTerminalMessage(`🏠 Message sent to basement chat`, 'basement');
             }, 500);
         }
-    }
 
-    function authenticateUser(code) {
-        const userInfo = ACCESS_CODES[code];
-        currentUser = userInfo.user;
-        isAdmin = userInfo.admin;
-        
-        // Save session
-        saveSession(code);
-        
-        // Hide lock screen and show main interface
-        document.getElementById('lock-screen').style.display = 'none';
-        
-        // Update UI
-        document.getElementById('current-user').textContent = currentUser;
-        document.getElementById('user-display').style.display = 'block';
-        
-        // Welcome messages
-        addTerminalMessage('>> BASEMENT OS MOBILE ALPHA v1.0 STARTING UP...', 'system');
-        addTerminalMessage(`>> Welcome, ${currentUser}!`, 'system');
-        addTerminalMessage('>> Terminal interface ready - Type /help for commands', 'system');
-        
-        if (isAdmin) {
-            addTerminalMessage('>> ADMIN ACCESS GRANTED - Additional controls available', 'system');
+        function addTerminalMessage(text, type = 'system') {
+            const terminalContent = document.getElementById('terminal-content');
+            const messageDiv = document.createElement('div');
+            
+            let className = 'message ';
+            switch (type) {
+                case 'system':
+                    className += 'message-system';
+                    break;
+                case 'user':
+                    className += 'message-user';
+                    break;
+                case 'basement':
+                    className += 'message-basement';
+                    break;
+                case 'error':
+                    className += 'message-error';
+                    break;
+            }
+            
+            messageDiv.className = className;
+            const time = new Date().toLocaleTimeString();
+            
+            messageDiv.innerHTML = `
+                <div>${text}</div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            terminalContent.appendChild(messageDiv);
+            terminalContent.scrollTop = terminalContent.scrollHeight;
+            
+            // Keep only last 100 messages
+            while (terminalContent.children.length > 100) {
+                terminalContent.removeChild(terminalContent.firstChild);
+            }
         }
 
-        // Check PWA status
-        checkPWAStatus();
-        
-        addTerminalMessage('>> SYSTEM READY FOR OPERATION', 'system');
-        updateLastActivity();
-    }
-
-    function saveSession(code) {
-        try {
-            const session = {
-                code: code,
-                user: currentUser,
-                admin: isAdmin,
-                timestamp: Date.now()
-            };
-            localStorage.setItem('basement-session', JSON.stringify(session));
-        } catch (e) {
-            console.log('Could not save session:', e);
+        function refreshStatus() {
+            addTerminalMessage('>> REFRESHING SYSTEM STATUS...', 'system');
+            setTimeout(() => {
+                addTerminalMessage('>> STATUS: ALPHA version - Core functionality active', 'system');
+                addTerminalMessage('>> Ready for Firebase integration', 'system');
+                updateLastActivity();
+            }, 1000);
         }
-    }
 
-    function getSavedSession() {
-        try {
-            const saved = localStorage.getItem('basement-session');
-            if (saved) {
-                const session = JSON.parse(saved);
-                // Check if session is less than 24 hours old
-                if (Date.now() - session.timestamp < 24 * 60 * 60 * 1000) {
-                    return session;
+        function toggleNotifications() {
+            if ('Notification' in window) {
+                if (Notification.permission === 'granted') {
+                    addTerminalMessage('>> NOTIFICATIONS: Already enabled', 'system');
+                    showNotification('NOTIFICATIONS TEST', 'Push notifications are working!');
+                } else if (Notification.permission === 'denied') {
+                    addTerminalMessage('>> NOTIFICATIONS: Blocked by user', 'error');
+                    addTerminalMessage('>> Enable in browser settings to receive alerts', 'system');
+                } else {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            addTerminalMessage('>> NOTIFICATIONS: Enabled successfully', 'system');
+                            showNotification('NOTIFICATIONS ENABLED', 'You will now receive basement alerts');
+                        } else {
+                            addTerminalMessage('>> NOTIFICATIONS: Permission denied', 'error');
+                        }
+                    });
                 }
-            }
-        } catch (e) {
-            console.log('Could not load session:', e);
-        }
-        return null;
-    }
-
-    function checkSavedSession() {
-        const saved = getSavedSession();
-        if (saved && ACCESS_CODES[saved.code]) {
-            // Auto-login if valid session exists
-            return true;
-        }
-        return false;
-    }
-
-    function sendMessage() {
-        const messageInput = document.getElementById('message-input');
-        const text = messageInput.value.trim();
-        
-        if (!text) return;
-        
-        if (text.startsWith('/')) {
-            handleCommand(text);
-        } else {
-            // Regular message
-            addTerminalMessage(`[${currentUser}] ${text}`, 'user');
-            
-            // Simulate sending to Firebase (in real app, this would sync across devices)
-            if (isLoggedIntoBasement) {
-                simulateBasementMessage(text);
-            }
-        }
-        
-        messageInput.value = '';
-        document.getElementById('send-btn').disabled = true;
-        updateLastActivity();
-    }
-
-    function handleCommand(command) {
-        const cmd = command.toLowerCase().trim();
-        addTerminalMessage(`>> Executing: ${cmd}`, 'system');
-        
-        switch (cmd) {
-            case '/help':
-                showHelp();
-                break;
-            case '/status':
-                showStatus();
-                break;
-            case '/clear':
-                clearTerminal();
-                break;
-            case '/basement':
-                toggleBasementLogin();
-                break;
-            case '/notify':
-                toggleNotifications();
-                break;
-            case '/logout':
-                logout();
-                break;
-            default:
-                addTerminalMessage(`>> Unknown command: ${cmd}`, 'error');
-                addTerminalMessage('>> Type /help for available commands', 'system');
-        }
-    }
-
-    function showHelp() {
-        addTerminalMessage('>> BASEMENT OS TERMINAL COMMANDS:', 'system');
-        addTerminalMessage('   /help - Show this help message', 'system');
-        addTerminalMessage('   /status - Show system status', 'system');
-        addTerminalMessage('   /clear - Clear terminal', 'system');
-        addTerminalMessage('   /basement - Toggle basement login', 'system');
-        addTerminalMessage('   /notify - Toggle notifications', 'system');
-        addTerminalMessage('   /logout - Logout and return to lock screen', 'system');
-    }
-
-    function showStatus() {
-        addTerminalMessage('>> SYSTEM STATUS REPORT:', 'system');
-        addTerminalMessage(`   User: ${currentUser}`, 'system');
-        addTerminalMessage(`   Admin Access: ${isAdmin ? 'YES' : 'NO'}`, 'system');
-        addTerminalMessage(`   Basement Login: ${isLoggedIntoBasement ? 'YES' : 'NO'}`, 'system');
-        addTerminalMessage(`   Connection: ${isOnline ? 'ONLINE' : 'OFFLINE'}`, 'system');
-        addTerminalMessage(`   PWA Status: ${isPWAInstalled() ? 'INSTALLED' : 'WEB APP'}`, 'system');
-    }
-
-    function clearTerminal() {
-        document.getElementById('terminal-content').innerHTML = '';
-        addTerminalMessage('>> TERMINAL CLEARED', 'system');
-    }
-
-    function toggleBasementLogin() {
-        const btn = document.getElementById('basement-btn');
-        const liveIndicator = document.getElementById('basement-live');
-        
-        if (!isLoggedIntoBasement) {
-            // Login to basement
-            isLoggedIntoBasement = true;
-            btn.textContent = '[LOGOFF BASEMENT]';
-            btn.classList.add('logged-in');
-            
-            liveIndicator.classList.add('active');
-            updateOnlineCount(1);
-            
-            addTerminalMessage(`📤 ${currentUser} joined the basement`, 'basement');
-            
-            // Push notification
-            showNotification('BASEMENT LOGIN', `${currentUser} joined the basement`);
-            
-        } else {
-            // Logout from basement
-            isLoggedIntoBasement = false;
-            btn.textContent = '[LOGIN TO BASEMENT]';
-            btn.classList.remove('logged-in');
-            
-            liveIndicator.classList.remove('active');
-            updateOnlineCount(0);
-            
-            addTerminalMessage(`📤 ${currentUser} left the basement`, 'basement');
-        }
-        
-        updateLastActivity();
-    }
-
-    function updateOnlineCount(count) {
-        document.getElementById('online-count').textContent = count;
-    }
-
-    function simulateBasementMessage(message) {
-        // In real app, this would save to Firebase and sync across devices
-        setTimeout(() => {
-            addTerminalMessage(`🏠 Message sent to basement chat`, 'basement');
-        }, 500);
-    }
-
-    function addTerminalMessage(text, type = 'system') {
-        const terminalContent = document.getElementById('terminal-content');
-        const messageDiv = document.createElement('div');
-        
-        let className = 'message ';
-        switch (type) {
-            case 'system':
-                className += 'message-system';
-                break;
-            case 'user':
-                className += 'message-user';
-                break;
-            case 'basement':
-                className += 'message-basement';
-                break;
-            case 'error':
-                className += 'message-error';
-                break;
-        }
-        
-        messageDiv.className = className;
-        const time = new Date().toLocaleTimeString();
-        
-        messageDiv.innerHTML = `
-            <div>${text}</div>
-            <div class="message-time">${time}</div>
-        `;
-        
-        terminalContent.appendChild(messageDiv);
-        terminalContent.scrollTop = terminalContent.scrollHeight;
-        
-        // Keep only last 100 messages
-        while (terminalContent.children.length > 100) {
-            terminalContent.removeChild(terminalContent.firstChild);
-        }
-    }
-
-    function refreshStatus() {
-        addTerminalMessage('>> REFRESHING SYSTEM STATUS...', 'system');
-        setTimeout(() => {
-            addTerminalMessage('>> STATUS: ALPHA version - Core functionality active', 'system');
-            addTerminalMessage('>> Ready for Firebase integration', 'system');
-            updateLastActivity();
-        }, 1000);
-    }
-
-    function toggleNotifications() {
-        if ('Notification' in window) {
-            if (Notification.permission === 'granted') {
-                addTerminalMessage('>> NOTIFICATIONS: Already enabled', 'system');
-                showNotification('NOTIFICATIONS TEST', 'Push notifications are working!');
-            } else if (Notification.permission === 'denied') {
-                addTerminalMessage('>> NOTIFICATIONS: Blocked by user', 'error');
-                addTerminalMessage('>> Enable in browser settings to receive alerts', 'system');
             } else {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        addTerminalMessage('>> NOTIFICATIONS: Enabled successfully', 'system');
-                        showNotification('NOTIFICATIONS ENABLED', 'You will now receive basement alerts');
-                    } else {
-                        addTerminalMessage('>> NOTIFICATIONS: Permission denied', 'error');
-                    }
-                });
-            }
-        } else {
-            addTerminalMessage('>> NOTIFICATIONS: Not supported', 'error');
-            addTerminalMessage('>> Install as PWA for notification support', 'system');
-        }
-    }
-
-    function showNotification(title, body) {
-        if ('Notification' in window && Notification.permission === 'granted') {
-            try {
-                const notification = new Notification(title, {
-                    body: body,
-                    icon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIiB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIGZpbGw9IiMwMDAiLz48dGV4dCB4PSI5NiIgeT0iOTYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwZmYwMCIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkNvdXJpZXIsIG1vbm9zcGFjZSI+QjwvdGV4dD48L3N2Zz4=',
-                    badge: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIiB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIGZpbGw9IiMwMDAiLz48dGV4dCB4PSI5NiIgeT0iOTYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwZmYwMCIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkNvdXJpZXIsIG1vbm9zcGFjZSI+QjwvdGV4dD48L3N2Zz4=',
-                    tag: 'basement-activity'
-                });
-                
-                notification.onclick = function() {
-                    window.focus();
-                    notification.close();
-                };
-                
-                setTimeout(() => notification.close(), 5000);
-            } catch (error) {
-                console.log('Notification failed:', error);
+                addTerminalMessage('>> NOTIFICATIONS: Not supported', 'error');
+                addTerminalMessage('>> Install as PWA for notification support', 'system');
             }
         }
-    }
 
-    function logout() {
-        addTerminalMessage('>> LOGGING OUT...', 'system');
-        
-        try {
-            localStorage.removeItem('basement-session');
-        } catch (e) {
-            console.log('Could not clear session:', e);
-        }
-        
-        setTimeout(() => {
-            location.reload();
-        }, 1500);
-    }
-
-    function updateLastActivity() {
-        const lastUpdate = document.getElementById('last-update');
-        lastUpdate.textContent = new Date().toLocaleTimeString();
-    }
-
-    function updateConnectionStatus() {
-        const status = document.getElementById('connection-status');
-        if (isOnline) {
-            status.className = 'connection-status online';
-            status.textContent = '● ONLINE';
-        } else {
-            status.className = 'connection-status offline';
-            status.textContent = '● OFFLINE';
-        }
-    }
-
-    // PWA Setup
-    function setupPWA() {
-        // Listen for the beforeinstallprompt event
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            showPWAPrompt();
-        });
-
-        // Check if already installed
-        if (isPWAInstalled()) {
-            addTerminalMessage('>> PWA: Running as installed app', 'system');
-        } else {
-            setTimeout(showPWAPrompt, 5000); // Show prompt after 5 seconds
-        }
-    }
-
-    function isPWAInstalled() {
-        return window.matchMedia('(display-mode: standalone)').matches || 
-               window.navigator.standalone === true;
-    }
-
-    function showPWAPrompt() {
-        if (!isPWAInstalled() && !localStorage.getItem('pwa-dismissed')) {
-            document.getElementById('pwa-prompt').classList.add('show');
-        }
-    }
-
-    function installPWA() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    addTerminalMessage('>> PWA: Installation started', 'system');
+        function showNotification(title, body) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                try {
+                    const notification = new Notification(title, {
+                        body: body,
+                        icon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIiB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIGZpbGw9IiMwMDAiLz48dGV4dCB4PSI5NiIgeT0iOTYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwZmYwMCIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkNvdXJpZXIsIG1vbm9zcGFjZSI+QjwvdGV4dD48L3N2Zz4=',
+                        badge: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIiB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIGZpbGw9IiMwMDAiLz48dGV4dCB4PSI5NiIgeT0iOTYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwZmYwMCIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkNvdXJpZXIsIG1vbm9zcGFjZSI+QjwvdGV4dD48L3N2Zz4=',
+                        tag: 'basement-activity'
+                    });
+                    
+                    notification.onclick = function() {
+                        window.focus();
+                        notification.close();
+                    };
+                    
+                    setTimeout(() => notification.close(), 5000);
+                } catch (error) {
+                    console.log('Notification failed:', error);
                 }
-                deferredPrompt = null;
+            }
+        }
+
+        function logout() {
+            addTerminalMessage('>> LOGGING OUT...', 'system');
+            
+            try {
+                localStorage.removeItem('basement-session');
+            } catch (e) {
+                console.log('Could not clear session:', e);
+            }
+            
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        }
+
+        function updateLastActivity() {
+            const lastUpdate = document.getElementById('last-update');
+            lastUpdate.textContent = new Date().toLocaleTimeString();
+        }
+
+        function updateConnectionStatus() {
+            const status = document.getElementById('connection-status');
+            if (isOnline) {
+                status.className = 'connection-status online';
+                status.textContent = '● ONLINE';
+            } else {
+                status.className = 'connection-status offline';
+                status.textContent = '● OFFLINE';
+            }
+        }
+
+        // PWA Setup
+        function setupPWA() {
+            // Create proper manifest and icons dynamically
+            createPWAManifest();
+            createPWAIcons();
+            
+            // Listen for the beforeinstallprompt event
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                addTerminalMessage('>> PWA: Install prompt available', 'system');
+                showPWAPrompt();
             });
+
+            // Check if already installed
+            if (isPWAInstalled()) {
+                addTerminalMessage('>> PWA: Running as installed app', 'system');
+            } else {
+                addTerminalMessage('>> PWA: Running in browser mode', 'system');
+                addTerminalMessage('>> Note: Full PWA requires HTTPS hosting with proper manifest', 'system');
+                setTimeout(() => {
+                    if (!deferredPrompt) {
+                        showManualInstallInstructions();
+                    }
+                }, 3000);
+            }
         }
-        dismissPWAPrompt();
-    }
 
-    function dismissPWAPrompt() {
-        document.getElementById('pwa-prompt').classList.remove('show');
-        localStorage.setItem('pwa-dismissed', 'true');
-    }
-
-    function checkPWAStatus() {
-        if (isPWAInstalled()) {
-            addTerminalMessage('>> PWA: Running as installed app - Push notifications available', 'system');
-        } else {
-            addTerminalMessage('>> PWA: Running in browser - Install for full functionality', 'system');
+        function createPWAManifest() {
+            const manifest = {
+                name: "Basement OS Mobile ALPHA",
+                short_name: "Basement OS",
+                description: "Terminal interface for basement monitoring",
+                start_url: "/",
+                display: "standalone",
+                background_color: "#000000",
+                theme_color: "#000000",
+                orientation: "portrait",
+                icons: [
+                    {
+                        src: createIconDataURL(192),
+                        sizes: "192x192",
+                        type: "image/svg+xml",
+                        purpose: "any maskable"
+                    },
+                    {
+                        src: createIconDataURL(512),
+                        sizes: "512x512", 
+                        type: "image/svg+xml",
+                        purpose: "any maskable"
+                    }
+                ]
+            };
+            
+            const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+            const manifestURL = URL.createObjectURL(manifestBlob);
+            
+            const link = document.getElementById('manifest-placeholder');
+            if (link) {
+                link.setAttribute('href', manifestURL);
+            }
         }
-    }
-</script>
-```
 
+        function createIconDataURL(size) {
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
+                <rect x="0" y="0" width="${size}" height="${size}" fill="#000000"/>
+                <rect x="${size*0.1}" y="${size*0.1}" width="${size*0.8}" height="${size*0.8}" fill="none" stroke="#00ff00" stroke-width="4"/>
+                <text x="${size/2}" y="${size/2 + size*0.08}" text-anchor="middle" fill="#00ff00" font-size="${size*0.15}" font-family="Courier, monospace" font-weight="bold">B</text>
+                <text x="${size/2}" y="${size*0.75}" text-anchor="middle" fill="#00ff00" font-size="${size*0.06}" font-family="Courier, monospace">OS</text>
+                <circle cx="${size*0.85}" cy="${size*0.15}" r="${size*0.04}" fill="#ff9500"/>
+            </svg>`;
+            
+            return `data:image/svg+xml;base64,${btoa(svg)}`;
+        }
+
+        function createPWAIcons() {
+            // Set favicon
+            const iconLink = document.getElementById('icon-placeholder');
+            if (iconLink) {
+                iconLink.setAttribute('href', createIconDataURL(192));
+            }
+            
+            // Set Apple touch icon
+            const appleLink = document.getElementById('apple-icon-placeholder');
+            if (appleLink) {
+                appleLink.setAttribute('href', createIconDataURL(180));
+            }
+        }
+
+        function isPWAInstalled() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.navigator.standalone === true;
+        }
+
+        function showPWAPrompt() {
+            if (!isPWAInstalled() && !localStorage.getItem('pwa-dismissed')) {
+                document.getElementById('pwa-prompt').classList.add('show');
+            }
+        }
+
+        function showManualInstallInstructions() {
+            addTerminalMessage('>> PWA INSTALL INSTRUCTIONS:', 'system');
+            if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                addTerminalMessage('>> iOS: Tap Share button → Add to Home Screen', 'system');
+            } else if (/Android/.test(navigator.userAgent)) {
+                addTerminalMessage('>> Android: Menu → Add to Home Screen', 'system');
+            } else {
+                addTerminalMessage('>> Desktop: Check browser menu for "Install" option', 'system');
+            }
+            addTerminalMessage('>> For full PWA: Host on HTTPS with proper manifest.json', 'system');
+        }
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        addTerminalMessage('>> PWA: Installation accepted', 'system');
+                    } else {
+                        addTerminalMessage('>> PWA: Installation declined', 'system');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                addTerminalMessage('>> PWA: Browser install prompt not available', 'error');
+                showManualInstallInstructions();
+            }
+            dismissPWAPrompt();
+        }
+
+        function dismissPWAPrompt() {
+            document.getElementById('pwa-prompt').classList.remove('show');
+            localStorage.setItem('pwa-dismissed', 'true');
+        }
+
+        function checkPWAStatus() {
+            if (isPWAInstalled()) {
+                addTerminalMessage('>> PWA: Running as installed app - Push notifications available', 'system');
+            } else {
+                addTerminalMessage('>> PWA: Running in browser - Limited functionality', 'system');
+                addTerminalMessage('>> Install as PWA for offline access and notifications', 'system');
+            }
+        }
+    </script>
 </body>
 </html>
