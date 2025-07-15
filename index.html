@@ -8,11 +8,11 @@
     <title>Basement OS Mobile ALPHA</title>
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="#" id="manifest-placeholder">
+    <link rel="manifest" href="/basement-os-mobile/manifest.json">
     
     <!-- Icons -->
-    <link rel="icon" type="image/svg+xml" href="#" id="icon-placeholder">
-    <link rel="apple-touch-icon" href="#" id="apple-icon-placeholder">
+    <link rel="icon" type="image/png" href="/basement-os-mobile/pwa/icon-192.png">
+    <link rel="apple-touch-icon" href="/basement-os-mobile/pwa/icon-192.png">
     
     <style>
         * {
@@ -913,12 +913,22 @@ TERMINAL INTERFACE READY</div>
         }
 
         function refreshStatus() {
-            addTerminalMessage('>> REFRESHING SYSTEM STATUS...', 'system');
-            setTimeout(() => {
-                addTerminalMessage('>> STATUS: ALPHA version - Core functionality active', 'system');
-                addTerminalMessage('>> Ready for Firebase integration', 'system');
-                updateLastActivity();
-            }, 1000);
+            addTerminalMessage('>> REFRESHING BASEMENT STATUS...', 'system');
+            
+            // Fetch from your GitHub Pages data
+            fetch('/basement-os-mobile/current_activity.json')
+                .then(response => response.json())
+                .then(data => {
+                    addTerminalMessage(`>> STATUS: ${data.friend_count} friends, ${data.visitor_count} visitors`, 'system');
+                    addTerminalMessage(`>> Last event: ${data.event}`, 'system');
+                    addTerminalMessage(`>> Updated: ${new Date(data.timestamp).toLocaleString()}`, 'system');
+                    updateLastActivity();
+                })
+                .catch(error => {
+                    addTerminalMessage('>> STATUS: Demo mode - GitHub Pages data loading failed', 'error');
+                    addTerminalMessage('>> Ready for VRChat basement monitoring connection', 'system');
+                    updateLastActivity();
+                });
         }
 
         function toggleNotifications() {
