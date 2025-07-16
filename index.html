@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,1341 +6,1332 @@
     <meta name="color-scheme" content="dark">
     <meta name="theme-color" content="#000000">
     <title>Basement OS Mobile ALPHA</title>
-
-```
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
-
-<!-- PWA Manifest -->
-<link rel="manifest" href="/basement-os-mobile/manifest.json">
-
-<!-- Icons -->
-<link rel="icon" type="image/png" href="/basement-os-mobile/pwa/icon-192.png">
-<link rel="apple-touch-icon" href="/basement-os-mobile/pwa/icon-192.png">
-
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    html, body {
-        background: #000000 !important;
-        background-color: #000000 !important;
-    }
-
-    body {
-        font-family: 'Courier New', monospace;
-        background: #000000 !important;
-        color: #00ff00;
-        min-height: 100vh;
-        padding: 15px;
-        font-size: 14px;
-        line-height: 1.4;
-    }
-
-    /* CRT Monitor Effects */
-    body::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(transparent 2px, rgba(0, 255, 0, 0.03) 2px, rgba(0, 255, 0, 0.03) 4px, transparent 4px);
-        background-size: 100% 4px;
-        pointer-events: none;
-        z-index: 1000;
-    }
-
-    .container {
-        max-width: 400px;
-        margin: 0 auto;
-    }
-
-    .header {
-        text-align: center;
-        margin-bottom: 20px;
-        padding: 15px;
-        background: rgba(0, 255, 0, 0.1);
-        border: 1px solid #00ff00;
-        border-radius: 8px;
-        box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-        position: relative;
-    }
-
-    .ascii-logo {
-        font-family: 'Courier New', monospace;
-        font-size: 10px;
-        line-height: 1.1;
-        color: #00ff00;
-        text-shadow: 0 0 5px #00ff00;
-        margin-bottom: 5px;
-        white-space: pre-line;
-    }
-
-    .user-display {
-        background: rgba(0, 255, 0, 0.15);
-        border: 1px solid #00ff00;
-        padding: 8px;
-        margin-top: 10px;
-        border-radius: 4px;
-        font-size: 12px;
-        text-align: center;
-        display: none;
-    }
-
-    .basement-live {
-        font-size: 14px;
-        color: #ff9500;
-        font-weight: bold;
-        margin-top: 10px;
-        padding: 8px;
-        background: rgba(255, 165, 0, 0.1);
-        border: 1px solid #ff9500;
-        border-radius: 6px;
-        display: none;
-        text-align: center;
-    }
-
-    .basement-live.active {
-        display: block;
-    }
-
-    .basement-live .emoji {
-        animation: switchEmoji 2s ease-in-out infinite alternate;
-        display: inline-block;
-    }
-
-    @keyframes switchEmoji {
-        0% { 
-            color: #ff9500;
-            text-shadow: 0 0 5px #ff9500;
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/basement-os-mobile/manifest.json">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" href="/basement-os-mobile/pwa/icon-192.png">
+    <link rel="apple-touch-icon" href="/basement-os-mobile/pwa/icon-192.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        100% { 
+
+        html, body {
+            background: #000000 !important;
+            background-color: #000000 !important;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000000 !important;
+            color: #00ff00;
+            min-height: 100vh;
+            padding: 15px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* CRT Monitor Effects */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(transparent 2px, rgba(0, 255, 0, 0.03) 2px, rgba(0, 255, 0, 0.03) 4px, transparent 4px);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            position: relative;
+        }
+
+        .ascii-logo {
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            line-height: 1.1;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            margin-bottom: 5px;
+            white-space: pre-line;
+        }
+
+        .user-display {
+            background: rgba(0, 255, 0, 0.15);
+            border: 1px solid #00ff00;
+            padding: 8px;
+            margin-top: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-align: center;
+            display: none;
+        }
+
+        .basement-live {
+            font-size: 14px;
+            color: #ff9500;
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid #ff9500;
+            border-radius: 6px;
+            display: none;
+            text-align: center;
+        }
+
+        .basement-live.active {
+            display: block;
+        }
+
+        .basement-live .emoji {
+            animation: switchEmoji 2s ease-in-out infinite alternate;
+            display: inline-block;
+        }
+
+        @keyframes switchEmoji {
+            0% { 
+                color: #ff9500;
+                text-shadow: 0 0 5px #ff9500;
+            }
+            100% { 
+                color: #00ff00;
+                text-shadow: 0 0 5px #00ff00;
+            }
+        }
+
+        /* Access Code Lock Screen */
+        .lock-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9998;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .lock-content {
+            text-align: center;
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid #00ff00;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+        }
+
+        .lock-title {
+            font-size: 20px;
+            color: #00ff00;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .lock-subtitle {
+            font-size: 12px;
+            color: #66ff66;
+            margin-bottom: 25px;
+            opacity: 0.8;
+        }
+
+        .access-code-display {
+            font-size: 24px;
+            letter-spacing: 8px;
+            margin-bottom: 20px;
+            min-height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             color: #00ff00;
             text-shadow: 0 0 5px #00ff00;
         }
-    }
 
-    /* Access Code Lock Screen */
-    .lock-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.95);
-        z-index: 9998;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-    }
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 200px;
+            margin: 0 auto;
+        }
 
-    .lock-content {
-        text-align: center;
-        background: rgba(0, 255, 0, 0.1);
-        border: 2px solid #00ff00;
-        border-radius: 12px;
-        padding: 30px;
-        box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
-    }
+        .numpad-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            color: #00ff00;
+            font-size: 18px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            touch-action: manipulation;
+        }
 
-    .lock-title {
-        font-size: 20px;
-        color: #00ff00;
-        margin-bottom: 10px;
-        text-shadow: 0 0 10px #00ff00;
-    }
+        .numpad-btn:hover, .numpad-btn:active {
+            background: rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            transform: scale(0.95);
+        }
 
-    .lock-subtitle {
-        font-size: 12px;
-        color: #66ff66;
-        margin-bottom: 25px;
-        opacity: 0.8;
-    }
+        .numpad-0 {
+            grid-column: span 2;
+        }
 
-    .access-code-display {
-        font-size: 24px;
-        letter-spacing: 8px;
-        margin-bottom: 20px;
-        min-height: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #00ff00;
-        text-shadow: 0 0 5px #00ff00;
-    }
+        .clear-btn {
+            background: rgba(255, 165, 0, 0.1);
+            border-color: #ffa500;
+            color: #ffa500;
+        }
 
-    .numpad {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-        max-width: 200px;
-        margin: 0 auto;
-    }
+        .clear-btn:hover, .clear-btn:active {
+            background: rgba(255, 165, 0, 0.2);
+            box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
+        }
 
-    .numpad-btn {
-        width: 60px;
-        height: 60px;
-        background: rgba(0, 255, 0, 0.1);
-        border: 2px solid #00ff00;
-        border-radius: 8px;
-        color: #00ff00;
-        font-size: 18px;
-        font-family: inherit;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        user-select: none;
-        touch-action: manipulation;
-    }
+        .status-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 255, 0, 0.2);
+            position: relative;
+        }
 
-    .numpad-btn:hover, .numpad-btn:active {
-        background: rgba(0, 255, 0, 0.2);
-        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-        transform: scale(0.95);
-    }
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
 
-    .numpad-0 {
-        grid-column: span 2;
-    }
+        .status-text {
+            font-size: 16px;
+            font-weight: bold;
+        }
 
-    .clear-btn {
-        background: rgba(255, 165, 0, 0.1);
-        border-color: #ffa500;
-        color: #ffa500;
-    }
+        .last-update {
+            font-size: 10px;
+            color: #66ff66;
+            opacity: 0.7;
+        }
 
-    .clear-btn:hover, .clear-btn:active {
-        background: rgba(255, 165, 0, 0.2);
-        box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
-    }
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            margin-bottom: 10px;
+        }
 
-    .status-card {
-        background: rgba(0, 0, 0, 0.6);
-        border: 1px solid #00ff00;
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 15px;
-        box-shadow: 0 4px 15px rgba(0, 255, 0, 0.2);
-        position: relative;
-    }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
 
-    .status-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-    }
+        .message-system {
+            background: rgba(255, 165, 0, 0.1);
+            color: #ffa500;
+            border-left: 3px solid #ffa500;
+            padding-left: 10px;
+        }
 
-    .status-text {
-        font-size: 16px;
-        font-weight: bold;
-    }
+        .message-user {
+            background: rgba(0, 255, 0, 0.1);
+            color: #00ff00;
+            border-left: 3px solid #00ff00;
+            padding-left: 10px;
+        }
 
-    .last-update {
-        font-size: 10px;
-        color: #66ff66;
-        opacity: 0.7;
-    }
+        .message-basement {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ff9500;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid rgba(255, 165, 0, 0.3);
+            border-left: 3px solid #ff9500;
+            padding-left: 10px;
+        }
 
-    .chat-messages {
-        height: 300px;
-        overflow-y: auto;
-        padding: 10px;
-        background: rgba(0, 0, 0, 0.6);
-        border: 1px solid rgba(0, 255, 0, 0.3);
-        margin-bottom: 10px;
-    }
+        .message-error {
+            background: rgba(255, 0, 0, 0.1);
+            color: #ff6666;
+            text-align: left;
+            border-left: 3px solid #ff6666;
+            padding-left: 10px;
+        }
 
-    .message {
-        margin-bottom: 10px;
-        padding: 8px;
-        border-radius: 6px;
-        font-size: 12px;
-    }
+        .message-time {
+            font-size: 9px;
+            opacity: 0.6;
+            margin-top: 3px;
+        }
 
-    .message-system {
-        background: rgba(255, 165, 0, 0.1);
-        color: #ffa500;
-        border-left: 3px solid #ffa500;
-        padding-left: 10px;
-    }
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            border-radius: 4px;
+        }
 
-    .message-user {
-        background: rgba(0, 255, 0, 0.1);
-        color: #00ff00;
-        border-left: 3px solid #00ff00;
-        padding-left: 10px;
-    }
+        .message-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            padding: 8px;
+            color: #00ff00;
+            font-family: inherit;
+            font-size: 12px;
+        }
 
-    .message-basement {
-        background: rgba(255, 165, 0, 0.2);
-        color: #ff9500;
-        text-align: left;
-        font-weight: bold;
-        border: 1px solid rgba(255, 165, 0, 0.3);
-        border-left: 3px solid #ff9500;
-        padding-left: 10px;
-    }
+        .message-input:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+        }
 
-    .message-error {
-        background: rgba(255, 0, 0, 0.1);
-        color: #ff6666;
-        text-align: left;
-        border-left: 3px solid #ff6666;
-        padding-left: 10px;
-    }
+        .send-btn {
+            margin-left: 8px;
+            padding: 8px 12px;
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            color: #00ff00;
+            cursor: pointer;
+            font-size: 12px;
+            touch-action: manipulation;
+        }
 
-    .message-time {
-        font-size: 9px;
-        opacity: 0.6;
-        margin-top: 3px;
-    }
+        .send-btn:hover, .send-btn:active {
+            background: rgba(0, 255, 0, 0.3);
+        }
 
-    .chat-input {
-        display: flex;
-        padding: 10px;
-        background: rgba(0, 0, 0, 0.4);
-        border: 1px solid rgba(0, 255, 0, 0.3);
-        border-radius: 4px;
-    }
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
-    .message-input {
-        flex: 1;
-        background: rgba(0, 0, 0, 0.8);
-        border: 1px solid #00ff00;
-        border-radius: 4px;
-        padding: 8px;
-        color: #00ff00;
-        font-family: inherit;
-        font-size: 12px;
-    }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
 
-    .message-input:focus {
-        outline: none;
-        box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
-    }
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            border-radius: 6px;
+            color: #00ff00;
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            touch-action: manipulation;
+        }
 
-    .send-btn {
-        margin-left: 8px;
-        padding: 8px 12px;
-        background: rgba(0, 255, 0, 0.2);
-        border: 1px solid #00ff00;
-        border-radius: 4px;
-        color: #00ff00;
-        cursor: pointer;
-        font-size: 12px;
-        touch-action: manipulation;
-    }
+        .btn:hover, .btn:active {
+            background: rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            transform: scale(0.95);
+        }
 
-    .send-btn:hover, .send-btn:active {
-        background: rgba(0, 255, 0, 0.3);
-    }
+        .btn-basement {
+            background: rgba(255, 165, 0, 0.1);
+            border-color: #ffa500;
+            color: #ffa500;
+        }
 
-    .send-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
+        .btn-basement:hover, .btn-basement:active {
+            background: rgba(255, 165, 0, 0.2);
+            box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
+        }
 
-    .buttons {
-        display: flex;
-        gap: 10px;
-        margin-top: 15px;
-        flex-wrap: wrap;
-    }
+        .btn-basement.logged-in {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: #ff6666;
+            color: #ff6666;
+        }
 
-    .btn {
-        flex: 1;
-        min-width: 120px;
-        padding: 12px;
-        background: rgba(0, 255, 0, 0.1);
-        border: 1px solid #00ff00;
-        border-radius: 6px;
-        color: #00ff00;
-        font-family: inherit;
-        font-size: 12px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        touch-action: manipulation;
-    }
+        .btn-basement.logged-in:hover, .btn-basement.logged-in:active {
+            background: rgba(255, 0, 0, 0.2);
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
 
-    .btn:hover, .btn:active {
-        background: rgba(0, 255, 0, 0.2);
-        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-        transform: scale(0.95);
-    }
+        .shake {
+            animation: shake 0.5s;
+        }
 
-    .btn-basement {
-        background: rgba(255, 165, 0, 0.1);
-        border-color: #ffa500;
-        color: #ffa500;
-    }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
 
-    .btn-basement:hover, .btn-basement:active {
-        background: rgba(255, 165, 0, 0.2);
-        box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
-    }
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            z-index: 9999;
+        }
 
-    .btn-basement.logged-in {
-        background: rgba(255, 0, 0, 0.1);
-        border-color: #ff6666;
-        color: #ff6666;
-    }
+        .connection-status.online {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+        }
 
-    .btn-basement.logged-in:hover, .btn-basement.logged-in:active {
-        background: rgba(255, 0, 0, 0.2);
-        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-    }
-
-    .shake {
-        animation: shake 0.5s;
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-10px); }
-        75% { transform: translateX(10px); }
-    }
-
-    /* Connection Status */
-    .connection-status {
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-size: 10px;
-        z-index: 9999;
-    }
-
-    .connection-status.online {
-        background: rgba(0, 255, 0, 0.2);
-        border: 1px solid #00ff00;
-        color: #00ff00;
-    }
-
-    .connection-status.offline {
-        background: rgba(255, 0, 0, 0.2);
-        border: 1px solid #ff6666;
-        color: #ff6666;
-    }
-</style>
-```
-
+        .connection-status.offline {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff6666;
+            color: #ff6666;
+        }
+    </style>
 </head>
 <body>
     <!-- Connection Status -->
     <div id="connection-status" class="connection-status online">● ONLINE</div>
 
-```
-<!-- Access Code Lock Screen -->
-<div id="lock-screen" class="lock-screen">
-    <div class="lock-content">
-        <div class="lock-title">[BASEMENT OS SECURE ACCESS]</div>
-        <div class="lock-subtitle">Enter access code to continue</div>
-        <div class="access-code-display" id="access-code-display">_ _ _ _</div>
-        <div class="numpad">
-            <button class="numpad-btn" data-digit="1">1</button>
-            <button class="numpad-btn" data-digit="2">2</button>
-            <button class="numpad-btn" data-digit="3">3</button>
-            <button class="numpad-btn" data-digit="4">4</button>
-            <button class="numpad-btn" data-digit="5">5</button>
-            <button class="numpad-btn" data-digit="6">6</button>
-            <button class="numpad-btn" data-digit="7">7</button>
-            <button class="numpad-btn" data-digit="8">8</button>
-            <button class="numpad-btn" data-digit="9">9</button>
-            <button class="numpad-btn numpad-0" data-digit="0">0</button>
-            <button class="numpad-btn clear-btn" data-action="clear">CLR</button>
+    <!-- Access Code Lock Screen -->
+    <div id="lock-screen" class="lock-screen">
+        <div class="lock-content">
+            <div class="lock-title">[BASEMENT OS SECURE ACCESS]</div>
+            <div class="lock-subtitle">Enter access code to continue</div>
+            <div class="access-code-display" id="access-code-display">_ _ _ _</div>
+            <div class="numpad">
+                <button class="numpad-btn" data-digit="1">1</button>
+                <button class="numpad-btn" data-digit="2">2</button>
+                <button class="numpad-btn" data-digit="3">3</button>
+                <button class="numpad-btn" data-digit="4">4</button>
+                <button class="numpad-btn" data-digit="5">5</button>
+                <button class="numpad-btn" data-digit="6">6</button>
+                <button class="numpad-btn" data-digit="7">7</button>
+                <button class="numpad-btn" data-digit="8">8</button>
+                <button class="numpad-btn" data-digit="9">9</button>
+                <button class="numpad-btn numpad-0" data-digit="0">0</button>
+                <button class="numpad-btn clear-btn" data-action="clear">CLR</button>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="container">
-    <div class="header">
-        <div class="ascii-logo">BASEMENT OS MOBILE ALPHA v1.0
-```
-
+    <div class="container">
+        <div class="header">
+            <div class="ascii-logo">BASEMENT OS MOBILE ALPHA v1.0
 ═══════════════════════════════════
 TERMINAL INTERFACE READY</div>
-<div id="user-display" class="user-display">
-USER: <span id="current-user">UNKNOWN</span>
-</div>
-<div id="basement-live" class="basement-live">
-<span class="emoji">🟠</span> BASEMENT LIVE (<span id="online-count">0</span> Online)
-</div>
-</div>
+            <div id="user-display" class="user-display">
+                USER: <span id="current-user">UNKNOWN</span>
+            </div>
+            <div id="basement-live" class="basement-live">
+                <span class="emoji">🟠</span> BASEMENT LIVE (<span id="online-count">0</span> Online)
+            </div>
+        </div>
 
-```
-    <div id="terminal-window" class="status-card">
-        <div class="status-header">
-            <div class="status-text">[BASEMENT OS TERMINAL]</div>
-            <div class="last-update" id="last-update">READY</div>
+        <div id="terminal-window" class="status-card">
+            <div class="status-header">
+                <div class="status-text">[BASEMENT OS TERMINAL]</div>
+                <div class="last-update" id="last-update">READY</div>
+            </div>
+            
+            <div id="terminal-content" class="chat-messages">
+                <!-- Messages will be added here -->
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="message-input" class="message-input" placeholder="> Enter command or message..." maxlength="200">
+                <button onclick="sendMessage()" class="send-btn" id="send-btn" disabled>SEND</button>
+            </div>
         </div>
-        
-        <div id="terminal-content" class="chat-messages">
-            <!-- Messages will be added here -->
-        </div>
-        
-        <div class="chat-input">
-            <input type="text" id="message-input" class="message-input" placeholder="> Enter command or message..." maxlength="200">
-            <button onclick="sendMessage()" class="send-btn" id="send-btn" disabled>SEND</button>
+
+        <div class="buttons">
+            <button class="btn" onclick="refreshStatus()">[REFRESH]</button>
+            <button class="btn" onclick="toggleNotifications()">[NOTIFY]</button>
+            <button class="btn btn-basement" onclick="toggleBasementLogin()" id="basement-btn">[LOGIN TO BASEMENT]</button>
+            <button class="btn" onclick="logout()">[LOGOUT]</button>
         </div>
     </div>
 
-    <div class="buttons">
-        <button class="btn" onclick="refreshStatus()">[REFRESH]</button>
-        <button class="btn" onclick="toggleNotifications()">[NOTIFY]</button>
-        <button class="btn btn-basement" onclick="toggleBasementLogin()" id="basement-btn">[LOGIN TO BASEMENT]</button>
-        <button class="btn" onclick="logout()">[LOGOUT]</button>
-    </div>
-</div>
-
-<script>
-    console.log('🚀 Starting Basement OS Mobile ALPHA...');
-    
-    // Firebase Configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyCmp0gJNFkRqUMpmeV_yk9batETciCiON8",
-        authDomain: "basement-chat.firebaseapp.com",
-        databaseURL: "https://basement-chat-default-rtdb.firebaseio.com",
-        projectId: "basement-chat",
-        storageBucket: "basement-chat.firebasestorage.app",
-        messagingSenderId: "113802900843",
-        appId: "1:113802900843:web:659af7a3f62446ac96882e"
-    };
-
-    // VAPID Key for Web Push
-    const vapidKey = "BHvvE9s4Mcn2Hmq0-mk3TiTQaA1iWeL3xkLz3WuTpmt54z5XeIvOB96ASzCGSEPkf9GjC-QDRV2czAmkzxNxXKo";
-
-    // Global variables
-    let database = null;
-    let messaging = null;
-    let currentUser = null;
-    let isAdmin = false;
-    let isLoggedIntoBasement = false;
-    let enteredCode = '';
-    let isOnline = navigator.onLine;
-    let userSessionId = null;
-    let currentPushToken = null;
-
-    // Access Codes
-    const ACCESS_CODES = {
-        '1337': { user: 'GameFuel', admin: true },
-        '6040': { user: 'Lexx', admin: false },
-        '6191': { user: 'Onawarren', admin: false },
-        '2813': { user: 'Joexino', admin: false },
-        '8300': { user: 'M0J170', admin: false },
-        '0828': { user: 'Paulinko', admin: false },
-        '2024': { user: 'Admin', admin: true }
-    };
-
-    // Initialize App
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('📱 DOM loaded, starting app initialization...');
+    <script>
+        console.log('🚀 Starting Basement OS Mobile ALPHA...');
         
-        // Set up essential handlers first (login buttons work immediately)
-        setupEssentialHandlers();
-        initializeApp();
-        checkSavedSession();
-        
-        // Try to initialize Firebase (optional)
-        setTimeout(() => {
-            if (initializeFirebase()) {
-                setupFirebaseListeners();
-            } else {
-                console.log('⚠️ Firebase unavailable - running in offline mode');
-            }
-        }, 100);
-        
-        // Setup PWA (try both service worker paths)
-        setupPWA();
-    });
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmp0gJNFkRqUMpmeV_yk9batETciCiON8",
+            authDomain: "basement-chat.firebaseapp.com",
+            databaseURL: "https://basement-chat-default-rtdb.firebaseio.com",
+            projectId: "basement-chat",
+            storageBucket: "basement-chat.firebasestorage.app",
+            messagingSenderId: "113802900843",
+            appId: "1:113802900843:web:659af7a3f62446ac96882e"
+        };
 
-    function setupPWA() {
-        console.log('📱 Setting up PWA...');
-        
-        // Try both possible service worker locations
-        const swPaths = ['/basement-os-mobile/sw.js', '/sw.js'];
-        
-        if ('serviceWorker' in navigator) {
-            // Try first path
-            navigator.serviceWorker.register(swPaths[0])
-                .then(function(registration) {
-                    console.log('✅ Service Worker registered:', registration);
-                    addTerminalMessage('>> PWA: Service worker registered successfully', 'system');
-                })
-                .catch(function(error) {
-                    console.log('❌ First SW path failed, trying second path...', error);
-                    // Try second path
-                    return navigator.serviceWorker.register(swPaths[1]);
-                })
-                .then(function(registration) {
-                    if (registration) {
-                        console.log('✅ Service Worker registered (second attempt):', registration);
-                        addTerminalMessage('>> PWA: Service worker registered successfully', 'system');
-                    }
-                })
-                .catch(function(error) {
-                    console.log('❌ Service Worker registration failed on both paths:', error);
-                    addTerminalMessage('>> PWA: Service worker registration failed', 'error');
-                    addTerminalMessage('>> Check that sw.js file exists', 'error');
-                });
-        } else {
-            addTerminalMessage('>> PWA: Service workers not supported', 'error');
-        }
-    }
+        // VAPID Key for Web Push
+        const vapidKey = "BHvvE9s4Mcn2Hmq0-mk3TiTQaA1iWeL3xkLz3WuTpmt54z5XeIvOB96ASzCGSEPkf9GjC-QDRV2czAmkzxNxXKo";
 
-    function setupEssentialHandlers() {
-        console.log('🎮 Setting up essential handlers...');
-        
-        // Numpad handlers - MUST work immediately
-        document.querySelectorAll('.numpad-btn').forEach(btn => {
-            btn.addEventListener('click', handleNumpadClick);
-            btn.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                this.click();
-            });
+        // Global variables
+        let database = null;
+        let messaging = null;
+        let currentUser = null;
+        let isAdmin = false;
+        let isLoggedIntoBasement = false;
+        let enteredCode = '';
+        let isOnline = navigator.onLine;
+        let userSessionId = null;
+        let currentPushToken = null;
+
+        // Access Codes
+        const ACCESS_CODES = {
+            '1337': { user: 'GameFuel', admin: true },
+            '6040': { user: 'Lexx', admin: false },
+            '6191': { user: 'Onawarren', admin: false },
+            '2813': { user: 'Joexino', admin: false },
+            '8300': { user: 'M0J170', admin: false },
+            '0828': { user: 'Paulinko', admin: false },
+            '2024': { user: 'Admin', admin: true }
+        };
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📱 DOM loaded, starting app initialization...');
+            
+            // Set up essential handlers first (login buttons work immediately)
+            setupEssentialHandlers();
+            initializeApp();
+            checkSavedSession();
+            
+            // Try to initialize Firebase (optional)
+            setTimeout(() => {
+                if (initializeFirebase()) {
+                    setupFirebaseListeners();
+                } else {
+                    console.log('⚠️ Firebase unavailable - running in offline mode');
+                }
+            }, 100);
+            
+            // Setup PWA (try both service worker paths)
+            setupPWA();
         });
 
-        // Chat input handlers
-        const messageInput = document.getElementById('message-input');
-        const sendBtn = document.getElementById('send-btn');
-        
-        if (messageInput && sendBtn) {
-            messageInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && !sendBtn.disabled) {
-                    sendMessage();
+        function setupPWA() {
+            console.log('📱 Setting up PWA...');
+            
+            // Try both possible service worker locations
+            const swPaths = ['/basement-os-mobile/sw.js', '/sw.js'];
+            
+            if ('serviceWorker' in navigator) {
+                // Try first path
+                navigator.serviceWorker.register(swPaths[0])
+                    .then(function(registration) {
+                        console.log('✅ Service Worker registered:', registration);
+                        addTerminalMessage('>> PWA: Service worker registered successfully', 'system');
+                    })
+                    .catch(function(error) {
+                        console.log('❌ First SW path failed, trying second path...', error);
+                        // Try second path
+                        return navigator.serviceWorker.register(swPaths[1]);
+                    })
+                    .then(function(registration) {
+                        if (registration) {
+                            console.log('✅ Service Worker registered (second attempt):', registration);
+                            addTerminalMessage('>> PWA: Service worker registered successfully', 'system');
+                        }
+                    })
+                    .catch(function(error) {
+                        console.log('❌ Service Worker registration failed on both paths:', error);
+                        addTerminalMessage('>> PWA: Service worker registration failed', 'error');
+                        addTerminalMessage('>> Check that sw.js file exists', 'error');
+                    });
+            } else {
+                addTerminalMessage('>> PWA: Service workers not supported', 'error');
+            }
+        }
+
+        function setupEssentialHandlers() {
+            console.log('🎮 Setting up essential handlers...');
+            
+            // Numpad handlers - MUST work immediately
+            document.querySelectorAll('.numpad-btn').forEach(btn => {
+                btn.addEventListener('click', handleNumpadClick);
+                btn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    this.click();
+                });
+            });
+
+            // Chat input handlers
+            const messageInput = document.getElementById('message-input');
+            const sendBtn = document.getElementById('send-btn');
+            
+            if (messageInput && sendBtn) {
+                messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !sendBtn.disabled) {
+                        sendMessage();
+                    }
+                });
+                
+                messageInput.addEventListener('input', () => {
+                    const hasText = messageInput.value.trim() !== '';
+                    sendBtn.disabled = !hasText;
+                });
+            }
+
+            // Connection monitoring
+            window.addEventListener('online', () => {
+                isOnline = true;
+                updateConnectionStatus();
+                if (currentUser) {
+                    addTerminalMessage('>> CONNECTION RESTORED', 'system');
                 }
             });
-            
-            messageInput.addEventListener('input', () => {
-                const hasText = messageInput.value.trim() !== '';
-                sendBtn.disabled = !hasText;
+
+            window.addEventListener('offline', () => {
+                isOnline = false;
+                updateConnectionStatus();
+                if (currentUser) {
+                    addTerminalMessage('>> CONNECTION LOST', 'error');
+                }
             });
+
+            console.log('✅ Essential handlers ready');
         }
 
-        // Connection monitoring
-        window.addEventListener('online', () => {
-            isOnline = true;
+        function initializeApp() {
+            console.log('🏠 Initializing app...');
             updateConnectionStatus();
-            if (currentUser) {
-                addTerminalMessage('>> CONNECTION RESTORED', 'system');
+            
+            // Check for saved session
+            const savedSession = getSavedSession();
+            if (savedSession && ACCESS_CODES[savedSession.code]) {
+                authenticateUser(savedSession.code);
+                return;
             }
-        });
-
-        window.addEventListener('offline', () => {
-            isOnline = false;
-            updateConnectionStatus();
-            if (currentUser) {
-                addTerminalMessage('>> CONNECTION LOST', 'error');
-            }
-        });
-
-        console.log('✅ Essential handlers ready');
-    }
-
-    function initializeApp() {
-        console.log('🏠 Initializing app...');
-        updateConnectionStatus();
-        
-        // Check for saved session
-        const savedSession = getSavedSession();
-        if (savedSession && ACCESS_CODES[savedSession.code]) {
-            authenticateUser(savedSession.code);
-            return;
+            
+            // Show lock screen
+            document.getElementById('lock-screen').style.display = 'flex';
         }
-        
-        // Show lock screen
-        document.getElementById('lock-screen').style.display = 'flex';
-    }
 
-    function initializeFirebase() {
-        console.log('🔥 Trying to initialize Firebase...');
-        
-        try {
-            if (typeof firebase === 'undefined') {
-                console.log('❌ Firebase SDK not loaded');
+        function initializeFirebase() {
+            console.log('🔥 Trying to initialize Firebase...');
+            
+            try {
+                if (typeof firebase === 'undefined') {
+                    console.log('❌ Firebase SDK not loaded');
+                    return false;
+                }
+                
+                firebase.initializeApp(firebaseConfig);
+                database = firebase.database();
+                
+                // Initialize Firebase Messaging for push notifications
+                if (firebase.messaging) {
+                    messaging = firebase.messaging();
+                    console.log('✅ Firebase Messaging initialized');
+                    
+                    // Set up FCM
+                    setupFCM();
+                } else {
+                    console.log('⚠️ Firebase Messaging not available');
+                }
+                
+                console.log('✅ Firebase initialized successfully');
+                return true;
+            } catch (error) {
+                console.error('❌ Firebase initialization failed:', error);
                 return false;
             }
-            
-            firebase.initializeApp(firebaseConfig);
-            database = firebase.database();
-            
-            // Initialize Firebase Messaging for push notifications
-            if (firebase.messaging) {
-                messaging = firebase.messaging();
-                console.log('✅ Firebase Messaging initialized');
-                
-                // Set up FCM
-                setupFCM();
-            } else {
-                console.log('⚠️ Firebase Messaging not available');
-            }
-            
-            console.log('✅ Firebase initialized successfully');
-            return true;
-        } catch (error) {
-            console.error('❌ Firebase initialization failed:', error);
-            return false;
         }
-    }
 
-    async function setupFCM() {
-        try {
-            console.log('🔔 Setting up Firebase Cloud Messaging...');
-            
-            // Check if notifications are supported
-            if (!('Notification' in window)) {
-                console.log('❌ Notifications not supported in this browser');
-                addTerminalMessage('>> NOTIFICATIONS: Not supported in this browser', 'error');
-                return;
-            }
-            
-            console.log('✅ Notifications supported, current permission:', Notification.permission);
-            
-            // Request notification permission
-            console.log('🔔 Requesting notification permission...');
-            const permission = await Notification.requestPermission();
-            console.log('🔔 Permission result:', permission);
-            
-            if (permission !== 'granted') {
-                console.log('⚠️ Notification permission denied:', permission);
-                addTerminalMessage('>> NOTIFICATIONS: Permission denied', 'error');
-                addTerminalMessage('>> Enable in browser settings to receive alerts', 'system');
-                return;
-            }
-
-            console.log('✅ Notification permission granted, getting push token...');
-            
-            // Get push token
-            const token = await messaging.getToken({ vapidKey: vapidKey });
-            console.log('🔔 getToken result:', token ? 'Got token' : 'No token');
-            
-            if (token) {
-                currentPushToken = token;
-                console.log('✅ Push token generated:', token.substring(0, 20) + '...');
-                addTerminalMessage('>> Push token generated successfully', 'system');
+        async function setupFCM() {
+            try {
+                console.log('🔔 Setting up Firebase Cloud Messaging...');
                 
-                if (currentUser) {
-                    await storePushToken(token);
-                    addTerminalMessage('>> Push notifications enabled for cross-device alerts', 'system');
+                // Check if notifications are supported
+                if (!('Notification' in window)) {
+                    console.log('❌ Notifications not supported in this browser');
+                    addTerminalMessage('>> NOTIFICATIONS: Not supported in this browser', 'error');
+                    return;
                 }
-            } else {
-                console.log('⚠️ No registration token available');
-                addTerminalMessage('>> NOTIFICATIONS: Failed to generate push token', 'error');
-                addTerminalMessage('>> Check browser console for details', 'system');
-            }
-
-            // Listen for foreground messages
-            messaging.onMessage((payload) => {
-                console.log('📱 Foreground message received:', payload);
                 
-                // Show notification even in foreground
-                if (payload.notification) {
-                    addTerminalMessage(`🔔 ${payload.notification.body}`, 'basement');
+                console.log('✅ Notifications supported, current permission:', Notification.permission);
+                
+                // Request notification permission
+                console.log('🔔 Requesting notification permission...');
+                const permission = await Notification.requestPermission();
+                console.log('🔔 Permission result:', permission);
+                
+                if (permission !== 'granted') {
+                    console.log('⚠️ Notification permission denied:', permission);
+                    addTerminalMessage('>> NOTIFICATIONS: Permission denied', 'error');
+                    addTerminalMessage('>> Enable in browser settings to receive alerts', 'system');
+                    return;
+                }
+
+                console.log('✅ Notification permission granted, getting push token...');
+                
+                // Get push token
+                const token = await messaging.getToken({ vapidKey: vapidKey });
+                console.log('🔔 getToken result:', token ? 'Got token' : 'No token');
+                
+                if (token) {
+                    currentPushToken = token;
+                    console.log('✅ Push token generated:', token.substring(0, 20) + '...');
+                    addTerminalMessage('>> Push token generated successfully', 'system');
                     
-                    // Show browser notification
-                    new Notification(payload.notification.title, {
-                        body: payload.notification.body,
-                        icon: '/basement-os-mobile/pwa/icon-192.png'
-                    });
-                }
-            });
-
-            console.log('✅ FCM setup complete');
-            
-        } catch (error) {
-            console.error('❌ FCM setup failed with error:', error);
-            addTerminalMessage('>> NOTIFICATIONS: Setup failed - ' + error.message, 'error');
-            
-            // Show specific error info
-            if (error.code) {
-                console.error('Error code:', error.code);
-                addTerminalMessage('>> Error code: ' + error.code, 'error');
-            }
-        }
-    }
-
-    async function storePushToken(token) {
-        if (!database || !currentUser) return;
-        
-        try {
-            // Store token linked to user and device
-            const deviceId = generateDeviceId();
-            await database.ref(`pushTokens/${currentUser}/${deviceId}`).set({
-                token: token,
-                timestamp: Date.now(),
-                userAgent: navigator.userAgent.substring(0, 100),
-                active: true
-            });
-            
-            console.log('✅ Push token stored for', currentUser);
-        } catch (error) {
-            console.error('❌ Failed to store push token:', error);
-        }
-    }
-
-    function generateDeviceId() {
-        // Generate a unique device identifier
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        ctx.textBaseline = 'top';
-        ctx.font = '14px Arial';
-        ctx.fillText('Device fingerprint', 2, 2);
-        const fingerprint = canvas.toDataURL().substring(0, 50);
-        
-        return btoa(navigator.userAgent + fingerprint + screen.width + screen.height).substring(0, 20);
-    }
-
-    async function sendCrossDeviceNotification(title, body, excludeCurrentDevice = true) {
-        if (!database) return;
-        
-        try {
-            // Get all users' push tokens
-            const tokensSnapshot = await database.ref('pushTokens').once('value');
-            const allTokens = tokensSnapshot.val() || {};
-            
-            const targetTokens = [];
-            const currentDeviceId = generateDeviceId();
-            
-            // Collect tokens from all users/devices (except current device if excluded)
-            Object.entries(allTokens).forEach(([username, devices]) => {
-                Object.entries(devices).forEach(([deviceId, tokenData]) => {
-                    if (excludeCurrentDevice && username === currentUser && deviceId === currentDeviceId) {
-                        return; // Skip current device
+                    if (currentUser) {
+                        await storePushToken(token);
+                        addTerminalMessage('>> Push notifications enabled for cross-device alerts', 'system');
                     }
+                } else {
+                    console.log('⚠️ No registration token available');
+                    addTerminalMessage('>> NOTIFICATIONS: Failed to generate push token', 'error');
+                    addTerminalMessage('>> Check browser console for details', 'system');
+                }
+
+                // Listen for foreground messages
+                messaging.onMessage((payload) => {
+                    console.log('📱 Foreground message received:', payload);
                     
-                    if (tokenData.active && tokenData.token) {
-                        targetTokens.push({
-                            token: tokenData.token,
-                            user: username,
-                            device: deviceId
+                    // Show notification even in foreground
+                    if (payload.notification) {
+                        addTerminalMessage(`🔔 ${payload.notification.body}`, 'basement');
+                        
+                        // Show browser notification
+                        new Notification(payload.notification.title, {
+                            body: payload.notification.body,
+                            icon: '/basement-os-mobile/pwa/icon-192.png'
                         });
                     }
                 });
-            });
 
-            if (targetTokens.length === 0) {
-                console.log('📱 No target devices for push notification');
-                return;
+                console.log('✅ FCM setup complete');
+                
+            } catch (error) {
+                console.error('❌ FCM setup failed with error:', error);
+                addTerminalMessage('>> NOTIFICATIONS: Setup failed - ' + error.message, 'error');
+                
+                // Show specific error info
+                if (error.code) {
+                    console.error('Error code:', error.code);
+                    addTerminalMessage('>> Error code: ' + error.code, 'error');
+                }
             }
+        }
 
-            // Store notification request in Firebase (to be picked up by cloud function)
-            await database.ref('notificationRequests').push({
+        async function storePushToken(token) {
+            if (!database || !currentUser) return;
+            
+            try {
+                // Store token linked to user and device
+                const deviceId = generateDeviceId();
+                await database.ref(`pushTokens/${currentUser}/${deviceId}`).set({
+                    token: token,
+                    timestamp: Date.now(),
+                    userAgent: navigator.userAgent.substring(0, 100),
+                    active: true
+                });
+                
+                console.log('✅ Push token stored for', currentUser);
+            } catch (error) {
+                console.error('❌ Failed to store push token:', error);
+            }
+        }
+
+        function generateDeviceId() {
+            // Generate a unique device identifier
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('Device fingerprint', 2, 2);
+            const fingerprint = canvas.toDataURL().substring(0, 50);
+            
+            return btoa(navigator.userAgent + fingerprint + screen.width + screen.height).substring(0, 20);
+        }
+
+        async function sendCrossDeviceNotification(title, body, excludeCurrentDevice = true) {
+            if (!database) return;
+            
+            try {
+                // Get all users' push tokens
+                const tokensSnapshot = await database.ref('pushTokens').once('value');
+                const allTokens = tokensSnapshot.val() || {};
+                
+                const targetTokens = [];
+                const currentDeviceId = generateDeviceId();
+                
+                // Collect tokens from all users/devices (except current device if excluded)
+                Object.entries(allTokens).forEach(([username, devices]) => {
+                    Object.entries(devices).forEach(([deviceId, tokenData]) => {
+                        if (excludeCurrentDevice && username === currentUser && deviceId === currentDeviceId) {
+                            return; // Skip current device
+                        }
+                        
+                        if (tokenData.active && tokenData.token) {
+                            targetTokens.push({
+                                token: tokenData.token,
+                                user: username,
+                                device: deviceId
+                            });
+                        }
+                    });
+                });
+
+                if (targetTokens.length === 0) {
+                    console.log('📱 No target devices for push notification');
+                    return;
+                }
+
+                // Store notification request in Firebase (to be picked up by cloud function)
+                await database.ref('notificationRequests').push({
+                    title: title,
+                    body: body,
+                    tokens: targetTokens.map(t => t.token),
+                    sender: currentUser,
+                    timestamp: Date.now(),
+                    processed: false
+                });
+
+                console.log(`📤 Notification queued for ${targetTokens.length} devices`);
+                
+                // For development: Also use the simple HTTP approach
+                await sendDirectPushNotification(title, body, targetTokens);
+                
+            } catch (error) {
+                console.error('❌ Failed to send cross-device notification:', error);
+            }
+        }
+
+        async function sendDirectPushNotification(title, body, targetTokens) {
+            // Direct FCM HTTP API call (for development - normally done by cloud function)
+            const serverKey = 'YOUR_SERVER_KEY'; // Would need server key for production
+            
+            // For now, just log what would be sent
+            console.log('🔔 Would send push notification:', {
                 title: title,
                 body: body,
-                tokens: targetTokens.map(t => t.token),
-                sender: currentUser,
-                timestamp: Date.now(),
-                processed: false
+                targets: targetTokens.length + ' devices'
             });
-
-            console.log(`📤 Notification queued for ${targetTokens.length} devices`);
             
-            // For development: Also use the simple HTTP approach
-            await sendDirectPushNotification(title, body, targetTokens);
+            // In production, this would be handled by Firebase Functions
+            // For demo purposes, we'll rely on the real-time database updates
+        }
+
+        function setupFirebaseListeners() {
+            if (!database) return;
             
-        } catch (error) {
-            console.error('❌ Failed to send cross-device notification:', error);
-        }
-    }
-
-    async function sendDirectPushNotification(title, body, targetTokens) {
-        // Direct FCM HTTP API call (for development - normally done by cloud function)
-        const serverKey = 'YOUR_SERVER_KEY'; // Would need server key for production
-        
-        // For now, just log what would be sent
-        console.log('🔔 Would send push notification:', {
-            title: title,
-            body: body,
-            targets: targetTokens.length + ' devices'
-        });
-        
-        // In production, this would be handled by Firebase Functions
-        // For demo purposes, we'll rely on the real-time database updates
-    }
-
-    function setupFirebaseListeners() {
-        if (!database) return;
-        
-        console.log('🔥 Setting up Firebase listeners...');
-        
-        try {
-            // Listen for basement users
-            database.ref('basement/users').on('value', (snapshot) => {
-                const users = snapshot.val() || {};
-                const onlineUsers = Object.values(users).filter(user => user.online);
-                updateOnlineCount(onlineUsers.length);
-                
-                const liveIndicator = document.getElementById('basement-live');
-                if (onlineUsers.length > 0) {
-                    liveIndicator.classList.add('active');
-                } else {
-                    liveIndicator.classList.remove('active');
-                }
-            });
-
-            // Listen for messages
-            database.ref('messages').limitToLast(50).on('child_added', (snapshot) => {
-                const message = snapshot.val();
-                if (message && currentUser && message.sessionId !== userSessionId) {
-                    displayFirebaseMessage(message);
-                }
-            });
-
-            console.log('✅ Firebase listeners active');
-        } catch (error) {
-            console.error('❌ Firebase listeners failed:', error);
-        }
-    }
-
-    function handleNumpadClick(e) {
-        const digit = e.target.getAttribute('data-digit');
-        const action = e.target.getAttribute('data-action');
-        
-        if (digit !== null) {
-            enterDigit(digit);
-        } else if (action === 'clear') {
-            clearCode();
-        }
-    }
-
-    function enterDigit(digit) {
-        if (enteredCode.length < 4) {
-            enteredCode += digit;
-            updateCodeDisplay();
+            console.log('🔥 Setting up Firebase listeners...');
             
-            if (enteredCode.length === 4) {
-                setTimeout(checkAccessCode, 200);
-            }
-        }
-    }
-
-    function clearCode() {
-        enteredCode = '';
-        updateCodeDisplay();
-    }
-
-    function updateCodeDisplay() {
-        const display = document.getElementById('access-code-display');
-        let displayText = '';
-        
-        for (let i = 0; i < 4; i++) {
-            if (i < enteredCode.length) {
-                displayText += '● ';
-            } else {
-                displayText += '_ ';
-            }
-        }
-        
-        display.textContent = displayText.trim();
-    }
-
-    function checkAccessCode() {
-        const userInfo = ACCESS_CODES[enteredCode];
-        
-        if (userInfo) {
-            authenticateUser(enteredCode);
-        } else {
-            const lockContent = document.querySelector('.lock-content');
-            lockContent.classList.add('shake');
-            setTimeout(() => {
-                lockContent.classList.remove('shake');
-                clearCode();
-            }, 500);
-        }
-    }
-
-    function authenticateUser(code) {
-        const userInfo = ACCESS_CODES[code];
-        currentUser = userInfo.user;
-        isAdmin = userInfo.admin;
-        userSessionId = currentUser + '_' + Date.now();
-        
-        console.log(`👤 User authenticated: ${currentUser}`);
-        
-        // Save session
-        saveSession(code);
-        
-        // Hide lock screen
-        document.getElementById('lock-screen').style.display = 'none';
-        
-        // Update UI
-        document.getElementById('current-user').textContent = currentUser;
-        document.getElementById('user-display').style.display = 'block';
-        
-        // Welcome messages
-        addTerminalMessage('>> BASEMENT OS MOBILE ALPHA v1.0 STARTING UP...', 'system');
-        addTerminalMessage(`>> Welcome, ${currentUser}!`, 'system');
-        addTerminalMessage(`>> Firebase: ${database ? 'Connected' : 'Offline mode'}`, 'system');
-        addTerminalMessage('>> Terminal ready - Type /help for commands', 'system');
-        
-        if (isAdmin) {
-            addTerminalMessage('>> ADMIN ACCESS GRANTED', 'system');
-        }
-        
-        // Store push token for this user
-        if (currentPushToken && database) {
-            storePushToken(currentPushToken);
-            addTerminalMessage('>> Push notifications enabled for cross-device alerts', 'system');
-        } else if (messaging) {
-            addTerminalMessage('>> Setting up push notifications...', 'system');
-        }
-        
-        addTerminalMessage('>> SYSTEM READY', 'system');
-        updateLastActivity();
-    }
-
-    function sendMessage() {
-        const messageInput = document.getElementById('message-input');
-        const text = messageInput.value.trim();
-        
-        if (!text) return;
-        
-        if (text.startsWith('/')) {
-            handleCommand(text);
-        } else {
-            // Send to Firebase if available
-            if (database) {
-                try {
-                    database.ref('messages').push({
-                        user: currentUser,
-                        text: text,
-                        timestamp: Date.now(),
-                        sessionId: userSessionId
-                    });
+            try {
+                // Listen for basement users
+                database.ref('basement/users').on('value', (snapshot) => {
+                    const users = snapshot.val() || {};
+                    const onlineUsers = Object.values(users).filter(user => user.online);
+                    updateOnlineCount(onlineUsers.length);
                     
-                    // Send cross-device push notification for chat messages
-                    if (messaging && isLoggedIntoBasement) {
-                        sendCrossDeviceNotification(
-                            'Basement Chat', 
-                            `${currentUser}: ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`
-                        );
+                    const liveIndicator = document.getElementById('basement-live');
+                    if (onlineUsers.length > 0) {
+                        liveIndicator.classList.add('active');
+                    } else {
+                        liveIndicator.classList.remove('active');
                     }
-                } catch (error) {
-                    console.error('Firebase send failed:', error);
+                });
+
+                // Listen for messages
+                database.ref('messages').limitToLast(50).on('child_added', (snapshot) => {
+                    const message = snapshot.val();
+                    if (message && currentUser && message.sessionId !== userSessionId) {
+                        displayFirebaseMessage(message);
+                    }
+                });
+
+                console.log('✅ Firebase listeners active');
+            } catch (error) {
+                console.error('❌ Firebase listeners failed:', error);
+            }
+        }
+
+        function handleNumpadClick(e) {
+            const digit = e.target.getAttribute('data-digit');
+            const action = e.target.getAttribute('data-action');
+            
+            if (digit !== null) {
+                enterDigit(digit);
+            } else if (action === 'clear') {
+                clearCode();
+            }
+        }
+
+        function enterDigit(digit) {
+            if (enteredCode.length < 4) {
+                enteredCode += digit;
+                updateCodeDisplay();
+                
+                if (enteredCode.length === 4) {
+                    setTimeout(checkAccessCode, 200);
+                }
+            }
+        }
+
+        function clearCode() {
+            enteredCode = '';
+            updateCodeDisplay();
+        }
+
+        function updateCodeDisplay() {
+            const display = document.getElementById('access-code-display');
+            let displayText = '';
+            
+            for (let i = 0; i < 4; i++) {
+                if (i < enteredCode.length) {
+                    displayText += '● ';
+                } else {
+                    displayText += '_ ';
                 }
             }
             
-            // Always show locally
-            addTerminalMessage(`[${currentUser}] ${text}`, 'user');
+            display.textContent = displayText.trim();
         }
-        
-        messageInput.value = '';
-        document.getElementById('send-btn').disabled = true;
-        updateLastActivity();
-    }
 
-    function handleCommand(command) {
-        const cmd = command.toLowerCase().trim();
-        addTerminalMessage(`>> ${cmd}`, 'system');
-        
-        switch (cmd) {
-            case '/help':
-                showHelp();
-                break;
-            case '/status':
-                showStatus();
-                break;
-            case '/clear':
-                clearTerminal();
-                break;
-            case '/basement':
-                toggleBasementLogin();
-                break;
-            case '/notify':
-                toggleNotifications();
-                break;
-            case '/logout':
-                logout();
-                break;
-            default:
-                addTerminalMessage(`>> Unknown command: ${cmd}`, 'error');
+        function checkAccessCode() {
+            const userInfo = ACCESS_CODES[enteredCode];
+            
+            if (userInfo) {
+                authenticateUser(enteredCode);
+            } else {
+                const lockContent = document.querySelector('.lock-content');
+                lockContent.classList.add('shake');
+                setTimeout(() => {
+                    lockContent.classList.remove('shake');
+                    clearCode();
+                }, 500);
+            }
         }
-    }
 
-    function showHelp() {
-        addTerminalMessage('>> BASEMENT OS COMMANDS:', 'system');
-        addTerminalMessage('   /help - Show commands', 'system');
-        addTerminalMessage('   /status - System status', 'system');
-        addTerminalMessage('   /clear - Clear terminal', 'system');
-        addTerminalMessage('   /basement - Toggle basement login', 'system');
-        addTerminalMessage('   /notify - Toggle notifications', 'system');
-        addTerminalMessage('   /logout - Logout', 'system');
-    }
+        function authenticateUser(code) {
+            const userInfo = ACCESS_CODES[code];
+            currentUser = userInfo.user;
+            isAdmin = userInfo.admin;
+            userSessionId = currentUser + '_' + Date.now();
+            
+            console.log(`👤 User authenticated: ${currentUser}`);
+            
+            // Save session
+            saveSession(code);
+            
+            // Hide lock screen
+            document.getElementById('lock-screen').style.display = 'none';
+            
+            // Update UI
+            document.getElementById('current-user').textContent = currentUser;
+            document.getElementById('user-display').style.display = 'block';
+            
+            // Welcome messages
+            addTerminalMessage('>> BASEMENT OS MOBILE ALPHA v1.0 STARTING UP...', 'system');
+            addTerminalMessage(`>> Welcome, ${currentUser}!`, 'system');
+            addTerminalMessage(`>> Firebase: ${database ? 'Connected' : 'Offline mode'}`, 'system');
+            addTerminalMessage('>> Terminal ready - Type /help for commands', 'system');
+            
+            if (isAdmin) {
+                addTerminalMessage('>> ADMIN ACCESS GRANTED', 'system');
+            }
+            
+            // Store push token for this user
+            if (currentPushToken && database) {
+                storePushToken(currentPushToken);
+                addTerminalMessage('>> Push notifications enabled for cross-device alerts', 'system');
+            } else if (messaging) {
+                addTerminalMessage('>> Setting up push notifications...', 'system');
+            }
+            
+            addTerminalMessage('>> SYSTEM READY', 'system');
+            updateLastActivity();
+        }
 
-    function showStatus() {
-        addTerminalMessage('>> SYSTEM STATUS:', 'system');
-        addTerminalMessage(`   User: ${currentUser}`, 'system');
-        addTerminalMessage(`   Admin: ${isAdmin ? 'YES' : 'NO'}`, 'system');
-        addTerminalMessage(`   Basement: ${isLoggedIntoBasement ? 'YES' : 'NO'}`, 'system');
-        addTerminalMessage(`   Firebase: ${database ? 'Connected' : 'Offline'}`, 'system');
-        addTerminalMessage(`   FCM: ${messaging ? 'Enabled' : 'Disabled'}`, 'system');
-        addTerminalMessage(`   Push Token: ${currentPushToken ? 'Active' : 'None'}`, 'system');
-        addTerminalMessage(`   Notifications: ${Notification.permission}`, 'system');
-    }
+        function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const text = messageInput.value.trim();
+            
+            if (!text) return;
+            
+            if (text.startsWith('/')) {
+                handleCommand(text);
+            } else {
+                // Send to Firebase if available
+                if (database) {
+                    try {
+                        database.ref('messages').push({
+                            user: currentUser,
+                            text: text,
+                            timestamp: Date.now(),
+                            sessionId: userSessionId
+                        });
+                        
+                        // Send cross-device push notification for chat messages
+                        if (messaging && isLoggedIntoBasement) {
+                            sendCrossDeviceNotification(
+                                'Basement Chat', 
+                                `${currentUser}: ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`
+                            );
+                        }
+                    } catch (error) {
+                        console.error('Firebase send failed:', error);
+                    }
+                }
+                
+                // Always show locally
+                addTerminalMessage(`[${currentUser}] ${text}`, 'user');
+            }
+            
+            messageInput.value = '';
+            document.getElementById('send-btn').disabled = true;
+            updateLastActivity();
+        }
 
-    function clearTerminal() {
-        document.getElementById('terminal-content').innerHTML = '';
-        addTerminalMessage('>> TERMINAL CLEARED', 'system');
-    }
+        function handleCommand(command) {
+            const cmd = command.toLowerCase().trim();
+            addTerminalMessage(`>> ${cmd}`, 'system');
+            
+            switch (cmd) {
+                case '/help':
+                    showHelp();
+                    break;
+                case '/status':
+                    showStatus();
+                    break;
+                case '/clear':
+                    clearTerminal();
+                    break;
+                case '/basement':
+                    toggleBasementLogin();
+                    break;
+                case '/notify':
+                    toggleNotifications();
+                    break;
+                case '/logout':
+                    logout();
+                    break;
+                default:
+                    addTerminalMessage(`>> Unknown command: ${cmd}`, 'error');
+            }
+        }
 
-    function toggleBasementLogin() {
-        const btn = document.getElementById('basement-btn');
-        
-        if (!isLoggedIntoBasement) {
-            isLoggedIntoBasement = true;
-            btn.textContent = '[LOGOFF BASEMENT]';
-            btn.classList.add('logged-in');
+        function showHelp() {
+            addTerminalMessage('>> BASEMENT OS COMMANDS:', 'system');
+            addTerminalMessage('   /help - Show commands', 'system');
+            addTerminalMessage('   /status - System status', 'system');
+            addTerminalMessage('   /clear - Clear terminal', 'system');
+            addTerminalMessage('   /basement - Toggle basement login', 'system');
+            addTerminalMessage('   /notify - Toggle notifications', 'system');
+            addTerminalMessage('   /logout - Logout', 'system');
+        }
+
+        function showStatus() {
+            addTerminalMessage('>> SYSTEM STATUS:', 'system');
+            addTerminalMessage(`   User: ${currentUser}`, 'system');
+            addTerminalMessage(`   Admin: ${isAdmin ? 'YES' : 'NO'}`, 'system');
+            addTerminalMessage(`   Basement: ${isLoggedIntoBasement ? 'YES' : 'NO'}`, 'system');
+            addTerminalMessage(`   Firebase: ${database ? 'Connected' : 'Offline'}`, 'system');
+            addTerminalMessage(`   FCM: ${messaging ? 'Enabled' : 'Disabled'}`, 'system');
+            addTerminalMessage(`   Push Token: ${currentPushToken ? 'Active' : 'None'}`, 'system');
+            addTerminalMessage(`   Notifications: ${Notification.permission}`, 'system');
+        }
+
+        function clearTerminal() {
+            document.getElementById('terminal-content').innerHTML = '';
+            addTerminalMessage('>> TERMINAL CLEARED', 'system');
+        }
+
+        function toggleBasementLogin() {
+            const btn = document.getElementById('basement-btn');
+            
+            if (!isLoggedIntoBasement) {
+                isLoggedIntoBasement = true;
+                btn.textContent = '[LOGOFF BASEMENT]';
+                btn.classList.add('logged-in');
+                
+                if (database) {
+                    try {
+                        database.ref(`basement/users/${userSessionId}`).set({
+                            user: currentUser,
+                            online: true,
+                            joinedAt: Date.now()
+                        });
+                    } catch (error) {
+                        console.error('Firebase update failed:', error);
+                    }
+                }
+                
+                addTerminalMessage(`📤 ${currentUser} joined basement`, 'basement');
+                
+                // Send cross-device push notification
+                if (messaging && database) {
+                    sendCrossDeviceNotification(
+                        'Basement Activity', 
+                        `${currentUser} joined the basement`
+                    );
+                }
+                
+            } else {
+                isLoggedIntoBasement = false;
+                btn.textContent = '[LOGIN TO BASEMENT]';
+                btn.classList.remove('logged-in');
+                
+                if (database) {
+                    try {
+                        database.ref(`basement/users/${userSessionId}`).update({
+                            online: false,
+                            leftAt: Date.now()
+                        });
+                    } catch (error) {
+                        console.error('Firebase update failed:', error);
+                    }
+                }
+                
+                addTerminalMessage(`📤 ${currentUser} left basement`, 'basement');
+                
+                // Send cross-device push notification
+                if (messaging && database) {
+                    sendCrossDeviceNotification(
+                        'Basement Activity', 
+                        `${currentUser} left the basement`
+                    );
+                }
+            }
+            
+            updateLastActivity();
+        }
+
+        function refreshStatus() {
+            addTerminalMessage('>> REFRESHING STATUS...', 'system');
             
             if (database) {
-                try {
-                    database.ref(`basement/users/${userSessionId}`).set({
-                        user: currentUser,
-                        online: true,
-                        joinedAt: Date.now()
+                database.ref('basement/users').once('value', (snapshot) => {
+                    const users = snapshot.val() || {};
+                    const onlineUsers = Object.values(users).filter(user => user.online);
+                    addTerminalMessage(`>> ${onlineUsers.length} users online`, 'system');
+                    updateLastActivity();
+                });
+            } else {
+                addTerminalMessage('>> Local mode only', 'system');
+                updateLastActivity();
+            }
+        }
+
+        function toggleNotifications() {
+            if ('Notification' in window) {
+                if (Notification.permission === 'granted') {
+                    addTerminalMessage('>> NOTIFICATIONS: Enabled', 'system');
+                } else {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            addTerminalMessage('>> NOTIFICATIONS: Enabled', 'system');
+                        } else {
+                            addTerminalMessage('>> NOTIFICATIONS: Denied', 'error');
+                        }
                     });
-                } catch (error) {
-                    console.error('Firebase update failed:', error);
                 }
+            } else {
+                addTerminalMessage('>> NOTIFICATIONS: Not supported', 'error');
             }
+        }
+
+        function logout() {
+            addTerminalMessage('>> LOGGING OUT...', 'system');
             
-            addTerminalMessage(`📤 ${currentUser} joined basement`, 'basement');
-            
-            // Send cross-device push notification
-            if (messaging && database) {
-                sendCrossDeviceNotification(
-                    'Basement Activity', 
-                    `${currentUser} joined the basement`
-                );
-            }
-            
-        } else {
-            isLoggedIntoBasement = false;
-            btn.textContent = '[LOGIN TO BASEMENT]';
-            btn.classList.remove('logged-in');
-            
-            if (database) {
+            if (database && userSessionId) {
                 try {
                     database.ref(`basement/users/${userSessionId}`).update({
                         online: false,
-                        leftAt: Date.now()
+                        lastSeen: Date.now()
                     });
                 } catch (error) {
-                    console.error('Firebase update failed:', error);
+                    console.error('Firebase cleanup failed:', error);
                 }
             }
             
-            addTerminalMessage(`📤 ${currentUser} left basement`, 'basement');
-            
-            // Send cross-device push notification
-            if (messaging && database) {
-                sendCrossDeviceNotification(
-                    'Basement Activity', 
-                    `${currentUser} left the basement`
-                );
-            }
-        }
-        
-        updateLastActivity();
-    }
-
-    function refreshStatus() {
-        addTerminalMessage('>> REFRESHING STATUS...', 'system');
-        
-        if (database) {
-            database.ref('basement/users').once('value', (snapshot) => {
-                const users = snapshot.val() || {};
-                const onlineUsers = Object.values(users).filter(user => user.online);
-                addTerminalMessage(`>> ${onlineUsers.length} users online`, 'system');
-                updateLastActivity();
-            });
-        } else {
-            addTerminalMessage('>> Local mode only', 'system');
-            updateLastActivity();
-        }
-    }
-
-    function toggleNotifications() {
-        if ('Notification' in window) {
-            if (Notification.permission === 'granted') {
-                addTerminalMessage('>> NOTIFICATIONS: Enabled', 'system');
-            } else {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        addTerminalMessage('>> NOTIFICATIONS: Enabled', 'system');
-                    } else {
-                        addTerminalMessage('>> NOTIFICATIONS: Denied', 'error');
-                    }
-                });
-            }
-        } else {
-            addTerminalMessage('>> NOTIFICATIONS: Not supported', 'error');
-        }
-    }
-
-    function logout() {
-        addTerminalMessage('>> LOGGING OUT...', 'system');
-        
-        if (database && userSessionId) {
             try {
-                database.ref(`basement/users/${userSessionId}`).update({
-                    online: false,
-                    lastSeen: Date.now()
-                });
-            } catch (error) {
-                console.error('Firebase cleanup failed:', error);
+                localStorage.removeItem('basement-session');
+            } catch (e) {
+                console.log('Session clear failed:', e);
+            }
+            
+            setTimeout(() => location.reload(), 1500);
+        }
+
+        function displayFirebaseMessage(message) {
+            const time = new Date(message.timestamp).toLocaleTimeString();
+            const terminalContent = document.getElementById('terminal-content');
+            const messageDiv = document.createElement('div');
+            
+            messageDiv.className = 'message message-user';
+            messageDiv.innerHTML = `
+                <div>[${message.user}] ${message.text}</div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            terminalContent.appendChild(messageDiv);
+            terminalContent.scrollTop = terminalContent.scrollHeight;
+        }
+
+        function updateOnlineCount(count) {
+            document.getElementById('online-count').textContent = count;
+        }
+
+        function addTerminalMessage(text, type = 'system') {
+            const terminalContent = document.getElementById('terminal-content');
+            const messageDiv = document.createElement('div');
+            
+            let className = 'message ';
+            switch (type) {
+                case 'system':
+                    className += 'message-system';
+                    break;
+                case 'user':
+                    className += 'message-user';
+                    break;
+                case 'basement':
+                    className += 'message-basement';
+                    break;
+                case 'error':
+                    className += 'message-error';
+                    break;
+            }
+            
+            messageDiv.className = className;
+            const time = new Date().toLocaleTimeString();
+            
+            messageDiv.innerHTML = `
+                <div>${text}</div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            terminalContent.appendChild(messageDiv);
+            terminalContent.scrollTop = terminalContent.scrollHeight;
+            
+            // Keep only last 100 messages
+            while (terminalContent.children.length > 100) {
+                terminalContent.removeChild(terminalContent.firstChild);
             }
         }
-        
-        try {
-            localStorage.removeItem('basement-session');
-        } catch (e) {
-            console.log('Session clear failed:', e);
+
+        function updateLastActivity() {
+            document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
         }
-        
-        setTimeout(() => location.reload(), 1500);
-    }
 
-    function displayFirebaseMessage(message) {
-        const time = new Date(message.timestamp).toLocaleTimeString();
-        const terminalContent = document.getElementById('terminal-content');
-        const messageDiv = document.createElement('div');
-        
-        messageDiv.className = 'message message-user';
-        messageDiv.innerHTML = `
-            <div>[${message.user}] ${message.text}</div>
-            <div class="message-time">${time}</div>
-        `;
-        
-        terminalContent.appendChild(messageDiv);
-        terminalContent.scrollTop = terminalContent.scrollHeight;
-    }
-
-    function updateOnlineCount(count) {
-        document.getElementById('online-count').textContent = count;
-    }
-
-    function addTerminalMessage(text, type = 'system') {
-        const terminalContent = document.getElementById('terminal-content');
-        const messageDiv = document.createElement('div');
-        
-        let className = 'message ';
-        switch (type) {
-            case 'system':
-                className += 'message-system';
-                break;
-            case 'user':
-                className += 'message-user';
-                break;
-            case 'basement':
-                className += 'message-basement';
-                break;
-            case 'error':
-                className += 'message-error';
-                break;
+        function updateConnectionStatus() {
+            const status = document.getElementById('connection-status');
+            if (isOnline) {
+                status.className = 'connection-status online';
+                status.textContent = '● ONLINE';
+            } else {
+                status.className = 'connection-status offline';
+                status.textContent = '● OFFLINE';
+            }
         }
-        
-        messageDiv.className = className;
-        const time = new Date().toLocaleTimeString();
-        
-        messageDiv.innerHTML = `
-            <div>${text}</div>
-            <div class="message-time">${time}</div>
-        `;
-        
-        terminalContent.appendChild(messageDiv);
-        terminalContent.scrollTop = terminalContent.scrollHeight;
-        
-        // Keep only last 100 messages
-        while (terminalContent.children.length > 100) {
-            terminalContent.removeChild(terminalContent.firstChild);
+
+        function saveSession(code) {
+            try {
+                localStorage.setItem('basement-session', JSON.stringify({
+                    code: code,
+                    user: currentUser,
+                    admin: isAdmin,
+                    timestamp: Date.now()
+                }));
+            } catch (e) {
+                console.log('Session save failed:', e);
+            }
         }
-    }
 
-    function updateLastActivity() {
-        document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
-    }
-
-    function updateConnectionStatus() {
-        const status = document.getElementById('connection-status');
-        if (isOnline) {
-            status.className = 'connection-status online';
-            status.textContent = '● ONLINE';
-        } else {
-            status.className = 'connection-status offline';
-            status.textContent = '● OFFLINE';
-        }
-    }
-
-    function saveSession(code) {
-        try {
-            localStorage.setItem('basement-session', JSON.stringify({
-                code: code,
-                user: currentUser,
-                admin: isAdmin,
-                timestamp: Date.now()
-            }));
-        } catch (e) {
-            console.log('Session save failed:', e);
-        }
-    }
-
-    function getSavedSession() {
-        try {
-            const saved = localStorage.getItem('basement-session');
-            if (saved) {
-                const session = JSON.parse(saved);
-                if (Date.now() - session.timestamp < 24 * 60 * 60 * 1000) {
-                    return session;
+        function getSavedSession() {
+            try {
+                const saved = localStorage.getItem('basement-session');
+                if (saved) {
+                    const session = JSON.parse(saved);
+                    if (Date.now() - session.timestamp < 24 * 60 * 60 * 1000) {
+                        return session;
+                    }
                 }
+            } catch (e) {
+                console.log('Session load failed:', e);
             }
-        } catch (e) {
-            console.log('Session load failed:', e);
+            return null;
         }
-        return null;
-    }
 
-    function checkSavedSession() {
-        return getSavedSession() !== null;
-    }
-
-    function isPWAInstalled() {
-        return window.matchMedia('(display-mode: standalone)').matches || 
-               window.navigator.standalone === true;
-    }
-
-    function showManualInstallInstructions() {
-        addTerminalMessage('>> PWA INSTALL INSTRUCTIONS:', 'system');
-        if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-            addTerminalMessage('>> iOS: Tap Share button → Add to Home Screen', 'system');
-        } else if (/Android/.test(navigator.userAgent)) {
-            addTerminalMessage('>> Android: Menu → Add to Home Screen', 'system');
-        } else {
-            addTerminalMessage('>> Desktop: Check browser menu for "Install" option', 'system');
+        function checkSavedSession() {
+            return getSavedSession() !== null;
         }
-    }
 
-    function installPWA() {
-        // This function is for the PWA prompt button
-        addTerminalMessage('>> PWA: Manual installation required', 'system');
-        showManualInstallInstructions();
-    }
+        function isPWAInstalled() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.navigator.standalone === true;
+        }
 
-    function dismissPWAPrompt() {
-        // This function is for dismissing PWA prompts
-        addTerminalMessage('>> PWA: Install prompt dismissed', 'system');
-    }
+        function showManualInstallInstructions() {
+            addTerminalMessage('>> PWA INSTALL INSTRUCTIONS:', 'system');
+            if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                addTerminalMessage('>> iOS: Tap Share button → Add to Home Screen', 'system');
+            } else if (/Android/.test(navigator.userAgent)) {
+                addTerminalMessage('>> Android: Menu → Add to Home Screen', 'system');
+            } else {
+                addTerminalMessage('>> Desktop: Check browser menu for "Install" option', 'system');
+            }
+        }
 
-    console.log('✅ Basement OS script loaded');
-</script>
-```
+        function installPWA() {
+            // This function is for the PWA prompt button
+            addTerminalMessage('>> PWA: Manual installation required', 'system');
+            showManualInstallInstructions();
+        }
 
+        function dismissPWAPrompt() {
+            // This function is for dismissing PWA prompts
+            addTerminalMessage('>> PWA: Install prompt dismissed', 'system');
+        }
+
+        console.log('✅ Basement OS script loaded');
+    </script>
 </body>
 </html>
