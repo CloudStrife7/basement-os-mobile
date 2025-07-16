@@ -12,6 +12,7 @@
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="/basement-os-mobile/manifest.json">
@@ -515,14 +516,19 @@ USER: <span id="current-user">UNKNOWN</span>
         appId: "1:113802900843:web:659af7a3f62446ac96882e"
     };
 
+    // VAPID Key for Web Push
+    const vapidKey = "BLtzcprfGfUmB7PdbEljFWuXI2mj2xsHr8A8lzMzEZpxgVAs9H3XrnuAtR40fzKNBCpMqWG9TvIfSgb6OxbNHk4";
+
     // Global variables
     let database = null;
+    let messaging = null;
     let currentUser = null;
     let isAdmin = false;
     let isLoggedIntoBasement = false;
     let enteredCode = '';
     let isOnline = navigator.onLine;
     let userSessionId = null;
+    let currentPushToken = null;
 
     // Access Codes
     const ACCESS_CODES = {
@@ -629,13 +635,170 @@ USER: <span id="current-user">UNKNOWN</span>
             
             firebase.initializeApp(firebaseConfig);
             database = firebase.database();
-            console.log('✅ Firebase initialized successfully');
             
+            // Initialize Firebase Messaging for push notifications
+            if (firebase.messaging) {
+                messaging = firebase.messaging();
+                console.log('✅ Firebase Messaging initialized');
+                
+                // Set up FCM
+                setupFCM();
+            } else {
+                console.log('⚠️ Firebase Messaging not available');
+            }
+            
+            console.log('✅ Firebase initialized successfully');
             return true;
         } catch (error) {
             console.error('❌ Firebase initialization failed:', error);
             return false;
         }
+    }
+
+    async function setupFCM() {
+        try {
+            console.log('🔔 Setting up Firebase Cloud Messaging...');
+            
+            // Request notification permission
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') {
+                console.log('⚠️ Notification permission denied');
+                return;
+            }
+
+            // Get push token
+            const token = await messaging.getToken({ vapidKey: vapidKey });
+            if (token) {
+                currentPushToken = token;
+                console.log('✅ Push token generated:', token.substring(0, 20) + '...');
+                
+                if (currentUser) {
+                    await storePushToken(token);
+                }
+            } else {
+                console.log('⚠️ No registration token available');
+            }
+
+            // Listen for foreground messages
+            messaging.onMessage((payload) => {
+                console.log('📱 Foreground message received:', payload);
+                
+                // Show notification even in foreground
+                if (payload.notification) {
+                    addTerminalMessage(`🔔 ${payload.notification.body}`, 'basement');
+                    
+                    // Show browser notification
+                    new Notification(payload.notification.title, {
+                        body: payload.notification.body,
+                        icon: '/basement-os-mobile/pwa/icon-192.png'
+                    });
+                }
+            });
+
+            console.log('✅ FCM setup complete');
+            
+        } catch (error) {
+            console.error('❌ FCM setup failed:', error);
+        }
+    }
+
+    async function storePushToken(token) {
+        if (!database || !currentUser) return;
+        
+        try {
+            // Store token linked to user and device
+            const deviceId = generateDeviceId();
+            await database.ref(`pushTokens/${currentUser}/${deviceId}`).set({
+                token: token,
+                timestamp: Date.now(),
+                userAgent: navigator.userAgent.substring(0, 100),
+                active: true
+            });
+            
+            console.log('✅ Push token stored for', currentUser);
+        } catch (error) {
+            console.error('❌ Failed to store push token:', error);
+        }
+    }
+
+    function generateDeviceId() {
+        // Generate a unique device identifier
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.textBaseline = 'top';
+        ctx.font = '14px Arial';
+        ctx.fillText('Device fingerprint', 2, 2);
+        const fingerprint = canvas.toDataURL().substring(0, 50);
+        
+        return btoa(navigator.userAgent + fingerprint + screen.width + screen.height).substring(0, 20);
+    }
+
+    async function sendCrossDeviceNotification(title, body, excludeCurrentDevice = true) {
+        if (!database) return;
+        
+        try {
+            // Get all users' push tokens
+            const tokensSnapshot = await database.ref('pushTokens').once('value');
+            const allTokens = tokensSnapshot.val() || {};
+            
+            const targetTokens = [];
+            const currentDeviceId = generateDeviceId();
+            
+            // Collect tokens from all users/devices (except current device if excluded)
+            Object.entries(allTokens).forEach(([username, devices]) => {
+                Object.entries(devices).forEach(([deviceId, tokenData]) => {
+                    if (excludeCurrentDevice && username === currentUser && deviceId === currentDeviceId) {
+                        return; // Skip current device
+                    }
+                    
+                    if (tokenData.active && tokenData.token) {
+                        targetTokens.push({
+                            token: tokenData.token,
+                            user: username,
+                            device: deviceId
+                        });
+                    }
+                });
+            });
+
+            if (targetTokens.length === 0) {
+                console.log('📱 No target devices for push notification');
+                return;
+            }
+
+            // Store notification request in Firebase (to be picked up by cloud function)
+            await database.ref('notificationRequests').push({
+                title: title,
+                body: body,
+                tokens: targetTokens.map(t => t.token),
+                sender: currentUser,
+                timestamp: Date.now(),
+                processed: false
+            });
+
+            console.log(`📤 Notification queued for ${targetTokens.length} devices`);
+            
+            // For development: Also use the simple HTTP approach
+            await sendDirectPushNotification(title, body, targetTokens);
+            
+        } catch (error) {
+            console.error('❌ Failed to send cross-device notification:', error);
+        }
+    }
+
+    async function sendDirectPushNotification(title, body, targetTokens) {
+        // Direct FCM HTTP API call (for development - normally done by cloud function)
+        const serverKey = 'YOUR_SERVER_KEY'; // Would need server key for production
+        
+        // For now, just log what would be sent
+        console.log('🔔 Would send push notification:', {
+            title: title,
+            body: body,
+            targets: targetTokens.length + ' devices'
+        });
+        
+        // In production, this would be handled by Firebase Functions
+        // For demo purposes, we'll rely on the real-time database updates
     }
 
     function setupFirebaseListeners() {
@@ -757,6 +920,14 @@ USER: <span id="current-user">UNKNOWN</span>
             addTerminalMessage('>> ADMIN ACCESS GRANTED', 'system');
         }
         
+        // Store push token for this user
+        if (currentPushToken && database) {
+            storePushToken(currentPushToken);
+            addTerminalMessage('>> Push notifications enabled for cross-device alerts', 'system');
+        } else if (messaging) {
+            addTerminalMessage('>> Setting up push notifications...', 'system');
+        }
+        
         addTerminalMessage('>> SYSTEM READY', 'system');
         updateLastActivity();
     }
@@ -779,6 +950,14 @@ USER: <span id="current-user">UNKNOWN</span>
                         timestamp: Date.now(),
                         sessionId: userSessionId
                     });
+                    
+                    // Send cross-device push notification for chat messages
+                    if (messaging && isLoggedIntoBasement) {
+                        sendCrossDeviceNotification(
+                            'Basement Chat', 
+                            `${currentUser}: ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`
+                        );
+                    }
                 } catch (error) {
                     console.error('Firebase send failed:', error);
                 }
@@ -837,6 +1016,9 @@ USER: <span id="current-user">UNKNOWN</span>
         addTerminalMessage(`   Admin: ${isAdmin ? 'YES' : 'NO'}`, 'system');
         addTerminalMessage(`   Basement: ${isLoggedIntoBasement ? 'YES' : 'NO'}`, 'system');
         addTerminalMessage(`   Firebase: ${database ? 'Connected' : 'Offline'}`, 'system');
+        addTerminalMessage(`   FCM: ${messaging ? 'Enabled' : 'Disabled'}`, 'system');
+        addTerminalMessage(`   Push Token: ${currentPushToken ? 'Active' : 'None'}`, 'system');
+        addTerminalMessage(`   Notifications: ${Notification.permission}`, 'system');
     }
 
     function clearTerminal() {
@@ -866,6 +1048,14 @@ USER: <span id="current-user">UNKNOWN</span>
             
             addTerminalMessage(`📤 ${currentUser} joined basement`, 'basement');
             
+            // Send cross-device push notification
+            if (messaging && database) {
+                sendCrossDeviceNotification(
+                    'Basement Activity', 
+                    `${currentUser} joined the basement`
+                );
+            }
+            
         } else {
             isLoggedIntoBasement = false;
             btn.textContent = '[LOGIN TO BASEMENT]';
@@ -883,6 +1073,14 @@ USER: <span id="current-user">UNKNOWN</span>
             }
             
             addTerminalMessage(`📤 ${currentUser} left basement`, 'basement');
+            
+            // Send cross-device push notification
+            if (messaging && database) {
+                sendCrossDeviceNotification(
+                    'Basement Activity', 
+                    `${currentUser} left the basement`
+                );
+            }
         }
         
         updateLastActivity();
