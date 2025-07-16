@@ -1,11 +1,11 @@
-// Basement OS Mobile ALPHA - Service Worker
+// Basement OS Mobile v1 ALPHA - Service Worker
 // Provides offline functionality and PWA installation capability
 
-const CACHE_NAME = 'basement-os-mobile-alpha-v1';
+const CACHE_NAME = 'basement-os-v1'; // Using your original cache name
 const urlsToCache = [
     '/basement-os-mobile/',
     '/basement-os-mobile/index.html',
-    '/basement-os-mobile/manifest.json',
+    '/basement-os-mobile/pwa/manifest.json',
     '/basement-os-mobile/pwa/icon-192.png',
     '/basement-os-mobile/pwa/icon-512.png',
     // Firebase SDK URLs
@@ -15,68 +15,54 @@ const urlsToCache = [
 ];
 
 // Install event - cache essential files
-self.addEventListener('install', function(event) {
-    console.log('🔧 Service Worker installing...');
-    
+self.addEventListener('install', (event) => {
+    console.log('🔧 Service Worker: Installing…');
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then(function(cache) {
-                console.log('📦 Caching basement OS files');
-                return cache.addAll(urlsToCache.filter(url => !url.startsWith('https://')));
+            .then((cache) => {
+                console.log('📦 Service Worker: Caching app shell');
+                return cache.addAll(urlsToCache);
             })
-            .catch(function(error) {
-                console.warn('⚠️ Cache setup failed (some files missing):', error);
+            .catch((error) => {
+                console.warn('⚠️ Service Worker: Failed to cache some resources', error);
             })
     );
-    
-    self.skipWaiting();
+});
+
+// Fetch event - serve from cache when offline
+self.addEventListener('fetch', (event) => {
+    event.respondWith(
+        caches.match(event.request)
+            .then((response) => {
+                // Return cached version or fetch from network
+                if (response) {
+                    return response;
+                }
+                return fetch(event.request);
+            })
+            .catch(() => {
+                // If both cache and network fail, return offline page
+                if (event.request.destination === 'document') {
+                    return caches.match('/basement-os-mobile/index.html');
+                }
+            })
+    );
 });
 
 // Activate event - clean up old caches
-self.addEventListener('activate', function(event) {
-    console.log('✅ Service Worker activated');
-    
+self.addEventListener('activate', (event) => {
+    console.log('🚀 Service Worker: Activating…');
     event.waitUntil(
-        caches.keys().then(function(cacheNames) {
+        caches.keys().then((cacheNames) => {
             return Promise.all(
-                cacheNames.map(function(cacheName) {
+                cacheNames.map((cacheName) => {
                     if (cacheName !== CACHE_NAME) {
-                        console.log('🗑️ Deleting old cache:', cacheName);
+                        console.log('🗑️ Service Worker: Deleting old cache:', cacheName);
                         return caches.delete(cacheName);
                     }
                 })
             );
         })
-    );
-    
-    return self.clients.claim();
-});
-
-// Fetch event - serve from cache when offline
-self.addEventListener('fetch', function(event) {
-    if (event.request.method !== 'GET') return;
-    
-    if (event.request.url.includes('cloudstrife7.github.io/basement-os-mobile/') && 
-        (event.request.url.includes('.json') || event.request.url.includes('webhook'))) {
-        return;
-    }
-    
-    event.respondWith(
-        caches.match(event.request)
-            .then(function(response) {
-                if (response) {
-                    return response;
-                }
-                
-                return fetch(event.request).catch(function() {
-                    if (event.request.headers.get('accept').includes('text/html')) {
-                        return new Response(
-                            '<h1>Basement OS Offline</h1><p>Connection lost. Please check network.</p>',
-                            { headers: { 'Content-Type': 'text/html' } }
-                        );
-                    }
-                });
-            })
     );
 });
 
@@ -106,14 +92,14 @@ self.addEventListener('push', function(event) {
 });
 
 // Handle notification clicks
-self.addEventListener('notificationclick', function(event) {
-    console.log('🖱️ Notification clicked');
-    
+self.addEventListener('notificationclick', (event) => {
+    console.log('🔔 Service Worker: Notification clicked');
     event.notification.close();
-    
-    event.waitUntil(
-        clients.openWindow('/basement-os-mobile/')
-    );
+    if (event.action === 'open' || !event.action) {
+        event.waitUntil(
+            clients.openWindow('/basement-os-mobile/')
+        );
+    }
 });
 
-console.log('🏠 Basement OS Mobile ALPHA Service Worker loaded');
+console.log('✅ Service Worker: Loaded successfully');
