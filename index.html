@@ -429,11 +429,43 @@
             border: 1px solid #ff6666;
             color: #ff6666;
         }
+
+        /* Heartbeat indicator */
+        .heartbeat-indicator {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            z-index: 9999;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            display: none;
+        }
+
+        .heartbeat-indicator.active {
+            display: block;
+        }
+
+        .heartbeat-indicator.pulse {
+            animation: heartbeat 1s;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
     <!-- Connection Status -->
     <div id="connection-status" class="connection-status online">● ONLINE</div>
+    
+    <!-- Heartbeat Indicator -->
+    <div id="heartbeat-indicator" class="heartbeat-indicator">♥ SYNC</div>
 
     <!-- Access Code Lock Screen -->
     <div id="lock-screen" class="lock-screen">
@@ -459,7 +491,7 @@
 
     <div class="container">
         <div class="header">
-            <div class="ascii-logo">BASEMENT OS MOBILE ALPHA v1.0
+            <div class="ascii-logo">BASEMENT OS MOBILE ALPHA v1.1
 ═══════════════════════════════════
 TERMINAL INTERFACE READY</div>
             <div id="user-display" class="user-display">
@@ -495,7 +527,7 @@ TERMINAL INTERFACE READY</div>
     </div>
 
     <script>
-        console.log('🚀 Starting Basement OS Mobile ALPHA...');
+        console.log('🚀 Starting Basement OS Mobile ALPHA v1.1...');
         
         // Firebase Configuration
         const firebaseConfig = {
@@ -521,6 +553,13 @@ TERMINAL INTERFACE READY</div>
         let isOnline = navigator.onLine;
         let userSessionId = null;
         let currentPushToken = null;
+        
+        // 🔥 NEW: Presence management variables
+        let heartbeatInterval = null;
+        let presenceRef = null;
+        let isUnloading = false;
+        let lastHeartbeat = Date.now();
+        let cleanupComplete = false;
 
         // Access Codes
         const ACCESS_CODES = {
@@ -539,6 +578,8 @@ TERMINAL INTERFACE READY</div>
             
             // Set up essential handlers first (login buttons work immediately)
             setupEssentialHandlers();
+            // 🔥 NEW: Setup presence management EARLY
+            setupPresenceManagement();
             initializeApp();
             checkSavedSession();
             
@@ -554,6 +595,217 @@ TERMINAL INTERFACE READY</div>
             // Setup PWA (try both service worker paths)
             setupPWA();
         });
+
+        // 🔥 NEW: Comprehensive presence management system
+        function setupPresenceManagement() {
+            console.log('🔄 Setting up presence management...');
+            
+            // 1. Page unload cleanup (primary defense against phantom users)
+            window.addEventListener('beforeunload', (event) => {
+                console.log('🚪 Page unloading - emergency cleanup');
+                isUnloading = true;
+                emergencyLogout();
+                // Don't show confirmation dialog
+            });
+
+            // 2. Visibility change detection (backup defense)
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') {
+                    console.log('👁️ Page hidden - starting delayed cleanup timer');
+                    startDelayedCleanup();
+                } else if (document.visibilityState === 'visible') {
+                    console.log('👁️ Page visible - canceling cleanup timer');
+                    cancelDelayedCleanup();
+                    if (isLoggedIntoBasement && database) {
+                        refreshPresence();
+                    }
+                }
+            });
+
+            // 3. Pagehide event (mobile-specific cleanup)
+            window.addEventListener('pagehide', (event) => {
+                console.log('📱 Page hidden (mobile) - emergency cleanup');
+                emergencyLogout();
+            });
+
+            // 4. Online/offline status monitoring
+            window.addEventListener('online', () => {
+                console.log('🌐 Connection restored');
+                isOnline = true;
+                updateConnectionStatus();
+                if (currentUser) {
+                    addTerminalMessage('>> CONNECTION RESTORED', 'system');
+                }
+                if (isLoggedIntoBasement && database) {
+                    refreshPresence();
+                }
+            });
+
+            window.addEventListener('offline', () => {
+                console.log('🌐 Connection lost');
+                isOnline = false;
+                updateConnectionStatus();
+                if (currentUser) {
+                    addTerminalMessage('>> CONNECTION LOST - Presence paused', 'error');
+                }
+            });
+
+            console.log('✅ Presence management ready');
+        }
+
+        // 🔥 NEW: Emergency logout function for immediate cleanup
+        function emergencyLogout() {
+            if (cleanupComplete || !isLoggedIntoBasement) return;
+            
+            console.log('🚨 Emergency logout initiated');
+            cleanupComplete = true;
+            
+            try {
+                if (database && userSessionId) {
+                    // Immediate cleanup without waiting for promises
+                    database.ref(`basement/users/${userSessionId}`).set({
+                        user: currentUser,
+                        online: false,
+                        leftAt: Date.now(),
+                        emergencyLogout: true
+                    });
+                    
+                    // Clear heartbeat reference
+                    if (presenceRef) {
+                        presenceRef.onDisconnect().cancel();
+                        presenceRef.set({
+                            user: currentUser,
+                            online: false,
+                            leftAt: Date.now(),
+                            disconnectCleanup: true
+                        });
+                    }
+                }
+                
+                // Stop heartbeat
+                if (heartbeatInterval) {
+                    clearInterval(heartbeatInterval);
+                    heartbeatInterval = null;
+                }
+                
+                console.log('✅ Emergency cleanup completed');
+            } catch (error) {
+                console.error('❌ Emergency cleanup failed:', error);
+            }
+        }
+
+        // 🔥 NEW: Delayed cleanup for tab switches
+        let delayedCleanupTimer = null;
+        function startDelayedCleanup() {
+            cancelDelayedCleanup();
+            
+            // Wait 30 seconds before cleanup (in case user returns)
+            delayedCleanupTimer = setTimeout(() => {
+                if (document.visibilityState === 'hidden' && isLoggedIntoBasement) {
+                    console.log('⏰ Delayed cleanup triggered - user away too long');
+                    performCleanupLogout();
+                }
+            }, 30000); // 30 second grace period
+        }
+
+        function cancelDelayedCleanup() {
+            if (delayedCleanupTimer) {
+                clearTimeout(delayedCleanupTimer);
+                delayedCleanupTimer = null;
+                console.log('⏰ Delayed cleanup canceled');
+            }
+        }
+
+        // 🔥 NEW: Clean logout for delayed cleanup
+        function performCleanupLogout() {
+            if (!isLoggedIntoBasement || cleanupComplete) return;
+            
+            console.log('🧹 Performing cleanup logout');
+            
+            if (database && userSessionId) {
+                try {
+                    database.ref(`basement/users/${userSessionId}`).update({
+                        online: false,
+                        leftAt: Date.now(),
+                        reason: 'away_cleanup'
+                    });
+                } catch (error) {
+                    console.error('❌ Cleanup logout failed:', error);
+                }
+            }
+            
+            // Update local state but don't show UI changes (user is away)
+            isLoggedIntoBasement = false;
+            
+            // Stop heartbeat
+            stopHeartbeat();
+        }
+
+        // 🔥 NEW: Refresh presence when user returns
+        function refreshPresence() {
+            if (!isLoggedIntoBasement || !database || !userSessionId) return;
+            
+            console.log('🔄 Refreshing presence');
+            
+            try {
+                database.ref(`basement/users/${userSessionId}`).update({
+                    online: true,
+                    lastSeen: Date.now(),
+                    refreshed: true
+                });
+                
+                // Reset cleanup state
+                cleanupComplete = false;
+                
+                // Restart heartbeat if needed
+                if (!heartbeatInterval) {
+                    startHeartbeat();
+                }
+                
+                addTerminalMessage('>> Presence refreshed', 'system');
+            } catch (error) {
+                console.error('❌ Presence refresh failed:', error);
+            }
+        }
+
+        // 🔥 NEW: Heartbeat system for timeout detection
+        function startHeartbeat() {
+            if (heartbeatInterval) return;
+            
+            console.log('💓 Starting heartbeat');
+            
+            heartbeatInterval = setInterval(() => {
+                if (isLoggedIntoBasement && database && userSessionId && isOnline) {
+                    try {
+                        lastHeartbeat = Date.now();
+                        database.ref(`basement/users/${userSessionId}/lastHeartbeat`).set(lastHeartbeat);
+                        
+                        // Visual heartbeat indicator
+                        const indicator = document.getElementById('heartbeat-indicator');
+                        if (indicator) {
+                            indicator.classList.add('active', 'pulse');
+                            setTimeout(() => indicator.classList.remove('pulse'), 1000);
+                        }
+                    } catch (error) {
+                        console.error('❌ Heartbeat failed:', error);
+                    }
+                }
+            }, 15000); // 15 second heartbeat
+        }
+
+        function stopHeartbeat() {
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = null;
+                console.log('💓 Heartbeat stopped');
+                
+                // Hide heartbeat indicator
+                const indicator = document.getElementById('heartbeat-indicator');
+                if (indicator) {
+                    indicator.classList.remove('active');
+                }
+            }
+        }
 
         function setupPWA() {
             console.log('📱 Setting up PWA...');
@@ -617,23 +869,6 @@ TERMINAL INTERFACE READY</div>
                     sendBtn.disabled = !hasText;
                 });
             }
-
-            // Connection monitoring
-            window.addEventListener('online', () => {
-                isOnline = true;
-                updateConnectionStatus();
-                if (currentUser) {
-                    addTerminalMessage('>> CONNECTION RESTORED', 'system');
-                }
-            });
-
-            window.addEventListener('offline', () => {
-                isOnline = false;
-                updateConnectionStatus();
-                if (currentUser) {
-                    addTerminalMessage('>> CONNECTION LOST', 'error');
-                }
-            });
 
             console.log('✅ Essential handlers ready');
         }
@@ -969,9 +1204,10 @@ TERMINAL INTERFACE READY</div>
             document.getElementById('user-display').style.display = 'block';
             
             // Welcome messages
-            addTerminalMessage('>> BASEMENT OS MOBILE ALPHA v1.0 STARTING UP...', 'system');
+            addTerminalMessage('>> BASEMENT OS MOBILE ALPHA v1.1 STARTING UP...', 'system');
             addTerminalMessage(`>> Welcome, ${currentUser}!`, 'system');
             addTerminalMessage(`>> Firebase: ${database ? 'Connected' : 'Offline mode'}`, 'system');
+            addTerminalMessage('>> 🔥 NEW: Enhanced presence management active', 'system');
             addTerminalMessage('>> Terminal ready - Type /help for commands', 'system');
             
             if (isAdmin) {
@@ -988,6 +1224,9 @@ TERMINAL INTERFACE READY</div>
             
             addTerminalMessage('>> SYSTEM READY', 'system');
             updateLastActivity();
+            
+            // Reset cleanup state
+            cleanupComplete = false;
         }
 
         function sendMessage() {
@@ -1053,6 +1292,13 @@ TERMINAL INTERFACE READY</div>
                 case '/logout':
                     logout();
                     break;
+                // 🔥 NEW: Debug commands
+                case '/heartbeat':
+                    showHeartbeatStatus();
+                    break;
+                case '/presence':
+                    showPresenceStatus();
+                    break;
                 default:
                     addTerminalMessage(`>> Unknown command: ${cmd}`, 'error');
             }
@@ -1066,6 +1312,8 @@ TERMINAL INTERFACE READY</div>
             addTerminalMessage('   /basement - Toggle basement login', 'system');
             addTerminalMessage('   /notify - Toggle notifications', 'system');
             addTerminalMessage('   /logout - Logout', 'system');
+            addTerminalMessage('   /heartbeat - Show heartbeat status', 'system');
+            addTerminalMessage('   /presence - Show presence status', 'system');
         }
 
         function showStatus() {
@@ -1077,6 +1325,28 @@ TERMINAL INTERFACE READY</div>
             addTerminalMessage(`   FCM: ${messaging ? 'Enabled' : 'Disabled'}`, 'system');
             addTerminalMessage(`   Push Token: ${currentPushToken ? 'Active' : 'None'}`, 'system');
             addTerminalMessage(`   Notifications: ${Notification.permission}`, 'system');
+            addTerminalMessage(`   Heartbeat: ${heartbeatInterval ? 'Active' : 'Inactive'}`, 'system');
+            addTerminalMessage(`   Cleanup: ${cleanupComplete ? 'Complete' : 'Ready'}`, 'system');
+        }
+
+        // 🔥 NEW: Debug commands for presence management
+        function showHeartbeatStatus() {
+            addTerminalMessage('>> HEARTBEAT STATUS:', 'system');
+            addTerminalMessage(`   Active: ${heartbeatInterval ? 'YES' : 'NO'}`, 'system');
+            if (lastHeartbeat) {
+                const timeSince = Math.floor((Date.now() - lastHeartbeat) / 1000);
+                addTerminalMessage(`   Last: ${timeSince}s ago`, 'system');
+            }
+            addTerminalMessage(`   Online: ${isOnline}`, 'system');
+        }
+
+        function showPresenceStatus() {
+            addTerminalMessage('>> PRESENCE STATUS:', 'system');
+            addTerminalMessage(`   Logged In: ${isLoggedIntoBasement}`, 'system');
+            addTerminalMessage(`   Session: ${userSessionId}`, 'system');
+            addTerminalMessage(`   Cleanup Done: ${cleanupComplete}`, 'system');
+            addTerminalMessage(`   Page Visible: ${document.visibilityState}`, 'system');
+            addTerminalMessage(`   Unloading: ${isUnloading}`, 'system');
         }
 
         function clearTerminal() {
@@ -1084,6 +1354,7 @@ TERMINAL INTERFACE READY</div>
             addTerminalMessage('>> TERMINAL CLEARED', 'system');
         }
 
+        // 🔥 UPDATED: Enhanced basement login with presence management
         function toggleBasementLogin() {
             const btn = document.getElementById('basement-btn');
             
@@ -1094,17 +1365,35 @@ TERMINAL INTERFACE READY</div>
                 
                 if (database) {
                     try {
-                        database.ref(`basement/users/${userSessionId}`).set({
+                        // Create presence reference with onDisconnect
+                        presenceRef = database.ref(`basement/users/${userSessionId}`);
+                        
+                        // Set up automatic cleanup on disconnect
+                        presenceRef.onDisconnect().set({
+                            user: currentUser,
+                            online: false,
+                            leftAt: Date.now(),
+                            disconnectCleanup: true
+                        });
+                        
+                        // Set online status
+                        presenceRef.set({
                             user: currentUser,
                             online: true,
-                            joinedAt: Date.now()
+                            joinedAt: Date.now(),
+                            lastHeartbeat: Date.now()
                         });
+                        
+                        // Start heartbeat monitoring
+                        startHeartbeat();
+                        
                     } catch (error) {
                         console.error('Firebase update failed:', error);
                     }
                 }
                 
                 addTerminalMessage(`📤 ${currentUser} joined basement`, 'basement');
+                addTerminalMessage('>> 💓 Heartbeat monitoring started', 'system');
                 
                 // Send cross-device push notification
                 if (messaging && database) {
@@ -1114,34 +1403,55 @@ TERMINAL INTERFACE READY</div>
                     );
                 }
                 
+                // Reset cleanup state
+                cleanupComplete = false;
+                
             } else {
-                isLoggedIntoBasement = false;
-                btn.textContent = '[LOGIN TO BASEMENT]';
-                btn.classList.remove('logged-in');
-                
-                if (database) {
-                    try {
-                        database.ref(`basement/users/${userSessionId}`).update({
-                            online: false,
-                            leftAt: Date.now()
-                        });
-                    } catch (error) {
-                        console.error('Firebase update failed:', error);
-                    }
-                }
-                
-                addTerminalMessage(`📤 ${currentUser} left basement`, 'basement');
-                
-                // Send cross-device push notification
-                if (messaging && database) {
-                    sendCrossDeviceNotification(
-                        'Basement Activity', 
-                        `${currentUser} left the basement`
-                    );
-                }
+                // Proper logout
+                performProperLogout();
             }
             
             updateLastActivity();
+        }
+
+        // 🔥 NEW: Proper logout function
+        function performProperLogout() {
+            isLoggedIntoBasement = false;
+            const btn = document.getElementById('basement-btn');
+            btn.textContent = '[LOGIN TO BASEMENT]';
+            btn.classList.remove('logged-in');
+            
+            if (database && userSessionId) {
+                try {
+                    // Cancel disconnect handler
+                    if (presenceRef) {
+                        presenceRef.onDisconnect().cancel();
+                    }
+                    
+                    // Update status to offline
+                    database.ref(`basement/users/${userSessionId}`).update({
+                        online: false,
+                        leftAt: Date.now(),
+                        properLogout: true
+                    });
+                } catch (error) {
+                    console.error('Firebase logout failed:', error);
+                }
+            }
+            
+            // Stop heartbeat
+            stopHeartbeat();
+            
+            addTerminalMessage(`📤 ${currentUser} left basement`, 'basement');
+            addTerminalMessage('>> 💓 Heartbeat monitoring stopped', 'system');
+            
+            // Send cross-device push notification
+            if (messaging && database) {
+                sendCrossDeviceNotification(
+                    'Basement Activity', 
+                    `${currentUser} left the basement`
+                );
+            }
         }
 
         function refreshStatus() {
@@ -1178,25 +1488,44 @@ TERMINAL INTERFACE READY</div>
             }
         }
 
+        // 🔥 UPDATED: Enhanced logout with cleanup
         function logout() {
             addTerminalMessage('>> LOGGING OUT...', 'system');
             
+            // Perform proper basement logout if needed
+            if (isLoggedIntoBasement) {
+                performProperLogout();
+            }
+            
+            // Clean up Firebase connections
             if (database && userSessionId) {
                 try {
+                    if (presenceRef) {
+                        presenceRef.onDisconnect().cancel();
+                    }
                     database.ref(`basement/users/${userSessionId}`).update({
                         online: false,
-                        lastSeen: Date.now()
+                        lastSeen: Date.now(),
+                        sessionEnded: true
                     });
                 } catch (error) {
                     console.error('Firebase cleanup failed:', error);
                 }
             }
             
+            // Stop all timers
+            stopHeartbeat();
+            cancelDelayedCleanup();
+            
+            // Clear session
             try {
                 localStorage.removeItem('basement-session');
             } catch (e) {
                 console.log('Session clear failed:', e);
             }
+            
+            // Mark cleanup as complete
+            cleanupComplete = true;
             
             setTimeout(() => location.reload(), 1500);
         }
@@ -1331,7 +1660,7 @@ TERMINAL INTERFACE READY</div>
             addTerminalMessage('>> PWA: Install prompt dismissed', 'system');
         }
 
-        console.log('✅ Basement OS script loaded');
+        console.log('✅ Basement OS v1.1 script loaded - Enhanced presence management active');
     </script>
 </body>
 </html>
