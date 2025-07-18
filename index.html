@@ -1319,6 +1319,9 @@ TERMINAL INTERFACE READY</div>
                 case '/presence':
                     showPresenceStatus();
                     break;
+                case '/test-notify':
+                    testBrowserNotifications();
+                    break;
                 default:
                     addTerminalMessage(`>> Unknown command: ${cmd}`, 'error');
             }
@@ -1334,6 +1337,7 @@ TERMINAL INTERFACE READY</div>
             addTerminalMessage('   /logout - Logout', 'system');
             addTerminalMessage('   /heartbeat - Show heartbeat status', 'system');
             addTerminalMessage('   /presence - Show presence status', 'system');
+            addTerminalMessage('   /test-notify - Test browser notifications', 'system');
         }
 
         function showStatus() {
@@ -1367,6 +1371,83 @@ TERMINAL INTERFACE READY</div>
             addTerminalMessage(`   Cleanup Done: ${cleanupComplete}`, 'system');
             addTerminalMessage(`   Page Visible: ${document.visibilityState}`, 'system');
             addTerminalMessage(`   Unloading: ${isUnloading}`, 'system');
+        }
+
+        // 🔥 NEW: Test browser notifications directly
+        function testBrowserNotifications() {
+            addTerminalMessage('>> TESTING BROWSER NOTIFICATIONS...', 'system');
+            
+            // Check notification permission
+            if (!('Notification' in window)) {
+                addTerminalMessage('>> ❌ Notifications not supported in this browser', 'error');
+                return;
+            }
+            
+            addTerminalMessage(`>> Permission status: ${Notification.permission}`, 'system');
+            
+            if (Notification.permission === 'granted') {
+                addTerminalMessage('>> 🔔 Sending test notification...', 'system');
+                
+                // Test 1: Basic browser notification
+                try {
+                    new Notification('🎮 Basement OS Test', {
+                        body: `Direct browser notification from ${currentUser}`,
+                        icon: '/basement-os-mobile/pwa/icon-192.png',
+                        badge: '/basement-os-mobile/pwa/icon-192.png',
+                        tag: 'basement-test',
+                        requireInteraction: false
+                    });
+                    addTerminalMessage('>> ✅ Browser notification sent successfully', 'system');
+                } catch (error) {
+                    addTerminalMessage(`>> ❌ Browser notification failed: ${error.message}`, 'error');
+                }
+                
+                // Test 2: Service Worker notification (if available)
+                if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
+                    navigator.serviceWorker.ready.then(registration => {
+                        try {
+                            registration.showNotification('🚀 Basement OS SW Test', {
+                                body: `Service Worker notification from ${currentUser}`,
+                                icon: '/basement-os-mobile/pwa/icon-192.png',
+                                badge: '/basement-os-mobile/pwa/icon-192.png',
+                                tag: 'basement-sw-test',
+                                vibrate: [100, 50, 100],
+                                actions: [
+                                    { action: 'open', title: 'Open Basement OS' }
+                                ]
+                            });
+                            addTerminalMessage('>> ✅ Service Worker notification sent', 'system');
+                        } catch (error) {
+                            addTerminalMessage(`>> ❌ SW notification failed: ${error.message}`, 'error');
+                        }
+                    });
+                } else {
+                    addTerminalMessage('>> ⚠️ Service Worker not ready for notifications', 'system');
+                }
+                
+                // Test 3: FCM test (if token exists)
+                if (currentPushToken) {
+                    addTerminalMessage('>> 🔔 FCM token available for testing', 'system');
+                    addTerminalMessage(`>> Token: ${currentPushToken.substring(0, 20)}...`, 'system');
+                    addTerminalMessage('>> (Firebase push requires server to actually send)', 'system');
+                } else {
+                    addTerminalMessage('>> ⚠️ No FCM token available', 'system');
+                }
+                
+            } else if (Notification.permission === 'denied') {
+                addTerminalMessage('>> ❌ Notifications blocked - enable in browser settings', 'error');
+                addTerminalMessage('>> Desktop: Click lock icon in address bar', 'system');
+                addTerminalMessage('>> Mobile: Check browser notification settings', 'system');
+            } else {
+                addTerminalMessage('>> 🔔 Requesting notification permission...', 'system');
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        addTerminalMessage('>> ✅ Permission granted - try /test-notify again', 'system');
+                    } else {
+                        addTerminalMessage('>> ❌ Permission denied', 'error');
+                    }
+                });
+            }
         }
 
         function clearTerminal() {
