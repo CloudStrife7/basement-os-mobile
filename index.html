@@ -13,15 +13,26 @@
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
 
-<!-- OneSignal SDK -->
+<!-- OneSignal SDK - CORRECTED IMPLEMENTATION -->
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="/basement-os-mobile/manifest.json">
 
-<!-- Icons -->
-<link rel="icon" type="image/png" href="/basement-os-mobile/pwa/icon-192.png">
-<link rel="apple-touch-icon" href="/basement-os-mobile/pwa/icon-192.png">
+<!-- PWA Icons -->
+<link rel="icon" type="image/png" sizes="192x192" href="/basement-os-mobile/pwa/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/basement-os-mobile/pwa/icon-512.png">
+<link rel="apple-touch-icon" sizes="192x192" href="/basement-os-mobile/pwa/icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="/basement-os-mobile/pwa/icon-512.png">
+
+<!-- PWA Theme -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Basement OS">
+
+<!-- Additional PWA Meta -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Basement OS">
 
 <style>
     * {
@@ -498,7 +509,7 @@
 
 <div class="container">
     <div class="header">
-        <div class="ascii-logo">BASEMENT OS MOBILE ALPHA v1.2.2
+        <div class="ascii-logo">BASEMENT OS MOBILE ALPHA v2.0
 ```
 
 ═══════════════════════════════════
@@ -537,7 +548,7 @@ USER: <span id="current-user">UNKNOWN</span>
 </div>
 
 <script>
-    console.log('🚀 Starting Basement OS Mobile ALPHA v1.2.2 with OneSignal...');
+    console.log('🚀 Starting Basement OS Mobile ALPHA v2.0 - Simplified OneSignal...');
     
     // Firebase Configuration (Database only)
     const firebaseConfig = {
@@ -550,30 +561,60 @@ USER: <span id="current-user">UNKNOWN</span>
         appId: "1:113802900843:web:659af7a3f62446ac96882e"
     };
 
-    // OneSignal Configuration with better initialization
+    // 🔥 CORRECTED OneSignal Implementation - Based on Official v16 Documentation
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function(OneSignal) {
         try {
+            console.log('🔔 Initializing OneSignal v16...');
+            
             await OneSignal.init({
                 appId: "a01c1cd5-cd38-4f77-8330-6654a7bc90e1",
                 safari_web_id: "web.onesignal.auto.459ab5a0-25ed-43f1-a7b1-99d986ce9992",
                 allowLocalhostAsSecureOrigin: true,
             });
             
-            console.log('✅ OneSignal initialized');
+            console.log('✅ OneSignal initialized successfully');
             oneSignalReady = true;
             
             // Set user alias when currentUser is available
             if (currentUser) {
-                OneSignal.User.addAlias("custom_user_id", currentUser);
+                await OneSignal.User.addAlias("custom_user_id", currentUser);
+                console.log('✅ OneSignal user alias set:', currentUser);
             }
             
-            // Log subscription status
-            console.log('🔔 OneSignal subscription status:', OneSignal.User.PushSubscription.optedIn);
+            // Get OneSignal ID using correct v16 API
+            const onesignalId = OneSignal.User.onesignalId; // CORRECTED: No parentheses!
+            if (onesignalId) {
+                oneSignalPlayerId = onesignalId;
+                console.log('✅ OneSignal ID:', onesignalId.substring(0, 20) + '...');
+            }
+            
+            // Check subscription status
+            const isSubscribed = OneSignal.User.PushSubscription.optedIn;
+            console.log('🔔 OneSignal subscription status:', isSubscribed);
+            
+            // Success message to terminal when user is authenticated
+            if (currentUser) {
+                addTerminalMessage('>> OneSignal: Successfully initialized', 'system');
+                if (onesignalId) {
+                    addTerminalMessage(`>> OneSignal ID: ${onesignalId.substring(0, 20)}...`, 'system');
+                }
+                if (isSubscribed) {
+                    addTerminalMessage('>> OneSignal: User is subscribed', 'system');
+                } else {
+                    addTerminalMessage('>> OneSignal: User not subscribed - use /subscribe', 'system');
+                }
+            }
             
         } catch (error) {
             console.error('❌ OneSignal initialization failed:', error);
-            addTerminalMessage('>> OneSignal: Initialization failed', 'error');
+            oneSignalReady = false;
+            
+            if (currentUser) {
+                addTerminalMessage('>> OneSignal: Initialization failed', 'error');
+                addTerminalMessage(`>> Error: ${error.message}`, 'error');
+                addTerminalMessage('>> Core app functionality works without OneSignal', 'system');
+            }
         }
     });
 
@@ -588,7 +629,7 @@ USER: <span id="current-user">UNKNOWN</span>
     let userSessionId = null;
     let oneSignalPlayerId = null;
     
-    // 🔥 Presence management variables
+    // Presence management variables
     let heartbeatInterval = null;
     let presenceRef = null;
     let isUnloading = false;
@@ -610,14 +651,12 @@ USER: <span id="current-user">UNKNOWN</span>
     document.addEventListener('DOMContentLoaded', function() {
         console.log('📱 DOM loaded, starting app initialization...');
         
-        // Set up essential handlers first (login buttons work immediately)
         setupEssentialHandlers();
-        // Setup presence management EARLY
         setupPresenceManagement();
         initializeApp();
         checkSavedSession();
         
-        // Try to initialize Firebase (optional)
+        // Initialize Firebase
         setTimeout(() => {
             if (initializeFirebase()) {
                 setupFirebaseListeners();
@@ -626,7 +665,7 @@ USER: <span id="current-user">UNKNOWN</span>
             }
         }, 100);
         
-        // Setup PWA (try both service worker paths)
+        // Setup PWA
         setupPWA();
     });
 
@@ -634,14 +673,12 @@ USER: <span id="current-user">UNKNOWN</span>
     function setupPresenceManagement() {
         console.log('🔄 Setting up presence management...');
         
-        // 1. Page unload cleanup (primary defense against phantom users)
         window.addEventListener('beforeunload', (event) => {
             console.log('🚪 Page unloading - emergency cleanup');
             isUnloading = true;
             emergencyLogout();
         });
 
-        // 2. Visibility change detection (backup defense)
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
                 console.log('👁️ Page hidden - starting delayed cleanup timer');
@@ -655,13 +692,11 @@ USER: <span id="current-user">UNKNOWN</span>
             }
         });
 
-        // 3. Pagehide event (mobile-specific cleanup)
         window.addEventListener('pagehide', (event) => {
             console.log('📱 Page hidden (mobile) - emergency cleanup');
             emergencyLogout();
         });
 
-        // 4. Online/offline status monitoring
         window.addEventListener('online', () => {
             console.log('🌐 Connection restored');
             isOnline = true;
@@ -686,7 +721,6 @@ USER: <span id="current-user">UNKNOWN</span>
         console.log('✅ Presence management ready');
     }
 
-    // Emergency logout function for immediate cleanup
     function emergencyLogout() {
         if (cleanupComplete || !isLoggedIntoBasement) return;
         
@@ -695,7 +729,6 @@ USER: <span id="current-user">UNKNOWN</span>
         
         try {
             if (database && userSessionId) {
-                // Immediate cleanup without waiting for promises
                 database.ref(`basement/users/${userSessionId}`).set({
                     user: currentUser,
                     online: false,
@@ -703,7 +736,6 @@ USER: <span id="current-user">UNKNOWN</span>
                     emergencyLogout: true
                 });
                 
-                // Clear heartbeat reference
                 if (presenceRef) {
                     presenceRef.onDisconnect().cancel();
                     presenceRef.set({
@@ -715,7 +747,6 @@ USER: <span id="current-user">UNKNOWN</span>
                 }
             }
             
-            // Stop heartbeat
             if (heartbeatInterval) {
                 clearInterval(heartbeatInterval);
                 heartbeatInterval = null;
@@ -727,18 +758,16 @@ USER: <span id="current-user">UNKNOWN</span>
         }
     }
 
-    // Delayed cleanup for tab switches
     let delayedCleanupTimer = null;
     function startDelayedCleanup() {
         cancelDelayedCleanup();
         
-        // Wait 20 minutes before cleanup (in case user returns)
         delayedCleanupTimer = setTimeout(() => {
             if (document.visibilityState === 'hidden' && isLoggedIntoBasement) {
                 console.log('⏰ Delayed cleanup triggered - user away too long');
                 performCleanupLogout();
             }
-        }, 1200000); // 20 minute grace period (20 * 60 * 1000)
+        }, 1200000); // 20 minute grace period
     }
 
     function cancelDelayedCleanup() {
@@ -749,7 +778,6 @@ USER: <span id="current-user">UNKNOWN</span>
         }
     }
 
-    // Clean logout for delayed cleanup
     function performCleanupLogout() {
         if (!isLoggedIntoBasement || cleanupComplete) return;
         
@@ -767,14 +795,10 @@ USER: <span id="current-user">UNKNOWN</span>
             }
         }
         
-        // Update local state but don't show UI changes (user is away)
         isLoggedIntoBasement = false;
-        
-        // Stop heartbeat
         stopHeartbeat();
     }
 
-    // Refresh presence when user returns
     function refreshPresence() {
         if (!isLoggedIntoBasement || !database || !userSessionId) return;
         
@@ -787,10 +811,8 @@ USER: <span id="current-user">UNKNOWN</span>
                 refreshed: true
             });
             
-            // Reset cleanup state
             cleanupComplete = false;
             
-            // Restart heartbeat if needed
             if (!heartbeatInterval) {
                 startHeartbeat();
             }
@@ -801,7 +823,6 @@ USER: <span id="current-user">UNKNOWN</span>
         }
     }
 
-    // Heartbeat system for timeout detection
     function startHeartbeat() {
         if (heartbeatInterval) return;
         
@@ -813,7 +834,6 @@ USER: <span id="current-user">UNKNOWN</span>
                     lastHeartbeat = Date.now();
                     database.ref(`basement/users/${userSessionId}/lastHeartbeat`).set(lastHeartbeat);
                     
-                    // Visual heartbeat indicator
                     const indicator = document.getElementById('heartbeat-indicator');
                     if (indicator) {
                         indicator.classList.add('active', 'pulse');
@@ -823,7 +843,7 @@ USER: <span id="current-user">UNKNOWN</span>
                     console.error('❌ Heartbeat failed:', error);
                 }
             }
-        }, 15000); // 15 second heartbeat
+        }, 15000);
     }
 
     function stopHeartbeat() {
@@ -832,7 +852,6 @@ USER: <span id="current-user">UNKNOWN</span>
             heartbeatInterval = null;
             console.log('💓 Heartbeat stopped');
             
-            // Hide heartbeat indicator
             const indicator = document.getElementById('heartbeat-indicator');
             if (indicator) {
                 indicator.classList.remove('active');
@@ -843,41 +862,53 @@ USER: <span id="current-user">UNKNOWN</span>
     function setupPWA() {
         console.log('📱 Setting up PWA...');
         
-        // Try both possible service worker locations
-        const swPaths = ['/basement-os-mobile/sw.js', '/sw.js'];
+        const isHTTPS = window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+        const hasManifest = document.querySelector('link[rel="manifest"]');
+        const hasSW = 'serviceWorker' in navigator;
         
-        if ('serviceWorker' in navigator) {
-            // Try first path
-            navigator.serviceWorker.register(swPaths[0])
-                .then(function(registration) {
-                    console.log('✅ Service Worker registered:', registration);
-                    addTerminalMessage('>> PWA: Service worker registered successfully', 'system');
-                })
-                .catch(function(error) {
-                    console.log('❌ First SW path failed, trying second path...', error);
-                    // Try second path
-                    return navigator.serviceWorker.register(swPaths[1]);
-                })
-                .then(function(registration) {
+        if (hasSW && isHTTPS) {
+            const swPaths = ['/basement-os-mobile/sw.js', '/sw.js'];
+            
+            registerPWAServiceWorker(swPaths[0])
+                .then((registration) => {
                     if (registration) {
-                        console.log('✅ Service Worker registered (second attempt):', registration);
+                        console.log('✅ PWA Service Worker registered:', registration);
                         addTerminalMessage('>> PWA: Service worker registered successfully', 'system');
+                    } else {
+                        return registerPWAServiceWorker(swPaths[1]);
                     }
                 })
-                .catch(function(error) {
-                    console.log('❌ Service Worker registration failed on both paths:', error);
-                    addTerminalMessage('>> PWA: Service worker registration failed', 'error');
-                    addTerminalMessage('>> Check that sw.js file exists', 'error');
+                .then((registration) => {
+                    if (registration) {
+                        console.log('✅ PWA Service Worker registered (second attempt):', registration);
+                        addTerminalMessage('>> PWA: Service worker registered successfully', 'system');
+                    } else {
+                        console.error('❌ PWA Service Worker registration failed on both paths');
+                        addTerminalMessage('>> PWA: Service worker registration failed', 'error');
+                    }
+                })
+                .catch((error) => {
+                    console.error('❌ PWA Service Worker registration error:', error);
+                    addTerminalMessage('>> PWA: Registration error - ' + error.message, 'error');
                 });
-        } else {
-            addTerminalMessage('>> PWA: Service workers not supported', 'error');
+        }
+    }
+
+    async function registerPWAServiceWorker(path) {
+        try {
+            const registration = await navigator.serviceWorker.register(path, {
+                scope: '/basement-os-mobile/'
+            });
+            return registration;
+        } catch (error) {
+            console.log(`PWA SW registration failed for ${path}:`, error);
+            return null;
         }
     }
 
     function setupEssentialHandlers() {
         console.log('🎮 Setting up essential handlers...');
         
-        // Numpad handlers - MUST work immediately
         document.querySelectorAll('.numpad-btn').forEach(btn => {
             btn.addEventListener('click', handleNumpadClick);
             btn.addEventListener('touchstart', function(e) {
@@ -886,7 +917,6 @@ USER: <span id="current-user">UNKNOWN</span>
             });
         });
 
-        // Chat input handlers
         const messageInput = document.getElementById('message-input');
         const sendBtn = document.getElementById('send-btn');
         
@@ -910,14 +940,12 @@ USER: <span id="current-user">UNKNOWN</span>
         console.log('🏠 Initializing app...');
         updateConnectionStatus();
         
-        // Check for saved session
         const savedSession = getSavedSession();
         if (savedSession && ACCESS_CODES[savedSession.code]) {
             authenticateUser(savedSession.code);
             return;
         }
         
-        // Show lock screen
         document.getElementById('lock-screen').style.display = 'flex';
     }
 
@@ -933,7 +961,7 @@ USER: <span id="current-user">UNKNOWN</span>
             firebase.initializeApp(firebaseConfig);
             database = firebase.database();
             
-            console.log('✅ Firebase initialized successfully (Database only)');
+            console.log('✅ Firebase initialized successfully');
             return true;
         } catch (error) {
             console.error('❌ Firebase initialization failed:', error);
@@ -941,141 +969,55 @@ USER: <span id="current-user">UNKNOWN</span>
         }
     }
 
-    // 🔥 FIXED: OneSignal notification functions with correct v16 API
-    async function setupOneSignalUser() {
+    // 🔥 SIMPLIFIED OneSignal Functions
+    async function sendOneSignalNotification(title, message) {
         if (!oneSignalReady) {
-            console.log('⏳ OneSignal not ready yet, waiting...');
-            setTimeout(setupOneSignalUser, 1000);
+            console.log('⚠️ OneSignal not ready - notification skipped');
             return;
         }
         
         try {
-            console.log('🔔 Setting up OneSignal for user:', currentUser);
+            console.log('📤 OneSignal notification (simulated):', title, message);
+            addTerminalMessage(`>> 🔔 Would send: ${title} - ${message}`, 'system');
+            addTerminalMessage('>> (Add REST API Key for actual delivery)', 'system');
             
-            // Set user alias for targeting (v16 API)
-            await OneSignal.User.addAlias("custom_user_id", currentUser);
-            
-            // Get player ID using correct v16 API
-            let playerId = null;
-            
-            // Try multiple API methods for compatibility
-            try {
-                // Method 1: v16 API
-                playerId = OneSignal.User.onesignalId;
-            } catch (e) {
-                console.log('Method 1 failed, trying method 2...');
-            }
-            
-            if (!playerId) {
-                try {
-                    // Method 2: Push subscription ID
-                    playerId = OneSignal.User.PushSubscription.id;
-                } catch (e) {
-                    console.log('Method 2 failed, trying method 3...');
-                }
-            }
-            
-            if (!playerId) {
-                try {
-                    // Method 3: Legacy API
-                    playerId = await OneSignal.getPlayerId();
-                } catch (e) {
-                    console.log('Method 3 failed, no player ID available yet');
-                }
-            }
-            
-            if (playerId) {
-                oneSignalPlayerId = playerId;
-                console.log('✅ OneSignal Player ID:', playerId.substring(0, 20) + '...');
-                addTerminalMessage('>> OneSignal: User setup complete', 'system');
-                addTerminalMessage(`>> Player ID: ${playerId.substring(0, 20)}...`, 'system');
-                
-                // Store in Firebase for cross-device targeting
-                if (database) {
-                    database.ref(`oneSignalUsers/${currentUser}`).set({
-                        playerId: playerId,
-                        timestamp: Date.now(),
-                        active: true
-                    });
-                }
-            } else {
-                console.log('⚠️ OneSignal Player ID not available yet - user may not be subscribed');
-                addTerminalMessage('>> OneSignal: Ready but no subscriber ID yet', 'system');
-                addTerminalMessage('>> Try enabling notifications first', 'system');
-            }
-            
-        } catch (error) {
-            console.error('❌ OneSignal setup failed:', error);
-            addTerminalMessage('>> OneSignal: Setup failed - ' + error.message, 'error');
-            addTerminalMessage('>> OneSignal may still work for notifications', 'system');
-        }
-    }
-
-    async function sendOneSignalNotification(title, message, targetUser = null) {
-        if (!oneSignalReady) {
-            console.log('⚠️ OneSignal not ready, skipping notification');
-            return;
-        }
-        
-        try {
-            console.log('📤 Sending OneSignal notification:', title, message);
-            
-            // For now, just simulate the notification since we don't have REST API key
-            addTerminalMessage(`>> 🔔 Would send: ${title}`, 'system');
-            addTerminalMessage(`>> Message: ${message}`, 'system');
-            
-            if (targetUser) {
-                addTerminalMessage(`>> Target: ${targetUser}`, 'system');
-            } else {
-                addTerminalMessage('>> Target: All subscribers', 'system');
-            }
-            
-            // NOTE: Actual sending requires REST API key and server setup
-            console.log('✅ OneSignal notification simulated successfully');
-            
-            /* 
-            // REAL API CALL (commented out until REST API key is added):
-            
-            const REST_API_KEY = 'YOUR_ACTUAL_REST_API_KEY'; // Replace with real key
-            
-            if (REST_API_KEY !== 'YOUR_ACTUAL_REST_API_KEY') {
-                let notification = {
-                    headings: { en: title },
-                    contents: { en: message },
-                    icon: '/basement-os-mobile/pwa/icon-192.png'
-                };
-                
-                if (targetUser) {
-                    notification.filters = [
-                        { field: "tag", key: "custom_user_id", relation: "=", value: targetUser }
-                    ];
-                } else {
-                    notification.included_segments = ["Subscribed Users"];
-                }
-                
-                const response = await fetch('https://onesignal.com/api/v1/notifications', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Basic ${REST_API_KEY}`
-                    },
-                    body: JSON.stringify({
-                        app_id: "a01c1cd5-cd38-4f77-8330-6654a7bc90e1",
-                        ...notification
-                    })
-                });
-                
-                if (response.ok) {
-                    console.log('✅ OneSignal notification sent successfully');
-                } else {
-                    throw new Error(`API call failed: ${response.status}`);
-                }
-            }
-            */
+            // For actual delivery, you need the REST API key and server-side implementation
             
         } catch (error) {
             console.error('❌ OneSignal notification failed:', error);
-            addTerminalMessage(`>> 🔔 Notification error: ${error.message}`, 'error');
+        }
+    }
+
+    async function subscribeToOneSignal() {
+        addTerminalMessage('>> REQUESTING ONESIGNAL SUBSCRIPTION...', 'system');
+        
+        if (!oneSignalReady) {
+            addTerminalMessage('>> ❌ OneSignal not ready', 'error');
+            return;
+        }
+        
+        try {
+            // Request permission using correct v16 API
+            await OneSignal.Notifications.requestPermission();
+            
+            // Wait for subscription update
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            const isSubscribed = OneSignal.User.PushSubscription.optedIn;
+            const subscriptionId = OneSignal.User.PushSubscription.id;
+            
+            if (isSubscribed) {
+                addTerminalMessage('>> ✅ Successfully subscribed to OneSignal!', 'system');
+                if (subscriptionId) {
+                    addTerminalMessage(`>> Subscription ID: ${subscriptionId.substring(0, 20)}...`, 'system');
+                }
+            } else {
+                addTerminalMessage('>> ❌ Subscription failed or declined', 'error');
+            }
+            
+        } catch (error) {
+            console.error('❌ OneSignal subscription failed:', error);
+            addTerminalMessage('>> ❌ Subscription error: ' + error.message, 'error');
         }
     }
 
@@ -1085,7 +1027,6 @@ USER: <span id="current-user">UNKNOWN</span>
         console.log('🔥 Setting up Firebase listeners...');
         
         try {
-            // Listen for basement users
             database.ref('basement/users').on('value', (snapshot) => {
                 const users = snapshot.val() || {};
                 const onlineUsers = Object.values(users).filter(user => user.online);
@@ -1099,7 +1040,6 @@ USER: <span id="current-user">UNKNOWN</span>
                 }
             });
 
-            // Listen for messages
             database.ref('messages').limitToLast(50).on('child_added', (snapshot) => {
                 const message = snapshot.val();
                 if (message && currentUser && message.sessionId !== userSessionId) {
@@ -1178,45 +1118,48 @@ USER: <span id="current-user">UNKNOWN</span>
         
         console.log(`👤 User authenticated: ${currentUser}`);
         
-        // Save session
         saveSession(code);
         
-        // Hide lock screen
         document.getElementById('lock-screen').style.display = 'none';
         
-        // Update UI
         document.getElementById('current-user').textContent = currentUser;
         document.getElementById('user-display').style.display = 'block';
         
         // Welcome messages
-        addTerminalMessage('>> BASEMENT OS MOBILE ALPHA v1.2.2 STARTING UP...', 'system');
+        addTerminalMessage('>> BASEMENT OS MOBILE ALPHA v2.0 STARTING UP...', 'system');
         addTerminalMessage(`>> Welcome, ${currentUser}!`, 'system');
         addTerminalMessage(`>> Firebase: ${database ? 'Connected' : 'Offline mode'}`, 'system');
-        addTerminalMessage('>> 🔥 NEW: OneSignal push notifications enabled (simulation mode)', 'system');
-        addTerminalMessage('>> 🔄 Enhanced presence management active', 'system');
-        addTerminalMessage('>> 📡 Push notifications in simulation mode (no server setup yet)', 'system');
+        addTerminalMessage('>> 🔔 OneSignal v16 (simplified integration)', 'system');
+        addTerminalMessage('>> 📱 Enhanced PWA installation support', 'system');
+        addTerminalMessage('>> 🔄 Presence management active (20min timeout)', 'system');
         addTerminalMessage('>> Terminal ready - Type /help for commands', 'system');
         
         if (isAdmin) {
             addTerminalMessage('>> ADMIN ACCESS GRANTED', 'system');
         }
         
-        // Setup OneSignal for this user
-        setTimeout(() => {
-            setupOneSignalUser();
-            
-            // Suggest subscription if not subscribed
-            setTimeout(() => {
-                if (oneSignalReady && !oneSignalPlayerId) {
-                    addTerminalMessage('>> 💡 TIP: Type /subscribe to enable push notifications', 'system');
+        // Set OneSignal user alias if ready
+        if (oneSignalReady) {
+            OneSignalDeferred.push(async function(OneSignal) {
+                try {
+                    await OneSignal.User.addAlias("custom_user_id", currentUser);
+                    console.log('✅ OneSignal user alias updated:', currentUser);
+                } catch (error) {
+                    console.log('⚠️ OneSignal alias update failed:', error);
                 }
+            });
+        }
+        
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        if (!isStandalone) {
+            setTimeout(() => {
+                addTerminalMessage('>> 💡 TIP: Install as PWA for best experience', 'system');
             }, 3000);
-        }, 1000);
+        }
         
         addTerminalMessage('>> SYSTEM READY', 'system');
         updateLastActivity();
         
-        // Reset cleanup state
         cleanupComplete = false;
     }
 
@@ -1229,7 +1172,6 @@ USER: <span id="current-user">UNKNOWN</span>
         if (text.startsWith('/')) {
             handleCommand(text);
         } else {
-            // Send to Firebase if available
             if (database) {
                 try {
                     database.ref('messages').push({
@@ -1239,7 +1181,6 @@ USER: <span id="current-user">UNKNOWN</span>
                         sessionId: userSessionId
                     });
                     
-                    // Send OneSignal notification for chat messages
                     if (oneSignalReady && isLoggedIntoBasement) {
                         sendOneSignalNotification(
                             'Basement Chat', 
@@ -1251,7 +1192,6 @@ USER: <span id="current-user">UNKNOWN</span>
                 }
             }
             
-            // Always show locally
             addTerminalMessage(`[${currentUser}] ${text}`, 'user');
         }
         
@@ -1292,9 +1232,6 @@ USER: <span id="current-user">UNKNOWN</span>
             case '/test-notify':
                 testBrowserNotifications();
                 break;
-            case '/test-onesignal':
-                testOneSignalNotification();
-                break;
             case '/subscribe':
                 subscribeToOneSignal();
                 break;
@@ -1314,7 +1251,6 @@ USER: <span id="current-user">UNKNOWN</span>
         addTerminalMessage('   /heartbeat - Show heartbeat status', 'system');
         addTerminalMessage('   /presence - Show presence status', 'system');
         addTerminalMessage('   /test-notify - Test browser notifications', 'system');
-        addTerminalMessage('   /test-onesignal - Test OneSignal notifications', 'system');
         addTerminalMessage('   /subscribe - Subscribe to OneSignal push', 'system');
     }
 
@@ -1324,24 +1260,26 @@ USER: <span id="current-user">UNKNOWN</span>
         addTerminalMessage(`   Admin: ${isAdmin ? 'YES' : 'NO'}`, 'system');
         addTerminalMessage(`   Basement: ${isLoggedIntoBasement ? 'YES' : 'NO'}`, 'system');
         addTerminalMessage(`   Firebase: ${database ? 'Connected' : 'Offline'}`, 'system');
-        addTerminalMessage(`   OneSignal: ${oneSignalReady ? 'Ready' : 'Loading'}`, 'system');
-        addTerminalMessage(`   Player ID: ${oneSignalPlayerId ? 'Active' : 'None/Not subscribed'}`, 'system');
+        addTerminalMessage(`   OneSignal: ${oneSignalReady ? 'Ready' : 'Failed/Loading'}`, 'system');
+        addTerminalMessage(`   OneSignal ID: ${oneSignalPlayerId ? 'Active' : 'None'}`, 'system');
         addTerminalMessage(`   Notifications: ${Notification.permission}`, 'system');
         addTerminalMessage(`   Heartbeat: ${heartbeatInterval ? 'Active' : 'Inactive'}`, 'system');
-        addTerminalMessage(`   Cleanup: ${cleanupComplete ? 'Complete' : 'Ready'}`, 'system');
         
-        // OneSignal specific diagnostics
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        const isHTTPS = window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+        addTerminalMessage(`   PWA Installed: ${isStandalone ? 'YES' : 'NO'}`, 'system');
+        addTerminalMessage(`   HTTPS: ${isHTTPS ? 'YES' : 'NO'}`, 'system');
+        
         if (oneSignalReady) {
             try {
                 const subscribed = OneSignal.User.PushSubscription.optedIn;
                 addTerminalMessage(`   OneSignal Sub: ${subscribed ? 'YES' : 'NO'}`, 'system');
             } catch (e) {
-                addTerminalMessage(`   OneSignal Sub: Unknown`, 'system');
+                addTerminalMessage(`   OneSignal Sub: Check failed`, 'system');
             }
         }
     }
 
-    // Debug commands for presence management
     function showHeartbeatStatus() {
         addTerminalMessage('>> HEARTBEAT STATUS:', 'system');
         addTerminalMessage(`   Active: ${heartbeatInterval ? 'YES' : 'NO'}`, 'system');
@@ -1361,11 +1299,9 @@ USER: <span id="current-user">UNKNOWN</span>
         addTerminalMessage(`   Unloading: ${isUnloading}`, 'system');
     }
 
-    // Test browser notifications directly
     function testBrowserNotifications() {
         addTerminalMessage('>> TESTING BROWSER NOTIFICATIONS...', 'system');
         
-        // Check notification permission
         if (!('Notification' in window)) {
             addTerminalMessage('>> ❌ Notifications not supported in this browser', 'error');
             return;
@@ -1376,7 +1312,6 @@ USER: <span id="current-user">UNKNOWN</span>
         if (Notification.permission === 'granted') {
             addTerminalMessage('>> 🔔 Sending test notification...', 'system');
             
-            // Test 1: Basic browser notification
             try {
                 new Notification('🎮 Basement OS Test', {
                     body: `Direct browser notification from ${currentUser}`,
@@ -1390,33 +1325,8 @@ USER: <span id="current-user">UNKNOWN</span>
                 addTerminalMessage(`>> ❌ Browser notification failed: ${error.message}`, 'error');
             }
             
-            // Test 2: Service Worker notification (if available)
-            if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
-                navigator.serviceWorker.ready.then(registration => {
-                    try {
-                        registration.showNotification('🚀 Basement OS SW Test', {
-                            body: `Service Worker notification from ${currentUser}`,
-                            icon: '/basement-os-mobile/pwa/icon-192.png',
-                            badge: '/basement-os-mobile/pwa/icon-192.png',
-                            tag: 'basement-sw-test',
-                            vibrate: [100, 50, 100],
-                            actions: [
-                                { action: 'open', title: 'Open Basement OS' }
-                            ]
-                        });
-                        addTerminalMessage('>> ✅ Service Worker notification sent', 'system');
-                    } catch (error) {
-                        addTerminalMessage(`>> ❌ SW notification failed: ${error.message}`, 'error');
-                    }
-                });
-            } else {
-                addTerminalMessage('>> ⚠️ Service Worker not ready for notifications', 'system');
-            }
-            
         } else if (Notification.permission === 'denied') {
             addTerminalMessage('>> ❌ Notifications blocked - enable in browser settings', 'error');
-            addTerminalMessage('>> Desktop: Click lock icon in address bar', 'system');
-            addTerminalMessage('>> Mobile: Check browser notification settings', 'system');
         } else {
             addTerminalMessage('>> 🔔 Requesting notification permission...', 'system');
             Notification.requestPermission().then(permission => {
@@ -1429,85 +1339,11 @@ USER: <span id="current-user">UNKNOWN</span>
         }
     }
 
-    // 🔥 NEW: Subscribe to OneSignal notifications
-    async function subscribeToOneSignal() {
-        addTerminalMessage('>> SUBSCRIBING TO ONESIGNAL PUSH...', 'system');
-        
-        if (!oneSignalReady) {
-            addTerminalMessage('>> ❌ OneSignal not ready yet', 'error');
-            return;
-        }
-        
-        try {
-            // Request notification permission
-            addTerminalMessage('>> Requesting notification permission...', 'system');
-            await OneSignal.Notifications.requestPermission();
-            
-            // Check if user is now subscribed
-            const isSubscribed = OneSignal.User.PushSubscription.optedIn;
-            
-            if (isSubscribed) {
-                addTerminalMessage('>> ✅ Successfully subscribed to OneSignal!', 'system');
-                
-                // Try to get player ID again
-                setTimeout(setupOneSignalUser, 2000); // Wait 2 seconds for ID to be available
-                
-            } else {
-                addTerminalMessage('>> ❌ Subscription failed or was declined', 'error');
-                addTerminalMessage('>> Check browser notification settings', 'system');
-            }
-            
-        } catch (error) {
-            console.error('❌ OneSignal subscription failed:', error);
-            addTerminalMessage('>> ❌ Subscription error: ' + error.message, 'error');
-            addTerminalMessage('>> Try enabling notifications manually in browser', 'system');
-        }
-    }
-
-    // Test OneSignal notifications with proper API
-    function testOneSignalNotification() {
-        addTerminalMessage('>> TESTING ONESIGNAL NOTIFICATIONS...', 'system');
-        
-        if (!oneSignalReady) {
-            addTerminalMessage('>> ❌ OneSignal not ready yet', 'error');
-            return;
-        }
-        
-        addTerminalMessage(`>> OneSignal ready: ${oneSignalReady}`, 'system');
-        
-        // Show player ID status
-        if (oneSignalPlayerId) {
-            addTerminalMessage(`>> Player ID: ${oneSignalPlayerId.substring(0, 20)}...`, 'system');
-        } else {
-            addTerminalMessage('>> Player ID: Not available (user may not be subscribed)', 'system');
-            addTerminalMessage('>> Try clicking the notification permission when prompted', 'system');
-        }
-        
-        // Check notification permission
-        addTerminalMessage(`>> Browser permission: ${Notification.permission}`, 'system');
-        
-        // Send test notification
-        sendOneSignalNotification(
-            '🎮 OneSignal Test',
-            `Test notification from ${currentUser} via OneSignal`
-        );
-        
-        addTerminalMessage('>> 🔔 OneSignal test completed', 'system');
-        addTerminalMessage('>> Note: Actual delivery requires REST API key setup', 'system');
-        
-        // Additional diagnostic info
-        addTerminalMessage('>> If no notifications appear:', 'system');
-        addTerminalMessage('>>   1. Enable browser notifications', 'system');
-        addTerminalMessage('>>   2. Use /subscribe to subscribe to OneSignal', 'system');
-        addTerminalMessage('>>   3. Set up REST API key for real delivery', 'system');
-    }
-
     function clearTerminal() {
         document.getElementById('terminal-content').innerHTML = '';
         addTerminalMessage('>> TERMINAL CLEARED', 'system');
     }
 
-    // Enhanced basement login with OneSignal notifications
     function toggleBasementLogin() {
         const btn = document.getElementById('basement-btn');
         
@@ -1518,10 +1354,8 @@ USER: <span id="current-user">UNKNOWN</span>
             
             if (database) {
                 try {
-                    // Create presence reference with onDisconnect
                     presenceRef = database.ref(`basement/users/${userSessionId}`);
                     
-                    // Set up automatic cleanup on disconnect
                     presenceRef.onDisconnect().set({
                         user: currentUser,
                         online: false,
@@ -1529,7 +1363,6 @@ USER: <span id="current-user">UNKNOWN</span>
                         disconnectCleanup: true
                     });
                     
-                    // Set online status
                     presenceRef.set({
                         user: currentUser,
                         online: true,
@@ -1537,7 +1370,6 @@ USER: <span id="current-user">UNKNOWN</span>
                         lastHeartbeat: Date.now()
                     });
                     
-                    // Start heartbeat monitoring
                     startHeartbeat();
                     
                 } catch (error) {
@@ -1548,7 +1380,6 @@ USER: <span id="current-user">UNKNOWN</span>
             addTerminalMessage(`📤 ${currentUser} joined basement`, 'basement');
             addTerminalMessage('>> 💓 Heartbeat monitoring started', 'system');
             
-            // Send OneSignal notification to all users
             if (oneSignalReady) {
                 sendOneSignalNotification(
                     'Basement Activity', 
@@ -1556,18 +1387,15 @@ USER: <span id="current-user">UNKNOWN</span>
                 );
             }
             
-            // Reset cleanup state
             cleanupComplete = false;
             
         } else {
-            // Proper logout
             performProperLogout();
         }
         
         updateLastActivity();
     }
 
-    // Proper logout function
     function performProperLogout() {
         isLoggedIntoBasement = false;
         const btn = document.getElementById('basement-btn');
@@ -1576,12 +1404,10 @@ USER: <span id="current-user">UNKNOWN</span>
         
         if (database && userSessionId) {
             try {
-                // Cancel disconnect handler
                 if (presenceRef) {
                     presenceRef.onDisconnect().cancel();
                 }
                 
-                // Update status to offline
                 database.ref(`basement/users/${userSessionId}`).update({
                     online: false,
                     leftAt: Date.now(),
@@ -1592,13 +1418,11 @@ USER: <span id="current-user">UNKNOWN</span>
             }
         }
         
-        // Stop heartbeat
         stopHeartbeat();
         
         addTerminalMessage(`📤 ${currentUser} left basement`, 'basement');
         addTerminalMessage('>> 💓 Heartbeat monitoring stopped', 'system');
         
-        // Send OneSignal notification to all users
         if (oneSignalReady) {
             sendOneSignalNotification(
                 'Basement Activity', 
@@ -1641,16 +1465,13 @@ USER: <span id="current-user">UNKNOWN</span>
         }
     }
 
-    // Enhanced logout with cleanup
     function logout() {
         addTerminalMessage('>> LOGGING OUT...', 'system');
         
-        // Perform proper basement logout if needed
         if (isLoggedIntoBasement) {
             performProperLogout();
         }
         
-        // Clean up Firebase connections
         if (database && userSessionId) {
             try {
                 if (presenceRef) {
@@ -1666,18 +1487,15 @@ USER: <span id="current-user">UNKNOWN</span>
             }
         }
         
-        // Stop all timers
         stopHeartbeat();
         cancelDelayedCleanup();
         
-        // Clear session
         try {
             localStorage.removeItem('basement-session');
         } catch (e) {
             console.log('Session clear failed:', e);
         }
         
-        // Mark cleanup as complete
         cleanupComplete = true;
         
         setTimeout(() => location.reload(), 1500);
@@ -1733,7 +1551,6 @@ USER: <span id="current-user">UNKNOWN</span>
         terminalContent.appendChild(messageDiv);
         terminalContent.scrollTop = terminalContent.scrollHeight;
         
-        // Keep only last 100 messages
         while (terminalContent.children.length > 100) {
             terminalContent.removeChild(terminalContent.firstChild);
         }
@@ -1786,34 +1603,7 @@ USER: <span id="current-user">UNKNOWN</span>
         return getSavedSession() !== null;
     }
 
-    function isPWAInstalled() {
-        return window.matchMedia('(display-mode: standalone)').matches || 
-               window.navigator.standalone === true;
-    }
-
-    function showManualInstallInstructions() {
-        addTerminalMessage('>> PWA INSTALL INSTRUCTIONS:', 'system');
-        if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-            addTerminalMessage('>> iOS: Tap Share button → Add to Home Screen', 'system');
-        } else if (/Android/.test(navigator.userAgent)) {
-            addTerminalMessage('>> Android: Menu → Add to Home Screen', 'system');
-        } else {
-            addTerminalMessage('>> Desktop: Check browser menu for "Install" option', 'system');
-        }
-    }
-
-    function installPWA() {
-        // This function is for the PWA prompt button
-        addTerminalMessage('>> PWA: Manual installation required', 'system');
-        showManualInstallInstructions();
-    }
-
-    function dismissPWAPrompt() {
-        // This function is for dismissing PWA prompts
-        addTerminalMessage('>> PWA: Install prompt dismissed', 'system');
-    }
-
-    console.log('✅ Basement OS v1.2.2 script loaded - OneSignal integration active');
+    console.log('✅ Basement OS v2.0 script loaded - Simplified OneSignal integration');
 </script>
 ```
 
