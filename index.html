@@ -493,7 +493,7 @@
 
     <div class="container">
         <div class="header">
-            <div class="ascii-logo">BASEMENT OS MOBILE ALPHA v1.2
+            <div class="ascii-logo">BASEMENT OS MOBILE ALPHA v1.2.1
 ═══════════════════════════════════
 TERMINAL INTERFACE READY</div>
             <div id="user-display" class="user-display">
@@ -529,7 +529,7 @@ TERMINAL INTERFACE READY</div>
     </div>
 
     <script>
-        console.log('🚀 Starting Basement OS Mobile ALPHA v1.2 with OneSignal...');
+        console.log('🚀 Starting Basement OS Mobile ALPHA v1.2.1 with OneSignal...');
         
         // Firebase Configuration (Database only)
         const firebaseConfig = {
@@ -542,20 +542,31 @@ TERMINAL INTERFACE READY</div>
             appId: "1:113802900843:web:659af7a3f62446ac96882e"
         };
 
-        // OneSignal Configuration
+        // OneSignal Configuration with better initialization
         window.OneSignalDeferred = window.OneSignalDeferred || [];
         OneSignalDeferred.push(async function(OneSignal) {
-            await OneSignal.init({
-                appId: "a01c1cd5-cd38-4f77-8330-6654a7bc90e1",
-                safari_web_id: "web.onesignal.auto.459ab5a0-25ed-43f1-a7b1-99d986ce9992",
-                // Custom UI - no notify button
-            });
-            
-            console.log('✅ OneSignal initialized');
-            oneSignalReady = true;
-            
-            // Store user ID when available
-            OneSignal.User.addAlias("custom_user_id", currentUser || "anonymous");
+            try {
+                await OneSignal.init({
+                    appId: "a01c1cd5-cd38-4f77-8330-6654a7bc90e1",
+                    safari_web_id: "web.onesignal.auto.459ab5a0-25ed-43f1-a7b1-99d986ce9992",
+                    allowLocalhostAsSecureOrigin: true,
+                });
+                
+                console.log('✅ OneSignal initialized');
+                oneSignalReady = true;
+                
+                // Set user alias when currentUser is available
+                if (currentUser) {
+                    OneSignal.User.addAlias("custom_user_id", currentUser);
+                }
+                
+                // Log subscription status
+                console.log('🔔 OneSignal subscription status:', OneSignal.User.PushSubscription.optedIn);
+                
+            } catch (error) {
+                console.error('❌ OneSignal initialization failed:', error);
+                addTerminalMessage('>> OneSignal: Initialization failed', 'error');
+            }
         });
 
         // Global variables
@@ -922,7 +933,7 @@ TERMINAL INTERFACE READY</div>
             }
         }
 
-        // 🔥 NEW: OneSignal notification functions
+        // 🔥 FIXED: OneSignal notification functions with correct v16 API
         async function setupOneSignalUser() {
             if (!oneSignalReady) {
                 console.log('⏳ OneSignal not ready yet, waiting...');
@@ -933,15 +944,43 @@ TERMINAL INTERFACE READY</div>
             try {
                 console.log('🔔 Setting up OneSignal for user:', currentUser);
                 
-                // Set user alias for targeting
+                // Set user alias for targeting (v16 API)
                 await OneSignal.User.addAlias("custom_user_id", currentUser);
                 
-                // Get player ID for debugging
-                const playerId = await OneSignal.User.getOnesignalId();
+                // Get player ID using correct v16 API
+                let playerId = null;
+                
+                // Try multiple API methods for compatibility
+                try {
+                    // Method 1: v16 API
+                    playerId = OneSignal.User.onesignalId;
+                } catch (e) {
+                    console.log('Method 1 failed, trying method 2...');
+                }
+                
+                if (!playerId) {
+                    try {
+                        // Method 2: Push subscription ID
+                        playerId = OneSignal.User.PushSubscription.id;
+                    } catch (e) {
+                        console.log('Method 2 failed, trying method 3...');
+                    }
+                }
+                
+                if (!playerId) {
+                    try {
+                        // Method 3: Legacy API
+                        playerId = await OneSignal.getPlayerId();
+                    } catch (e) {
+                        console.log('Method 3 failed, no player ID available yet');
+                    }
+                }
+                
                 if (playerId) {
                     oneSignalPlayerId = playerId;
                     console.log('✅ OneSignal Player ID:', playerId.substring(0, 20) + '...');
                     addTerminalMessage('>> OneSignal: User setup complete', 'system');
+                    addTerminalMessage(`>> Player ID: ${playerId.substring(0, 20)}...`, 'system');
                     
                     // Store in Firebase for cross-device targeting
                     if (database) {
@@ -952,13 +991,15 @@ TERMINAL INTERFACE READY</div>
                         });
                     }
                 } else {
-                    console.log('⚠️ OneSignal Player ID not available yet');
-                    addTerminalMessage('>> OneSignal: Waiting for subscriber ID...', 'system');
+                    console.log('⚠️ OneSignal Player ID not available yet - user may not be subscribed');
+                    addTerminalMessage('>> OneSignal: Ready but no subscriber ID yet', 'system');
+                    addTerminalMessage('>> Try enabling notifications first', 'system');
                 }
                 
             } catch (error) {
                 console.error('❌ OneSignal setup failed:', error);
                 addTerminalMessage('>> OneSignal: Setup failed - ' + error.message, 'error');
+                addTerminalMessage('>> OneSignal may still work for notifications', 'system');
             }
         }
 
@@ -1123,7 +1164,7 @@ TERMINAL INTERFACE READY</div>
             document.getElementById('user-display').style.display = 'block';
             
             // Welcome messages
-            addTerminalMessage('>> BASEMENT OS MOBILE ALPHA v1.2 STARTING UP...', 'system');
+            addTerminalMessage('>> BASEMENT OS MOBILE ALPHA v1.2.1 STARTING UP...', 'system');
             addTerminalMessage(`>> Welcome, ${currentUser}!`, 'system');
             addTerminalMessage(`>> Firebase: ${database ? 'Connected' : 'Offline mode'}`, 'system');
             addTerminalMessage('>> 🔥 NEW: OneSignal push notifications enabled', 'system');
@@ -1135,7 +1176,16 @@ TERMINAL INTERFACE READY</div>
             }
             
             // Setup OneSignal for this user
-            setupOneSignalUser();
+            setTimeout(() => {
+                setupOneSignalUser();
+                
+                // Suggest subscription if not subscribed
+                setTimeout(() => {
+                    if (oneSignalReady && !oneSignalPlayerId) {
+                        addTerminalMessage('>> 💡 TIP: Type /subscribe to enable push notifications', 'system');
+                    }
+                }, 3000);
+            }, 1000);
             
             addTerminalMessage('>> SYSTEM READY', 'system');
             updateLastActivity();
@@ -1219,6 +1269,9 @@ TERMINAL INTERFACE READY</div>
                 case '/test-onesignal':
                     testOneSignalNotification();
                     break;
+                case '/subscribe':
+                    subscribeToOneSignal();
+                    break;
                 default:
                     addTerminalMessage(`>> Unknown command: ${cmd}`, 'error');
             }
@@ -1236,6 +1289,7 @@ TERMINAL INTERFACE READY</div>
             addTerminalMessage('   /presence - Show presence status', 'system');
             addTerminalMessage('   /test-notify - Test browser notifications', 'system');
             addTerminalMessage('   /test-onesignal - Test OneSignal notifications', 'system');
+            addTerminalMessage('   /subscribe - Subscribe to OneSignal push', 'system');
         }
 
         function showStatus() {
@@ -1245,10 +1299,20 @@ TERMINAL INTERFACE READY</div>
             addTerminalMessage(`   Basement: ${isLoggedIntoBasement ? 'YES' : 'NO'}`, 'system');
             addTerminalMessage(`   Firebase: ${database ? 'Connected' : 'Offline'}`, 'system');
             addTerminalMessage(`   OneSignal: ${oneSignalReady ? 'Ready' : 'Loading'}`, 'system');
-            addTerminalMessage(`   Player ID: ${oneSignalPlayerId ? 'Active' : 'None'}`, 'system');
+            addTerminalMessage(`   Player ID: ${oneSignalPlayerId ? 'Active' : 'None/Not subscribed'}`, 'system');
             addTerminalMessage(`   Notifications: ${Notification.permission}`, 'system');
             addTerminalMessage(`   Heartbeat: ${heartbeatInterval ? 'Active' : 'Inactive'}`, 'system');
             addTerminalMessage(`   Cleanup: ${cleanupComplete ? 'Complete' : 'Ready'}`, 'system');
+            
+            // OneSignal specific diagnostics
+            if (oneSignalReady) {
+                try {
+                    const subscribed = OneSignal.User.PushSubscription.optedIn;
+                    addTerminalMessage(`   OneSignal Sub: ${subscribed ? 'YES' : 'NO'}`, 'system');
+                } catch (e) {
+                    addTerminalMessage(`   OneSignal Sub: Unknown`, 'system');
+                }
+            }
         }
 
         // Debug commands for presence management
@@ -1339,7 +1403,42 @@ TERMINAL INTERFACE READY</div>
             }
         }
 
-        // 🔥 NEW: Test OneSignal notifications
+        // 🔥 NEW: Subscribe to OneSignal notifications
+        async function subscribeToOneSignal() {
+            addTerminalMessage('>> SUBSCRIBING TO ONESIGNAL PUSH...', 'system');
+            
+            if (!oneSignalReady) {
+                addTerminalMessage('>> ❌ OneSignal not ready yet', 'error');
+                return;
+            }
+            
+            try {
+                // Request notification permission
+                addTerminalMessage('>> Requesting notification permission...', 'system');
+                await OneSignal.Notifications.requestPermission();
+                
+                // Check if user is now subscribed
+                const isSubscribed = OneSignal.User.PushSubscription.optedIn;
+                
+                if (isSubscribed) {
+                    addTerminalMessage('>> ✅ Successfully subscribed to OneSignal!', 'system');
+                    
+                    // Try to get player ID again
+                    setTimeout(setupOneSignalUser, 2000); // Wait 2 seconds for ID to be available
+                    
+                } else {
+                    addTerminalMessage('>> ❌ Subscription failed or was declined', 'error');
+                    addTerminalMessage('>> Check browser notification settings', 'system');
+                }
+                
+            } catch (error) {
+                console.error('❌ OneSignal subscription failed:', error);
+                addTerminalMessage('>> ❌ Subscription error: ' + error.message, 'error');
+                addTerminalMessage('>> Try enabling notifications manually in browser', 'system');
+            }
+        }
+
+        // Test OneSignal notifications with proper API
         function testOneSignalNotification() {
             addTerminalMessage('>> TESTING ONESIGNAL NOTIFICATIONS...', 'system');
             
@@ -1349,7 +1448,17 @@ TERMINAL INTERFACE READY</div>
             }
             
             addTerminalMessage(`>> OneSignal ready: ${oneSignalReady}`, 'system');
-            addTerminalMessage(`>> Player ID: ${oneSignalPlayerId ? oneSignalPlayerId.substring(0, 20) + '...' : 'None'}`, 'system');
+            
+            // Show player ID status
+            if (oneSignalPlayerId) {
+                addTerminalMessage(`>> Player ID: ${oneSignalPlayerId.substring(0, 20)}...`, 'system');
+            } else {
+                addTerminalMessage('>> Player ID: Not available (user may not be subscribed)', 'system');
+                addTerminalMessage('>> Try clicking the notification permission when prompted', 'system');
+            }
+            
+            // Check notification permission
+            addTerminalMessage(`>> Browser permission: ${Notification.permission}`, 'system');
             
             // Send test notification
             sendOneSignalNotification(
@@ -1359,6 +1468,12 @@ TERMINAL INTERFACE READY</div>
             
             addTerminalMessage('>> 🔔 OneSignal test notification sent', 'system');
             addTerminalMessage('>> (Requires REST API key for actual delivery)', 'system');
+            
+            // Additional diagnostic info
+            addTerminalMessage('>> If no notifications appear:', 'system');
+            addTerminalMessage('>>   1. Enable browser notifications', 'system');
+            addTerminalMessage('>>   2. Check OneSignal subscription status', 'system');
+            addTerminalMessage('>>   3. Add REST API key for real delivery', 'system');
         }
 
         function clearTerminal() {
@@ -1672,7 +1787,7 @@ TERMINAL INTERFACE READY</div>
             addTerminalMessage('>> PWA: Install prompt dismissed', 'system');
         }
 
-        console.log('✅ Basement OS v1.2 script loaded - OneSignal integration active');
+        console.log('✅ Basement OS v1.2.1 script loaded - OneSignal integration active');
     </script>
 </body>
 </html>
