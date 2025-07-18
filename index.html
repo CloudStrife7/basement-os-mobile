@@ -946,14 +946,15 @@ TERMINAL INTERFACE READY</div>
 
                 console.log('✅ Notification permission granted, registering custom service worker...');
                 
-                // 🔥 NEW: Register service worker at correct path
+                // 🔥 FIXED: Register service worker at correct path first
                 if ('serviceWorker' in navigator) {
                     const registration = await navigator.serviceWorker.register('/basement-os-mobile/firebase-messaging-sw.js');
                     console.log('✅ Firebase messaging service worker registered:', registration);
                     addTerminalMessage('>> Firebase service worker registered at correct path', 'system');
                     
-                    // Tell Firebase to use our custom service worker
-                    messaging.useServiceWorker(registration);
+                    // Wait for service worker to be ready
+                    await navigator.serviceWorker.ready;
+                    console.log('✅ Service worker ready');
                 } else {
                     console.log('❌ Service workers not supported');
                     addTerminalMessage('>> Service workers not supported in this browser', 'error');
@@ -962,8 +963,11 @@ TERMINAL INTERFACE READY</div>
                 
                 console.log('🔔 Getting push token with custom service worker...');
                 
-                // Get push token
-                const token = await messaging.getToken({ vapidKey: vapidKey });
+                // Get push token (Firebase will use the registered service worker)
+                const token = await messaging.getToken({ 
+                    vapidKey: vapidKey,
+                    serviceWorkerRegistration: await navigator.serviceWorker.getRegistration('/basement-os-mobile/')
+                });
                 console.log('🔔 getToken result:', token ? 'Got token' : 'No token');
                 
                 if (token) {
