@@ -7,10 +7,12 @@
     <meta name="theme-color" content="#000000">
     <title>Basement OS Mobile ALPHA</title>
     
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (Database only - no messaging) -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
+    
+    <!-- OneSignal SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="/basement-os-mobile/manifest.json">
@@ -491,7 +493,7 @@
 
     <div class="container">
         <div class="header">
-            <div class="ascii-logo">BASEMENT OS MOBILE ALPHA v1.1
+            <div class="ascii-logo">BASEMENT OS MOBILE ALPHA v1.2
 ═══════════════════════════════════
 TERMINAL INTERFACE READY</div>
             <div id="user-display" class="user-display">
@@ -527,9 +529,9 @@ TERMINAL INTERFACE READY</div>
     </div>
 
     <script>
-        console.log('🚀 Starting Basement OS Mobile ALPHA v1.1...');
+        console.log('🚀 Starting Basement OS Mobile ALPHA v1.2 with OneSignal...');
         
-        // Firebase Configuration
+        // Firebase Configuration (Database only)
         const firebaseConfig = {
             apiKey: "AIzaSyCmp0gJNFkRqUMpmeV_yk9batETciCiON8",
             authDomain: "basement-chat.firebaseapp.com",
@@ -540,21 +542,34 @@ TERMINAL INTERFACE READY</div>
             appId: "1:113802900843:web:659af7a3f62446ac96882e"
         };
 
-        // VAPID Key for Web Push
-        const vapidKey = "BHvvE9s4Mcn2Hmq0-mk3TiTQaA1iWeL3xkLz3WuTpmt54z5XeIvOB96ASzCGSEPkf9GjC-QDRV2czAmkzxNxXKo";
+        // OneSignal Configuration
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.init({
+                appId: "a01c1cd5-cd38-4f77-8330-6654a7bc90e1",
+                safari_web_id: "web.onesignal.auto.459ab5a0-25ed-43f1-a7b1-99d986ce9992",
+                // Custom UI - no notify button
+            });
+            
+            console.log('✅ OneSignal initialized');
+            oneSignalReady = true;
+            
+            // Store user ID when available
+            OneSignal.User.addAlias("custom_user_id", currentUser || "anonymous");
+        });
 
         // Global variables
         let database = null;
-        let messaging = null;
+        let oneSignalReady = false;
         let currentUser = null;
         let isAdmin = false;
         let isLoggedIntoBasement = false;
         let enteredCode = '';
         let isOnline = navigator.onLine;
         let userSessionId = null;
-        let currentPushToken = null;
+        let oneSignalPlayerId = null;
         
-        // 🔥 NEW: Presence management variables
+        // 🔥 Presence management variables
         let heartbeatInterval = null;
         let presenceRef = null;
         let isUnloading = false;
@@ -578,7 +593,7 @@ TERMINAL INTERFACE READY</div>
             
             // Set up essential handlers first (login buttons work immediately)
             setupEssentialHandlers();
-            // 🔥 NEW: Setup presence management EARLY
+            // Setup presence management EARLY
             setupPresenceManagement();
             initializeApp();
             checkSavedSession();
@@ -596,7 +611,7 @@ TERMINAL INTERFACE READY</div>
             setupPWA();
         });
 
-        // 🔥 NEW: Comprehensive presence management system
+        // Comprehensive presence management system
         function setupPresenceManagement() {
             console.log('🔄 Setting up presence management...');
             
@@ -605,7 +620,6 @@ TERMINAL INTERFACE READY</div>
                 console.log('🚪 Page unloading - emergency cleanup');
                 isUnloading = true;
                 emergencyLogout();
-                // Don't show confirmation dialog
             });
 
             // 2. Visibility change detection (backup defense)
@@ -653,7 +667,7 @@ TERMINAL INTERFACE READY</div>
             console.log('✅ Presence management ready');
         }
 
-        // 🔥 NEW: Emergency logout function for immediate cleanup
+        // Emergency logout function for immediate cleanup
         function emergencyLogout() {
             if (cleanupComplete || !isLoggedIntoBasement) return;
             
@@ -694,7 +708,7 @@ TERMINAL INTERFACE READY</div>
             }
         }
 
-        // 🔥 NEW: Delayed cleanup for tab switches
+        // Delayed cleanup for tab switches
         let delayedCleanupTimer = null;
         function startDelayedCleanup() {
             cancelDelayedCleanup();
@@ -716,7 +730,7 @@ TERMINAL INTERFACE READY</div>
             }
         }
 
-        // 🔥 NEW: Clean logout for delayed cleanup
+        // Clean logout for delayed cleanup
         function performCleanupLogout() {
             if (!isLoggedIntoBasement || cleanupComplete) return;
             
@@ -741,7 +755,7 @@ TERMINAL INTERFACE READY</div>
             stopHeartbeat();
         }
 
-        // 🔥 NEW: Refresh presence when user returns
+        // Refresh presence when user returns
         function refreshPresence() {
             if (!isLoggedIntoBasement || !database || !userSessionId) return;
             
@@ -768,7 +782,7 @@ TERMINAL INTERFACE READY</div>
             }
         }
 
-        // 🔥 NEW: Heartbeat system for timeout detection
+        // Heartbeat system for timeout detection
         function startHeartbeat() {
             if (heartbeatInterval) return;
             
@@ -900,18 +914,7 @@ TERMINAL INTERFACE READY</div>
                 firebase.initializeApp(firebaseConfig);
                 database = firebase.database();
                 
-                // Initialize Firebase Messaging for push notifications
-                if (firebase.messaging) {
-                    messaging = firebase.messaging();
-                    console.log('✅ Firebase Messaging initialized');
-                    
-                    // Set up FCM
-                    setupFCM();
-                } else {
-                    console.log('⚠️ Firebase Messaging not available');
-                }
-                
-                console.log('✅ Firebase initialized successfully');
+                console.log('✅ Firebase initialized successfully (Database only)');
                 return true;
             } catch (error) {
                 console.error('❌ Firebase initialization failed:', error);
@@ -919,199 +922,95 @@ TERMINAL INTERFACE READY</div>
             }
         }
 
-        async function setupFCM() {
+        // 🔥 NEW: OneSignal notification functions
+        async function setupOneSignalUser() {
+            if (!oneSignalReady) {
+                console.log('⏳ OneSignal not ready yet, waiting...');
+                setTimeout(setupOneSignalUser, 1000);
+                return;
+            }
+            
             try {
-                console.log('🔔 Setting up Firebase Cloud Messaging...');
+                console.log('🔔 Setting up OneSignal for user:', currentUser);
                 
-                // Check if notifications are supported
-                if (!('Notification' in window)) {
-                    console.log('❌ Notifications not supported in this browser');
-                    addTerminalMessage('>> NOTIFICATIONS: Not supported in this browser', 'error');
-                    return;
-                }
+                // Set user alias for targeting
+                await OneSignal.User.addAlias("custom_user_id", currentUser);
                 
-                console.log('✅ Notifications supported, current permission:', Notification.permission);
-                
-                // Request notification permission
-                console.log('🔔 Requesting notification permission...');
-                const permission = await Notification.requestPermission();
-                console.log('🔔 Permission result:', permission);
-                
-                if (permission !== 'granted') {
-                    console.log('⚠️ Notification permission denied:', permission);
-                    addTerminalMessage('>> NOTIFICATIONS: Permission denied', 'error');
-                    addTerminalMessage('>> Enable in browser settings to receive alerts', 'system');
-                    return;
-                }
-
-                console.log('✅ Notification permission granted, registering custom service worker...');
-                
-                // 🔥 FIXED: Register service worker at correct path first
-                if ('serviceWorker' in navigator) {
-                    const registration = await navigator.serviceWorker.register('/basement-os-mobile/firebase-messaging-sw.js');
-                    console.log('✅ Firebase messaging service worker registered:', registration);
-                    addTerminalMessage('>> Firebase service worker registered at correct path', 'system');
+                // Get player ID for debugging
+                const playerId = await OneSignal.User.getOnesignalId();
+                if (playerId) {
+                    oneSignalPlayerId = playerId;
+                    console.log('✅ OneSignal Player ID:', playerId.substring(0, 20) + '...');
+                    addTerminalMessage('>> OneSignal: User setup complete', 'system');
                     
-                    // Wait for service worker to be ready
-                    await navigator.serviceWorker.ready;
-                    console.log('✅ Service worker ready');
-                } else {
-                    console.log('❌ Service workers not supported');
-                    addTerminalMessage('>> Service workers not supported in this browser', 'error');
-                    return;
-                }
-                
-                console.log('🔔 Getting push token with custom service worker...');
-                
-                // Get push token (Firebase will use the registered service worker)
-                const token = await messaging.getToken({ 
-                    vapidKey: vapidKey,
-                    serviceWorkerRegistration: await navigator.serviceWorker.getRegistration('/basement-os-mobile/')
-                });
-                console.log('🔔 getToken result:', token ? 'Got token' : 'No token');
-                
-                if (token) {
-                    currentPushToken = token;
-                    console.log('✅ Push token generated:', token.substring(0, 20) + '...');
-                    addTerminalMessage('>> Push token generated successfully', 'system');
-                    
-                    if (currentUser) {
-                        await storePushToken(token);
-                        addTerminalMessage('>> Push notifications enabled for cross-device alerts', 'system');
-                    }
-                } else {
-                    console.log('⚠️ No registration token available');
-                    addTerminalMessage('>> NOTIFICATIONS: Failed to generate push token', 'error');
-                    addTerminalMessage('>> Check browser console for details', 'system');
-                }
-
-                // Listen for foreground messages
-                messaging.onMessage((payload) => {
-                    console.log('📱 Foreground message received:', payload);
-                    
-                    // Show notification even in foreground
-                    if (payload.notification) {
-                        addTerminalMessage(`🔔 ${payload.notification.body}`, 'basement');
-                        
-                        // Show browser notification
-                        new Notification(payload.notification.title, {
-                            body: payload.notification.body,
-                            icon: '/basement-os-mobile/pwa/icon-192.png'
+                    // Store in Firebase for cross-device targeting
+                    if (database) {
+                        database.ref(`oneSignalUsers/${currentUser}`).set({
+                            playerId: playerId,
+                            timestamp: Date.now(),
+                            active: true
                         });
                     }
-                });
-
-                console.log('✅ FCM setup complete');
+                } else {
+                    console.log('⚠️ OneSignal Player ID not available yet');
+                    addTerminalMessage('>> OneSignal: Waiting for subscriber ID...', 'system');
+                }
                 
             } catch (error) {
-                console.error('❌ FCM setup failed with error:', error);
-                addTerminalMessage('>> NOTIFICATIONS: Setup failed - ' + error.message, 'error');
-                
-                // Show specific error info
-                if (error.code) {
-                    console.error('Error code:', error.code);
-                    addTerminalMessage('>> Error code: ' + error.code, 'error');
-                }
+                console.error('❌ OneSignal setup failed:', error);
+                addTerminalMessage('>> OneSignal: Setup failed - ' + error.message, 'error');
             }
         }
 
-        async function storePushToken(token) {
-            if (!database || !currentUser) return;
+        async function sendOneSignalNotification(title, message, targetUser = null) {
+            if (!oneSignalReady) {
+                console.log('⚠️ OneSignal not ready, skipping notification');
+                return;
+            }
             
             try {
-                // Store token linked to user and device
-                const deviceId = generateDeviceId();
-                await database.ref(`pushTokens/${currentUser}/${deviceId}`).set({
-                    token: token,
-                    timestamp: Date.now(),
-                    userAgent: navigator.userAgent.substring(0, 100),
-                    active: true
-                });
+                console.log('📤 Sending OneSignal notification:', title, message);
                 
-                console.log('✅ Push token stored for', currentUser);
-            } catch (error) {
-                console.error('❌ Failed to store push token:', error);
-            }
-        }
-
-        function generateDeviceId() {
-            // Generate a unique device identifier
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.textBaseline = 'top';
-            ctx.font = '14px Arial';
-            ctx.fillText('Device fingerprint', 2, 2);
-            const fingerprint = canvas.toDataURL().substring(0, 50);
-            
-            return btoa(navigator.userAgent + fingerprint + screen.width + screen.height).substring(0, 20);
-        }
-
-        async function sendCrossDeviceNotification(title, body, excludeCurrentDevice = true) {
-            if (!database) return;
-            
-            try {
-                // Get all users' push tokens
-                const tokensSnapshot = await database.ref('pushTokens').once('value');
-                const allTokens = tokensSnapshot.val() || {};
+                let notification = {
+                    headings: { en: title },
+                    contents: { en: message },
+                    icon: '/basement-os-mobile/pwa/icon-192.png'
+                };
                 
-                const targetTokens = [];
-                const currentDeviceId = generateDeviceId();
-                
-                // Collect tokens from all users/devices (except current device if excluded)
-                Object.entries(allTokens).forEach(([username, devices]) => {
-                    Object.entries(devices).forEach(([deviceId, tokenData]) => {
-                        if (excludeCurrentDevice && username === currentUser && deviceId === currentDeviceId) {
-                            return; // Skip current device
-                        }
-                        
-                        if (tokenData.active && tokenData.token) {
-                            targetTokens.push({
-                                token: tokenData.token,
-                                user: username,
-                                device: deviceId
-                            });
-                        }
-                    });
-                });
-
-                if (targetTokens.length === 0) {
-                    console.log('📱 No target devices for push notification');
-                    return;
+                if (targetUser) {
+                    // Target specific user by alias
+                    notification.filters = [
+                        { field: "tag", key: "custom_user_id", relation: "=", value: targetUser }
+                    ];
+                } else {
+                    // Send to all subscribed users
+                    notification.included_segments = ["Subscribed Users"];
                 }
-
-                // Store notification request in Firebase (to be picked up by cloud function)
-                await database.ref('notificationRequests').push({
-                    title: title,
-                    body: body,
-                    tokens: targetTokens.map(t => t.token),
-                    sender: currentUser,
-                    timestamp: Date.now(),
-                    processed: false
-                });
-
-                console.log(`📤 Notification queued for ${targetTokens.length} devices`);
                 
-                // For development: Also use the simple HTTP approach
-                await sendDirectPushNotification(title, body, targetTokens);
+                // Send via OneSignal REST API
+                const response = await fetch('https://onesignal.com/api/v1/notifications', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic YOUR_REST_API_KEY' // Would need real API key
+                    },
+                    body: JSON.stringify({
+                        app_id: "a01c1cd5-cd38-4f77-8330-6654a7bc90e1",
+                        ...notification
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log('✅ OneSignal notification sent successfully');
+                } else {
+                    console.log('⚠️ OneSignal notification simulated (no REST API key)');
+                    addTerminalMessage(`>> 🔔 Would send: ${title} - ${message}`, 'system');
+                }
                 
             } catch (error) {
-                console.error('❌ Failed to send cross-device notification:', error);
+                console.error('❌ OneSignal notification failed:', error);
+                addTerminalMessage(`>> 🔔 Notification error: ${error.message}`, 'error');
             }
-        }
-
-        async function sendDirectPushNotification(title, body, targetTokens) {
-            // Direct FCM HTTP API call (for development - normally done by cloud function)
-            const serverKey = 'YOUR_SERVER_KEY'; // Would need server key for production
-            
-            // For now, just log what would be sent
-            console.log('🔔 Would send push notification:', {
-                title: title,
-                body: body,
-                targets: targetTokens.length + ' devices'
-            });
-            
-            // In production, this would be handled by Firebase Functions
-            // For demo purposes, we'll rely on the real-time database updates
         }
 
         function setupFirebaseListeners() {
@@ -1224,23 +1123,19 @@ TERMINAL INTERFACE READY</div>
             document.getElementById('user-display').style.display = 'block';
             
             // Welcome messages
-            addTerminalMessage('>> BASEMENT OS MOBILE ALPHA v1.1 STARTING UP...', 'system');
+            addTerminalMessage('>> BASEMENT OS MOBILE ALPHA v1.2 STARTING UP...', 'system');
             addTerminalMessage(`>> Welcome, ${currentUser}!`, 'system');
             addTerminalMessage(`>> Firebase: ${database ? 'Connected' : 'Offline mode'}`, 'system');
-            addTerminalMessage('>> 🔥 NEW: Enhanced presence management active', 'system');
+            addTerminalMessage('>> 🔥 NEW: OneSignal push notifications enabled', 'system');
+            addTerminalMessage('>> 🔄 Enhanced presence management active', 'system');
             addTerminalMessage('>> Terminal ready - Type /help for commands', 'system');
             
             if (isAdmin) {
                 addTerminalMessage('>> ADMIN ACCESS GRANTED', 'system');
             }
             
-            // Store push token for this user
-            if (currentPushToken && database) {
-                storePushToken(currentPushToken);
-                addTerminalMessage('>> Push notifications enabled for cross-device alerts', 'system');
-            } else if (messaging) {
-                addTerminalMessage('>> Setting up push notifications...', 'system');
-            }
+            // Setup OneSignal for this user
+            setupOneSignalUser();
             
             addTerminalMessage('>> SYSTEM READY', 'system');
             updateLastActivity();
@@ -1268,9 +1163,9 @@ TERMINAL INTERFACE READY</div>
                             sessionId: userSessionId
                         });
                         
-                        // Send cross-device push notification for chat messages
-                        if (messaging && isLoggedIntoBasement) {
-                            sendCrossDeviceNotification(
+                        // Send OneSignal notification for chat messages
+                        if (oneSignalReady && isLoggedIntoBasement) {
+                            sendOneSignalNotification(
                                 'Basement Chat', 
                                 `${currentUser}: ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`
                             );
@@ -1312,7 +1207,6 @@ TERMINAL INTERFACE READY</div>
                 case '/logout':
                     logout();
                     break;
-                // 🔥 NEW: Debug commands
                 case '/heartbeat':
                     showHeartbeatStatus();
                     break;
@@ -1321,6 +1215,9 @@ TERMINAL INTERFACE READY</div>
                     break;
                 case '/test-notify':
                     testBrowserNotifications();
+                    break;
+                case '/test-onesignal':
+                    testOneSignalNotification();
                     break;
                 default:
                     addTerminalMessage(`>> Unknown command: ${cmd}`, 'error');
@@ -1338,6 +1235,7 @@ TERMINAL INTERFACE READY</div>
             addTerminalMessage('   /heartbeat - Show heartbeat status', 'system');
             addTerminalMessage('   /presence - Show presence status', 'system');
             addTerminalMessage('   /test-notify - Test browser notifications', 'system');
+            addTerminalMessage('   /test-onesignal - Test OneSignal notifications', 'system');
         }
 
         function showStatus() {
@@ -1346,14 +1244,14 @@ TERMINAL INTERFACE READY</div>
             addTerminalMessage(`   Admin: ${isAdmin ? 'YES' : 'NO'}`, 'system');
             addTerminalMessage(`   Basement: ${isLoggedIntoBasement ? 'YES' : 'NO'}`, 'system');
             addTerminalMessage(`   Firebase: ${database ? 'Connected' : 'Offline'}`, 'system');
-            addTerminalMessage(`   FCM: ${messaging ? 'Enabled' : 'Disabled'}`, 'system');
-            addTerminalMessage(`   Push Token: ${currentPushToken ? 'Active' : 'None'}`, 'system');
+            addTerminalMessage(`   OneSignal: ${oneSignalReady ? 'Ready' : 'Loading'}`, 'system');
+            addTerminalMessage(`   Player ID: ${oneSignalPlayerId ? 'Active' : 'None'}`, 'system');
             addTerminalMessage(`   Notifications: ${Notification.permission}`, 'system');
             addTerminalMessage(`   Heartbeat: ${heartbeatInterval ? 'Active' : 'Inactive'}`, 'system');
             addTerminalMessage(`   Cleanup: ${cleanupComplete ? 'Complete' : 'Ready'}`, 'system');
         }
 
-        // 🔥 NEW: Debug commands for presence management
+        // Debug commands for presence management
         function showHeartbeatStatus() {
             addTerminalMessage('>> HEARTBEAT STATUS:', 'system');
             addTerminalMessage(`   Active: ${heartbeatInterval ? 'YES' : 'NO'}`, 'system');
@@ -1373,7 +1271,7 @@ TERMINAL INTERFACE READY</div>
             addTerminalMessage(`   Unloading: ${isUnloading}`, 'system');
         }
 
-        // 🔥 NEW: Test browser notifications directly
+        // Test browser notifications directly
         function testBrowserNotifications() {
             addTerminalMessage('>> TESTING BROWSER NOTIFICATIONS...', 'system');
             
@@ -1425,15 +1323,6 @@ TERMINAL INTERFACE READY</div>
                     addTerminalMessage('>> ⚠️ Service Worker not ready for notifications', 'system');
                 }
                 
-                // Test 3: FCM test (if token exists)
-                if (currentPushToken) {
-                    addTerminalMessage('>> 🔔 FCM token available for testing', 'system');
-                    addTerminalMessage(`>> Token: ${currentPushToken.substring(0, 20)}...`, 'system');
-                    addTerminalMessage('>> (Firebase push requires server to actually send)', 'system');
-                } else {
-                    addTerminalMessage('>> ⚠️ No FCM token available', 'system');
-                }
-                
             } else if (Notification.permission === 'denied') {
                 addTerminalMessage('>> ❌ Notifications blocked - enable in browser settings', 'error');
                 addTerminalMessage('>> Desktop: Click lock icon in address bar', 'system');
@@ -1450,12 +1339,34 @@ TERMINAL INTERFACE READY</div>
             }
         }
 
+        // 🔥 NEW: Test OneSignal notifications
+        function testOneSignalNotification() {
+            addTerminalMessage('>> TESTING ONESIGNAL NOTIFICATIONS...', 'system');
+            
+            if (!oneSignalReady) {
+                addTerminalMessage('>> ❌ OneSignal not ready yet', 'error');
+                return;
+            }
+            
+            addTerminalMessage(`>> OneSignal ready: ${oneSignalReady}`, 'system');
+            addTerminalMessage(`>> Player ID: ${oneSignalPlayerId ? oneSignalPlayerId.substring(0, 20) + '...' : 'None'}`, 'system');
+            
+            // Send test notification
+            sendOneSignalNotification(
+                '🎮 OneSignal Test',
+                `Test notification from ${currentUser} via OneSignal`
+            );
+            
+            addTerminalMessage('>> 🔔 OneSignal test notification sent', 'system');
+            addTerminalMessage('>> (Requires REST API key for actual delivery)', 'system');
+        }
+
         function clearTerminal() {
             document.getElementById('terminal-content').innerHTML = '';
             addTerminalMessage('>> TERMINAL CLEARED', 'system');
         }
 
-        // 🔥 UPDATED: Enhanced basement login with presence management
+        // Enhanced basement login with OneSignal notifications
         function toggleBasementLogin() {
             const btn = document.getElementById('basement-btn');
             
@@ -1496,9 +1407,9 @@ TERMINAL INTERFACE READY</div>
                 addTerminalMessage(`📤 ${currentUser} joined basement`, 'basement');
                 addTerminalMessage('>> 💓 Heartbeat monitoring started', 'system');
                 
-                // Send cross-device push notification
-                if (messaging && database) {
-                    sendCrossDeviceNotification(
+                // Send OneSignal notification to all users
+                if (oneSignalReady) {
+                    sendOneSignalNotification(
                         'Basement Activity', 
                         `${currentUser} joined the basement`
                     );
@@ -1515,7 +1426,7 @@ TERMINAL INTERFACE READY</div>
             updateLastActivity();
         }
 
-        // 🔥 NEW: Proper logout function
+        // Proper logout function
         function performProperLogout() {
             isLoggedIntoBasement = false;
             const btn = document.getElementById('basement-btn');
@@ -1546,9 +1457,9 @@ TERMINAL INTERFACE READY</div>
             addTerminalMessage(`📤 ${currentUser} left basement`, 'basement');
             addTerminalMessage('>> 💓 Heartbeat monitoring stopped', 'system');
             
-            // Send cross-device push notification
-            if (messaging && database) {
-                sendCrossDeviceNotification(
+            // Send OneSignal notification to all users
+            if (oneSignalReady) {
+                sendOneSignalNotification(
                     'Basement Activity', 
                     `${currentUser} left the basement`
                 );
@@ -1589,7 +1500,7 @@ TERMINAL INTERFACE READY</div>
             }
         }
 
-        // 🔥 UPDATED: Enhanced logout with cleanup
+        // Enhanced logout with cleanup
         function logout() {
             addTerminalMessage('>> LOGGING OUT...', 'system');
             
@@ -1761,7 +1672,7 @@ TERMINAL INTERFACE READY</div>
             addTerminalMessage('>> PWA: Install prompt dismissed', 'system');
         }
 
-        console.log('✅ Basement OS v1.1 script loaded - Enhanced presence management active');
+        console.log('✅ Basement OS v1.2 script loaded - OneSignal integration active');
     </script>
 </body>
 </html>
