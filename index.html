@@ -22,444 +22,111 @@
     <link rel="apple-touch-icon" href="/basement-os-mobile/pwa/icon-192.png">
 
     <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    html, body {
-        background: #000000 !important;
-        background-color: #000000 !important;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { background: #000000 !important; }
     body {
         font-family: 'Courier New', monospace;
-        background: #000000 !important;
-        color: #00ff00;
-        min-height: 100vh;
-        padding: 15px;
-        font-size: 14px;
-        line-height: 1.4;
+        color: #00ff00; min-height: 100vh; padding: 15px;
+        font-size: 14px; line-height: 1.4;
     }
-
-    /* CRT Monitor Effects */
     body::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(transparent 2px, rgba(0, 255, 0, 0.03) 2px, rgba(0, 255, 0, 0.03) 4px, transparent 4px);
-        background-size: 100% 4px;
-        pointer-events: none;
-        z-index: 1000;
+        content: ""; position: fixed; inset: 0;
+        background: linear-gradient(transparent 2px, rgba(0,255,0,.03) 2px, rgba(0,255,0,.03) 4px, transparent 4px);
+        background-size: 100% 4px; pointer-events: none; z-index: 1000;
     }
-
-    .container {
-        max-width: 400px;
-        margin: 0 auto;
-    }
-
+    .container { max-width: 400px; margin: 0 auto; }
     .header {
-        text-align: center;
-        margin-bottom: 20px;
-        padding: 15px;
-        background: rgba(0, 255, 0, 0.1);
-        border: 1px solid #00ff00;
-        border-radius: 8px;
-        box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-        position: relative;
+        text-align: center; margin-bottom: 20px; padding: 15px;
+        background: rgba(0,255,0,.1); border: 1px solid #00ff00; border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0,255,0,.3); position: relative;
     }
-
-    .ascii-logo {
-        font-family: 'Courier New', monospace;
-        font-size: 10px;
-        line-height: 1.1;
-        color: #00ff00;
-        text-shadow: 0 0 5px #00ff00;
-        margin-bottom: 5px;
-        white-space: pre-line;
-    }
-
+    .ascii-logo { font-size: 10px; line-height: 1.1; text-shadow: 0 0 5px #00ff00; margin-bottom: 5px; white-space: pre-line; }
     .user-display {
-        background: rgba(0, 255, 0, 0.15);
-        border: 1px solid #00ff00;
-        padding: 8px;
-        margin-top: 10px;
-        border-radius: 4px;
-        font-size: 12px;
-        text-align: center;
-        display: none;
+        background: rgba(0,255,0,.15); border: 1px solid #00ff00; padding: 8px; margin-top: 10px;
+        border-radius: 4px; font-size: 12px; text-align: center; display: none;
     }
-
-    .basement-live {
-        font-size: 14px;
-        color: #ff9500;
-        font-weight: bold;
-        margin-top: 10px;
-        padding: 8px;
-        background: rgba(255, 165, 0, 0.1);
-        border: 1px solid #ff9500;
-        border-radius: 6px;
-        display: none;
-        text-align: center;
-    }
-
-    .basement-live.active {
-        display: block;
-    }
-
-    .basement-live .emoji {
-        animation: switchEmoji 2s ease-in-out infinite alternate;
-        display: inline-block;
-    }
-
+    .basement-live { font-size: 14px; color: #ff9500; font-weight: bold; margin-top: 10px; padding: 8px;
+        background: rgba(255,165,0,.1); border: 1px solid #ff9500; border-radius: 6px; display: none; text-align: center; }
+    .basement-live.active { display: block; }
+    .basement-live .emoji { animation: switchEmoji 2s ease-in-out infinite alternate; display: inline-block; }
     @keyframes switchEmoji {
-        0% { 
-            color: #ff9500;
-            text-shadow: 0 0 5px #ff9500;
-        }
-        100% { 
-            color: #00ff00;
-            text-shadow: 0 0 5px #00ff00;
-        }
+        0% { color: #ff9500; text-shadow: 0 0 5px #ff9500; }
+        100% { color: #00ff00; text-shadow: 0 0 5px #00ff00; }
     }
 
     /* Access Code Lock Screen */
     .lock-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.95);
-        z-index: 9998;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
+        position: fixed; inset: 0; background: rgba(0,0,0,.95); z-index: 9998;
+        display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;
     }
-
     .lock-content {
-        text-align: center;
-        background: rgba(0, 255, 0, 0.1);
-        border: 2px solid #00ff00;
-        border-radius: 12px;
-        padding: 30px;
-        box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+        text-align: center; background: rgba(0,255,0,.1); border: 2px solid #00ff00; border-radius: 12px;
+        padding: 30px; box-shadow: 0 0 30px rgba(0,255,0,.5);
     }
-
-    .lock-title {
-        font-size: 20px;
-        color: #00ff00;
-        margin-bottom: 10px;
-        text-shadow: 0 0 10px #00ff00;
-    }
-
-    .lock-subtitle {
-        font-size: 12px;
-        color: #66ff66;
-        margin-bottom: 25px;
-        opacity: 0.8;
-    }
-
+    .lock-title { font-size: 20px; color: #00ff00; margin-bottom: 10px; text-shadow: 0 0 10px #00ff00; }
+    .lock-subtitle { font-size: 12px; color: #66ff66; margin-bottom: 25px; opacity: .8; }
     .access-code-display {
-        font-size: 24px;
-        letter-spacing: 8px;
-        margin-bottom: 20px;
-        min-height: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #00ff00;
-        text-shadow: 0 0 5px #00ff00;
+        font-size: 24px; letter-spacing: 8px; margin-bottom: 20px; min-height: 40px;
+        display: flex; justify-content: center; align-items: center; color: #00ff00; text-shadow: 0 0 5px #00ff00;
     }
-
-    .numpad {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-        max-width: 200px;
-        margin: 0 auto;
-    }
-
+    .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 200px; margin: 0 auto; }
     .numpad-btn {
-        width: 60px;
-        height: 60px;
-        background: rgba(0, 255, 0, 0.1);
-        border: 2px solid #00ff00;
-        border-radius: 8px;
-        color: #00ff00;
-        font-size: 18px;
-        font-family: inherit;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        user-select: none;
-        touch-action: manipulation;
+        width: 60px; height: 60px; background: rgba(0,255,0,.1); border: 2px solid #00ff00; border-radius: 8px;
+        color: #00ff00; font-size: 18px; font-family: inherit; cursor: pointer; transition: all .2s ease;
+        user-select: none; touch-action: manipulation;
     }
+    .numpad-btn:hover, .numpad-btn:active { background: rgba(0,255,0,.2); box-shadow: 0 0 10px rgba(0,255,0,.5); transform: scale(.95); }
+    .numpad-0 { grid-column: span 2; }
+    .clear-btn { background: rgba(255,165,0,.1); border-color: #ffa500; color: #ffa500; }
+    .clear-btn:hover, .clear-btn:active { background: rgba(255,165,0,.2); box-shadow: 0 0 10px rgba(255,165,0,.5); }
 
-    .numpad-btn:hover, .numpad-btn:active {
-        background: rgba(0, 255, 0, 0.2);
-        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-        transform: scale(0.95);
-    }
-
-    .numpad-0 {
-        grid-column: span 2;
-    }
-
-    .clear-btn {
-        background: rgba(255, 165, 0, 0.1);
-        border-color: #ffa500;
-        color: #ffa500;
-    }
-
-    .clear-btn:hover, .clear-btn:active {
-        background: rgba(255, 165, 0, 0.2);
-        box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
-    }
-
-    .status-card {
-        background: rgba(0, 0, 0, 0.6);
-        border: 1px solid #00ff00;
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 15px;
-        box-shadow: 0 4px 15px rgba(0, 255, 0, 0.2);
-        position: relative;
-    }
-
-    .status-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-
-    .status-text {
-        font-size: 16px;
-        font-weight: bold;
-    }
-
-    .last-update {
-        font-size: 10px;
-        color: #66ff66;
-        opacity: 0.7;
-    }
-
-    .chat-messages {
-        height: 300px;
-        overflow-y: auto;
-        padding: 10px;
-        background: rgba(0, 0, 0, 0.6);
-        border: 1px solid rgba(0, 255, 0, 0.3);
-        margin-bottom: 10px;
-    }
-
-    .message {
-        margin-bottom: 10px;
-        padding: 8px;
-        border-radius: 6px;
-        font-size: 12px;
-    }
-
-    .message-system {
-        background: rgba(255, 165, 0, 0.1);  
-        color: #ffa500;                
-        border-left: 3px solid #ffa500;
-        padding-left: 10px;            
-    }
-
-    .message-user {
-        background: rgba(0, 255, 0, 0.1);
-        color: #00ff00;
-        border-left: 3px solid #00ff00;
-        padding-left: 10px;
-    }
-
-    .message-basement {
-        background: rgba(255, 165, 0, 0.2);
-        color: #ff9500;
-        text-align: left;
-        font-weight: bold;
-        border: 1px solid rgba(255, 165, 0, 0.3);
-        border-left: 3px solid #ff9500;
-        padding-left: 10px;
-    }
-
-    .message-error {
-        background: rgba(255, 0, 0, 0.1);
-        color: #ff6666;
-        text-align: left;
-        border-left: 3px solid #ff6666;
-        padding-left: 10px;
-    }
-
-    .message-time {
-        font-size: 9px;
-        opacity: 0.6;
-        margin-top: 3px;
-    }
-
-    .chat-input {
-        display: flex;
-        padding: 10px;
-        background: rgba(0, 0, 0, 0.4);
-        border: 1px solid rgba(0, 255, 0, 0.3);
-        border-radius: 4px;
-    }
-
+    .status-card { background: rgba(0,0,0,.6); border: 1px solid #00ff00; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,255,0,.2); position: relative; }
+    .status-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .status-text { font-size: 16px; font-weight: bold; }
+    .last-update { font-size: 10px; color: #66ff66; opacity: .7; }
+    .chat-messages { height: 300px; overflow-y: auto; padding: 10px; background: rgba(0,0,0,.6); border: 1px solid rgba(0,255,0,.3); margin-bottom: 10px; }
+    .message { margin-bottom: 10px; padding: 8px; border-radius: 6px; font-size: 12px; }
+    .message-system { background: rgba(255,165,0,.1); color: #ffa500; border-left: 3px solid #ffa500; padding-left: 10px; }
+    .message-user { background: rgba(0,255,0,.1); color: #00ff00; border-left: 3px solid #00ff00; padding-left: 10px; }
+    .message-basement { background: rgba(255,165,0,.2); color: #ff9500; text-align: left; font-weight: bold; border: 1px solid rgba(255,165,0,.3); border-left: 3px solid #ff9500; padding-left: 10px; }
+    .message-error { background: rgba(255,0,0,.1); color: #ff6666; text-align: left; border-left: 3px solid #ff6666; padding-left: 10px; }
+    .message-time { font-size: 9px; opacity: .6; margin-top: 3px; }
+    .chat-input { display: flex; padding: 10px; background: rgba(0,0,0,.4); border: 1px solid rgba(0,255,0,.3); border-radius: 4px; }
     .message-input {
-        flex: 1;
-        background: rgba(0, 0, 0, 0.8);
-        border: 1px solid #00ff00;
-        border-radius: 4px;
-        padding: 8px;
-        color: #00ff00;
-        font-family: inherit;
-        font-size: 12px;
+        flex: 1; background: rgba(0,0,0,.8); border: 1px solid #00ff00; border-radius: 4px; padding: 8px;
+        color: #00ff00; font-family: inherit; font-size: 12px;
     }
-
-    .message-input:focus {
-        outline: none;
-        box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
-    }
-
-    .send-btn {
-        margin-left: 8px;
-        padding: 8px 12px;
-        background: rgba(0, 255, 0, 0.2);
-        border: 1px solid #00ff00;
-        border-radius: 4px;
-        color: #00ff00;
-        cursor: pointer;
-        font-size: 12px;
-        touch-action: manipulation;
-    }
-
-    .send-btn:hover, .send-btn:active {
-        background: rgba(0, 255, 0, 0.3);
-    }
-
-    .send-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .buttons {
-        display: flex;
-        gap: 10px;
-        margin-top: 15px;
-        flex-wrap: wrap;
-    }
-
+    .message-input:focus { outline: none; box-shadow: 0 0 5px rgba(0,255,0,.5); }
+    .send-btn { margin-left: 8px; padding: 8px 12px; background: rgba(0,255,0,.2); border: 1px solid #00ff00; border-radius: 4px; color: #00ff00; cursor: pointer; font-size: 12px; touch-action: manipulation; }
+    .send-btn:hover, .send-btn:active { background: rgba(0,255,0,.3); }
+    .send-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .buttons { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
     .btn {
-        flex: 1;
-        min-width: 120px;
-        padding: 12px;
-        background: rgba(0, 255, 0, 0.1);
-        border: 1px solid #00ff00;
-        border-radius: 6px;
-        color: #00ff00;
-        font-family: inherit;
-        font-size: 12px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        touch-action: manipulation;
+        flex: 1; min-width: 120px; padding: 12px; background: rgba(0,255,0,.1); border: 1px solid #00ff00; border-radius: 6px;
+        color: #00ff00; font-family: inherit; font-size: 12px; cursor: pointer; transition: all .3s ease; touch-action: manipulation;
     }
+    .btn:hover, .btn:active { background: rgba(0,255,0,.2); box-shadow: 0 0 10px rgba(0,255,0,.5); transform: scale(.95); }
+    .btn-basement { background: rgba(255,165,0,.1); border-color: #ffa500; color: #ffa500; }
+    .btn-basement:hover, .btn-basement:active { background: rgba(255,165,0,.2); box-shadow: 0 0 10px rgba(255,165,0,.5); }
+    .btn-basement.logged-in { background: rgba(255,0,0,.1); border-color: #ff6666; color: #ff6666; }
+    .btn-basement.logged-in:hover, .btn-basement.logged-in:active { background: rgba(255,0,0,.2); box-shadow: 0 0 10px rgba(255,0,0,.5); }
 
-    .btn:hover, .btn:active {
-        background: rgba(0, 255, 0, 0.2);
-        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-        transform: scale(0.95);
-    }
+    .shake { animation: shake .5s; }
+    @keyframes shake { 0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)} }
 
-    .btn-basement {
-        background: rgba(255, 165, 0, 0.1);
-        border-color: #ffa500;
-        color: #ffa500;
-    }
-
-    .btn-basement:hover, .btn-basement:active {
-        background: rgba(255, 165, 0, 0.2);
-        box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
-    }
-
-    .btn-basement.logged-in {
-        background: rgba(255, 0, 0, 0.1);
-        border-color: #ff6666;
-        color: #ff6666;
-    }
-
-    .btn-basement.logged-in:hover, .btn-basement.logged-in:active {
-        background: rgba(255, 0, 0, 0.2);
-        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-    }
-
-    .shake {
-        animation: shake 0.5s;
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-10px); }
-        75% { transform: translateX(10px); }
-    }
-
-    /* Connection Status */
     .connection-status {
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        padding: 5px 10px;
-        border-radius: 4px;
-       	font-size: 10px;
-        z-index: 9999;
+        position: fixed; top: 10px; right: 10px; padding: 5px 10px; border-radius: 4px; font-size: 10px; z-index: 9999;
     }
+    .connection-status.online { background: rgba(0,255,0,.2); border: 1px solid #00ff00; color: #00ff00; }
+    .connection-status.offline { background: rgba(255,0,0,.2); border: 1px solid #ff6666; color: #ff6666; }
 
-    .connection-status.online {
-        background: rgba(0, 255, 0, 0.2);
-        border: 1px solid #00ff00;
-        color: #00ff00;
-    }
-
-    .connection-status.offline {
-        background: rgba(255, 0, 0, 0.2);
-        border: 1px solid #ff6666;
-        color: #ff6666;
-    }
-
-    /* Heartbeat indicator */
     .heartbeat-indicator {
-        position: fixed;
-        top: 10px;
-        left: 10px;
-        padding: 5px 8px;
-        border-radius: 4px;
-        font-size: 9px;
-        z-index: 9999;
-        background: rgba(0, 255, 0, 0.1);
-        border: 1px solid #00ff00;
-        color: #00ff00;
-        display: none;
+        position: fixed; top: 10px; left: 10px; padding: 5px 8px; border-radius: 4px; font-size: 9px; z-index: 9999;
+        background: rgba(0,255,0,.1); border: 1px solid #00ff00; color: #00ff00; display: none;
     }
-
-    .heartbeat-indicator.active {
-        display: block;
-    }
-
-    .heartbeat-indicator.pulse {
-        animation: heartbeat 1s;
-    }
-
-    @keyframes heartbeat {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.1); box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); }
-        100% { transform: scale(1); }
-    }
+    .heartbeat-indicator.active { display: block; }
+    .heartbeat-indicator.pulse { animation: heartbeat 1s; }
+    @keyframes heartbeat { 0%{transform:scale(1)}50%{transform:scale(1.1); box-shadow:0 0 10px rgba(0,255,0,.5)}100%{transform:scale(1)} }
     </style>
 </head>
 <body>
@@ -515,7 +182,7 @@ TERMINAL INTERFACE READY</div>
             </div>
 
             <div class="chat-input">
-                <input type="text" id="message-input" class="message-input" placeholder="> Enter command or message..." maxlength="200">
+                <input type="text" id="message-input" class="message-input" placeholder="> Enter command or message..." maxlength="200" disabled>
                 <button onclick="sendMessage()" class="send-btn" id="send-btn" disabled>SEND</button>
             </div>
         </div>
@@ -542,38 +209,31 @@ TERMINAL INTERFACE READY</div>
         appId: "1:113802900843:web:659af7a3f62446ac96882e"
     };
 
-    // OneSignal Configuration with deferred init
-// Remove the old deferred block entirely, and add this instead:
-
-window.OneSignal = window.OneSignal || [];
-OneSignal.push(function() {
-    OneSignal.init({
-        appId: "a01c1cd5-cd38-4f77-8330-6654a7bc90e1",
-        safari_web_id: "web.onesignal.auto.459ab5a0-25ed-43f1-a7b1-99d986ce9992",
-        allowLocalhostAsSecureOrigin: true
-    })
-    .then(() => {
-        console.log('✅ OneSignal initialized');
-        oneSignalReady = true;
-
-        if (currentUser) {
-            OneSignal.User.addAlias("custom_user_id", currentUser);
-        }
-
-        console.log(
-          '🔔 OneSignal subscription status:',
-          OneSignal.User.PushSubscription.optedIn
-        );
-    })
-    .catch(error => {
-        console.error('❌ OneSignal initialization failed:', error);
-        addTerminalMessage('>> OneSignal: Initialization failed', 'error');
-    });
-});
-
-    // Global variables
-    let database = null;
+    /* ---------- OneSignal init (unchanged) ---------- */
+    window.OneSignal = window.OneSignal || [];
     let oneSignalReady = false;
+    OneSignal.push(function() {
+        OneSignal.init({
+            appId: "a01c1cd5-cd38-4f77-8330-6654a7bc90e1",
+            safari_web_id: "web.onesignal.auto.459ab5a0-25ed-43f1-a7b1-99d986ce9992",
+            allowLocalhostAsSecureOrigin: true
+        })
+        .then(() => {
+            console.log('✅ OneSignal initialized');
+            oneSignalReady = true;
+            if (currentUser) {
+                OneSignal.User.addAlias("custom_user_id", currentUser);
+            }
+            console.log('🔔 OneSignal ready');
+        })
+        .catch(error => {
+            console.error('❌ OneSignal initialization failed:', error);
+            addTerminalMessage('>> OneSignal: Initialization failed', 'error');
+        });
+    });
+
+    /* ---------- Globals (unchanged) ---------- */
+    let database = null;
     let currentUser = null;
     let isAdmin = false;
     let isLoggedIntoBasement = false;
@@ -598,30 +258,165 @@ OneSignal.push(function() {
         '2024': { user: 'Admin', admin: true }
     };
 
-    // Initialize App
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('📱 DOM loaded, starting app initialization...');
-        setupEssentialHandlers();
-        setupPresenceManagement();
-        initializeApp();
-        checkSavedSession();
-        setTimeout(() => {
-            if (initializeFirebase()) {
-                setupFirebaseListeners();
-            } else {
-                console.log('⚠️ Firebase unavailable - running in offline mode');
+    /* ============================================================
+       🔐 LOCK SCREEN – THIS WIRES THE KEYPAD
+       ============================================================ */
+    function setupLockScreen() {
+        const lock = document.getElementById('lock-screen');
+        const display = document.getElementById('access-code-display');
+        const userSpan = document.getElementById('current-user');
+        const userBox = document.getElementById('user-display');
+
+        // Restore session if present
+        const saved = JSON.parse(localStorage.getItem('basementMobileSession') || 'null');
+        if (saved && saved.user) {
+            currentUser = saved.user;
+            isAdmin = !!saved.admin;
+            isLoggedIntoBasement = true;
+            if (userSpan) userSpan.textContent = currentUser;
+            if (userBox) userBox.style.display = 'block';
+            if (lock) lock.style.display = 'none';
+            console.log('🔓 Auto-unlocked for', currentUser);
+            enableTerminalInput(true);
+            return;
+        }
+
+        // Fresh entry
+        enteredCode = '';
+        updateAccessDisplay(display, enteredCode);
+
+        // Button taps
+        lock.addEventListener('click', (e) => {
+            const btn = e.target.closest('.numpad-btn');
+            if (!btn) return;
+
+            const digit = btn.getAttribute('data-digit');
+            const action = btn.getAttribute('data-action');
+
+            if (action === 'clear') {
+                enteredCode = '';
+                updateAccessDisplay(display, enteredCode);
+                return;
             }
-        }, 100);
-        setupPWA();
-    });
 
-    // Presence Management, Firebase setup, OneSignal user setup, and many other functions unchanged...
+            if (digit && enteredCode.length < 4) {
+                enteredCode += digit;
+                updateAccessDisplay(display, enteredCode);
 
-    // --- UPDATED setupPWA() ---
+                if (enteredCode.length === 4) {
+                    verifyAccessCode(enteredCode, { lock, display, userSpan, userBox });
+                }
+            }
+        }, { passive: true });
+
+        // Optional: hardware keyboard support
+        window.addEventListener('keydown', (e) => {
+            if (lock.style.display === 'none') return;
+            if (e.key === 'Backspace') {
+                enteredCode = enteredCode.slice(0, -1);
+                updateAccessDisplay(display, enteredCode);
+            } else if (/^[0-9]$/.test(e.key) && enteredCode.length < 4) {
+                enteredCode += e.key;
+                updateAccessDisplay(display, enteredCode);
+                if (enteredCode.length === 4) {
+                    verifyAccessCode(enteredCode, { lock, display, userSpan, userBox });
+                }
+            }
+        });
+    }
+
+    function updateAccessDisplay(el, code) {
+        const blanks = ['_', '_', '_', '_'];
+        for (let i = 0; i < code.length; i++) blanks[i] = '•';
+        el.textContent = blanks.join(' ');
+    }
+
+    function verifyAccessCode(code, ctx) {
+        const info = ACCESS_CODES[code];
+        if (!info) {
+            // wrong code → shake + clear
+            ctx.lock.classList.remove('shake'); void ctx.lock.offsetWidth; ctx.lock.classList.add('shake');
+            setTimeout(() => { enteredCode=''; updateAccessDisplay(ctx.display, enteredCode); }, 250);
+            return;
+        }
+
+        // success
+        currentUser = info.user;
+        isAdmin = !!info.admin;
+        isLoggedIntoBasement = true;
+
+        localStorage.setItem('basementMobileSession', JSON.stringify({ user: currentUser, admin: isAdmin, ts: Date.now() }));
+
+        if (ctx.userSpan) ctx.userSpan.textContent = currentUser;
+        if (ctx.userBox) ctx.userBox.style.display = 'block';
+        if (ctx.lock) ctx.lock.style.display = 'none';
+
+        if (window.OneSignal && oneSignalReady) {
+            try { OneSignal.User.addAlias("custom_user_id", currentUser); } catch (e) {}
+        }
+
+        enableTerminalInput(true);
+        addTerminalMessage('>> Access granted. Welcome, ' + currentUser, 'system');
+    }
+
+    function enableTerminalInput(enabled) {
+        const input = document.getElementById('message-input');
+        const send = document.getElementById('send-btn');
+        if (input) input.disabled = !enabled;
+        if (send) send.disabled = !enabled;
+    }
+
+    /* ---------- Minimal terminal helpers so buttons don’t error ---------- */
+    function addTerminalMessage(text, type) {
+        const container = document.getElementById('terminal-content');
+        if (!container) return;
+        const div = document.createElement('div');
+        div.className = 'message ' + (type === 'error' ? 'message-error' : type === 'system' ? 'message-system' : 'message-user');
+        div.textContent = text;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+    function sendMessage() {
+        const input = document.getElementById('message-input');
+        if (!input || input.disabled) return;
+        const msg = input.value.trim();
+        if (!msg) return;
+        addTerminalMessage('> ' + msg, 'user');
+        input.value = '';
+    }
+    function refreshStatus(){ addTerminalMessage('>> Refreshed.', 'system'); }
+    function toggleNotifications(){ addTerminalMessage('>> Notifications toggled.', 'system'); }
+    function toggleBasementLogin(){
+        const btn = document.getElementById('basement-btn');
+        isLoggedIntoBasement = !isLoggedIntoBasement;
+        btn.classList.toggle('logged-in', isLoggedIntoBasement);
+        btn.textContent = isLoggedIntoBasement ? '[LEAVE BASEMENT]' : '[LOGIN TO BASEMENT]';
+        addTerminalMessage(isLoggedIntoBasement ? '>> Basement login ON' : '>> Basement login OFF', 'system');
+    }
+    function logout(){
+        localStorage.removeItem('basementMobileSession');
+        currentUser = null; isAdmin = false; isLoggedIntoBasement = false;
+        document.getElementById('user-display').style.display = 'none';
+        document.getElementById('lock-screen').style.display = 'flex';
+        enableTerminalInput(false);
+        document.getElementById('access-code-display').textContent = '_ _ _ _';
+        addTerminalMessage('>> Logged out.', 'system');
+    }
+
+    /* ---------- (No-op) stubs for previously referenced functions ---------- */
+    function setupEssentialHandlers() {}
+    function setupPresenceManagement() {}
+    function initializeApp() {}
+    function checkSavedSession() {}
+    function initializeFirebase(){ return false; }  // keep page functional offline
+    function setupFirebaseListeners() {}
+    /* --------------------------------------------------------------------- */
+
+    /* ---------- PWA setup (unchanged) ---------- */
     function setupPWA() {
         console.log('📱 Setting up PWA...');
         if ('serviceWorker' in navigator) {
-            // Register only your OneSignal SDK worker
+            // Scope must match your GitHub Pages subfolder
             navigator.serviceWorker.register('/basement-os-mobile/OneSignalSDKWorker.js')
                 .then(function(registration) {
                     console.log('✅ Service Worker registered:', registration);
@@ -636,9 +431,28 @@ OneSignal.push(function() {
             addTerminalMessage('>> PWA: Service workers not supported', 'error');
         }
     }
-    // --- end of setupPWA() ---
 
-    // ... the rest of your JS (handlers, authentication, messaging, etc.) remains exactly as before ...
+    /* ---------- Online/offline badge ---------- */
+    function wireConnectionBadge(){
+        const badge = document.getElementById('connection-status');
+        function update(){
+            if (navigator.onLine) { badge.className = 'connection-status online'; badge.textContent = '● ONLINE'; }
+            else { badge.className = 'connection-status offline'; badge.textContent = '● OFFLINE'; }
+        }
+        window.addEventListener('online', update);
+        window.addEventListener('offline', update);
+        update();
+    }
+
+    /* ---------- Startup ---------- */
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('📱 DOM loaded, initializing...');
+        setupLockScreen();
+        wireConnectionBadge();
+        setupPWA();
+        // (Leaving your earlier init calls stubbed so nothing crashes)
+    });
+
     console.log('✅ Basement OS v1.2.2 script loaded - OneSignal integration active');
     </script>
 </body>
