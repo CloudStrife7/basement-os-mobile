@@ -197,7 +197,74 @@ TERMINAL INTERFACE READY</div>
 
     <script>
     console.log('🚀 Starting Basement OS Mobile ALPHA v1.2.2 with OneSignal...');
+// ----- helpers to read OneSignal v16 state safely -----
+async function getPushStatus() {
+  if (!window.OneSignal || !oneSignalReady) return { ready:false, optedIn:false, permission:'default', id:null };
+  const permission = await OneSignal.Notifications.getPermission(); // 'granted' | 'denied' | 'default'
+  const optedIn = await OneSignal.User.PushSubscription.optedIn;   // boolean
+  const id = await OneSignal.User.PushSubscription.id;             // string | null
+  return { ready:true, optedIn, permission, id };
+}
 
+// Call this after a successful keypad login to tag the user
+async function identifyOneSignalUser() {
+  if (!window.OneSignal || !oneSignalReady || !currentUser) return;
+  try {
+    OneSignal.User.addAlias("custom_user_id", currentUser);
+    addTerminalMessage(">> OneSignal: user linked: " + currentUser, "system");
+  } catch(e) {
+    addTerminalMessage(">> OneSignal: alias error", "error");
+  }
+}
+
+// Replace your current toggleNotifications() with this one
+async function toggleNotifications() {
+  const status = await getPushStatus();
+
+  if (!status.ready) {
+    addTerminalMessage(">> OneSignal not ready yet. Try again.", "error");
+    return;
+  }
+
+  // If permission not granted yet, ask for it first
+  if (status.permission !== "granted") {
+    addTerminalMessage(">> Requesting notification permission…", "system");
+    try {
+      const res = await OneSignal.Notifications.requestPermission(); // returns 'granted'|'denied'|'default'
+      if (res !== "granted") {
+        addTerminalMessage(">> Permission not granted (" + res + ")", "error");
+        return;
+      }
+    } catch (e) {
+      addTerminalMessage(">> Permission request failed", "error");
+      return;
+    }
+  }
+
+  // Toggle subscribe state
+  try {
+    const currentlyOn = await OneSignal.User.PushSubscription.optedIn;
+    if (!currentlyOn) {
+      await OneSignal.User.PushSubscription.optIn();
+      const id = await OneSignal.User.PushSubscription.id;
+      addTerminalMessage(">> Push ON (id: " + (id || "n/a") + ")", "system");
+    } else {
+      await OneSignal.User.PushSubscription.optOut();
+      addTerminalMessage(">> Push OFF", "system");
+    }
+  } catch (e) {
+    addTerminalMessage(">> Toggle failed: " + (e && e.message ? e.message : e), "error");
+  }
+}
+
+// (Optional) show status on page load so you can verify quickly
+document.addEventListener('DOMContentLoaded', async () => {
+  const s = await getPushStatus();
+  addTerminalMessage(">> Push status: permission=" + s.permission + ", optedIn=" + s.optedIn, "system");
+});
+
+// After a correct keypad code, we already do addAlias in your verifyAccessCode()
+// Call identifyOneSignalUser() there too (right after setting currentUser) if you want explicit logging
     // Firebase Configuration (Database only)
     const firebaseConfig = {
         apiKey: "AIzaSyCmp0gJNFkRqUMpmeV_yk9batETciCiON8",
